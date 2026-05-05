@@ -1,0 +1,63 @@
+SOUL-CYCLE — QUICKSTART GUIDE
+===============================
+
+// WHAT IS THIS?
+Procedural life simulation. Live multiple lives across eras (Ancient → Far Future), each ending in death. Accumulate soul fragments that seed your next incarnation.
+
+// CORE MECHANICS (5 ways to interact)
+
+[1] CRISIS DECISIONS
+When CRISIS appears, you have 4 seconds to choose:
+  A = Intervene (risk death/contagion)
+  B = Pray (risk nothing happens)
+  C = Watch (do nothing, risk survivor's guilt)
+Timer auto-selects Watch. Press key or click.
+
+[2] FRAGMENT WHISPERS
+When a past-life fragment whispers, a panel appears at bottom of viewport:
+  Y = Act (new event fires, biased by fragment type/tags)
+  N = Ignore (whisper fades, no event)
+Panel auto-dismisses after 8 seconds.
+
+[3] END LIFE (Tactical Exit)
+Click DIE NOW to end the current life early.
+If you have resources (Con●○○ Vit●○○ Mom●○○ dots), a confirmation appears — confirming depletes ALL resources to 0.
+Resources build through events: connection from relationships, vitality from health, momentum from achievements.
+
+[4] SPEED CONTROLS
+SLOW / NORMAL / FAST buttons control event firing speed.
+Slow down during crises to think. Speed up during calm.
+
+[5] NEW LIFE
+Click NEW LIFE to start a new incarnation.
+Soul state (fragments, anchors, unlocks) persists between lives.
+New life is rolled from eras available based on your fragment count.
+
+// J-CURVE MORTALITY
+The curve shows mortality risk by age. Most die in infancy or old age.
+Middle years are dangerous due to war, plague, violence.
+Curve animates as you live through events.
+
+// FRAGMENT SYSTEM
+On death, 3-5 fragments are extracted: death imprint, relationship memory, emotional tone, memorable event, random whisper.
+Fragments with strength >= 0.6 become visible in the pool.
+Fragments recurring across 2+ lives become ANCHORS (★) — stronger narrative seeds.
+Era unlocks at thresholds: 3=Early Modern, 7=Industrial, 12=Modern, 18=Near Future, 25=Far Future.
+
+// WHAT MAKES IT INTERESTING
+- No two lives are the same — era, name, location, events all random
+- Crisis decisions meaningfully affect your cascade trajectory
+- Fragment whispers give agency over which past-life imprints influence current life
+- Life arc chains (GRIEF/LOVE/DREAD/WONDER/RAGE/GRACE) emerge as themes
+- Anchors create throughlines — same emotional imprints surfacing in different eras
+
+// QUICK TEST WALKTHROUGH
+1. Open index.html in browser
+2. Click NEW LIFE
+3. Read events, watch the curve
+4. If CRISIS appears: pick A/B/C
+5. If whisper panel appears: Y or N
+6. Let life run, watch resources build
+7. Click DIE NOW or wait for natural death
+8. Read death card, see fragments collected
+9. Click NEW LIFE again — new era/life begins
