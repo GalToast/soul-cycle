@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>SOUL CYCLE</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -509,6 +509,38 @@ header h1 span { color: var(--amber); }
   background: var(--bg-card-hover);
   color: var(--text-secondary);
   border-color: var(--text-dim);
+}
+
+/* ── Modal Overlay Base ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 5, 8, 0.92);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  animation: modal-fade-in 0.4s ease;
+}
+
+.modal-overlay.hidden { display: none; }
+.modal-overlay.visible { display: flex; }
+
+@keyframes modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
 }
 
 /* ── Death Overlay ── */
@@ -1032,13 +1064,863 @@ header h1 span { color: var(--amber); }
   letter-spacing: 0.1em;
 }
 
-.crisis-skip-hint {
+  .crisis-skip-hint {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    text-align: center;
+    margin-top: 8px;
+    opacity: 0.6;
+  }
+
+  /* ── Museum Modal ── */
+  .museum-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 5, 8, 0.95);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+    animation: museum-fade-in 0.4s ease;
+  }
+
+  .museum-overlay.visible { display: flex; }
+
+  @keyframes museum-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .museum-content {
+    background: var(--bg-card);
+    border: 1px solid var(--amber-dim);
+    border-radius: 12px;
+    padding: 0;
+    max-width: 900px;
+    width: 95%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    animation: museum-card-appear 0.5s ease 0.1s both;
+    overflow: hidden;
+  }
+
+  @keyframes museum-card-appear {
+    from { opacity: 0; transform: scale(0.96) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .museum-header {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    gap: 16px;
+  }
+
+  .museum-header h2 {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--amber);
+    letter-spacing: 0.2em;
+    margin: 0;
+  }
+
+  .museum-stats {
+    display: flex;
+    gap: 12px;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    margin-left: auto;
+  }
+
+  .btn-close-museum {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-deep);
+    color: var(--text-secondary);
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .btn-close-museum:hover {
+    border-color: var(--text-dim);
+    color: var(--text-primary);
+  }
+
+  .museum-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 8px 20px;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .museum-tab {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-deep);
+    color: var(--text-dim);
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+
+  .museum-tab:hover { color: var(--text-secondary); border-color: var(--text-dim); }
+  .museum-tab.active { background: var(--amber-glow); border-color: var(--amber); color: var(--amber); }
+
+  .museum-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+  }
+
+  .museum-panel { display: none; }
+  .museum-panel.active { display: block; }
+
+  .museum-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-dim);
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    font-style: italic;
+  }
+
+  /* Life Gallery */
+  .life-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .life-card {
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .life-card:hover {
+    border-color: var(--amber-dim);
+    background: var(--bg-card-hover);
+  }
+
+  .life-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .life-card-name {
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .life-card-num {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--text-dim);
+  }
+
+  .life-card-meta {
+    display: flex;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--text-secondary);
+  }
+
+  .life-card-chain {
+    margin-top: 6px;
+    padding-left: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* Event Archive */
+  .event-archive-controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .event-search {
+    flex: 1;
+    min-width: 160px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    outline: none;
+  }
+
+  .event-search:focus { border-color: var(--amber-dim); }
+
+  .event-filter-select {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-deep);
+    color: var(--text-secondary);
+    outline: none;
+    cursor: pointer;
+  }
+
+  .event-archive-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
+  .archive-event-item {
+    padding: 10px 12px;
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: default;
+  }
+
+  .archive-event-title {
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .archive-event-meta {
+    display: flex;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--text-dim);
+  }
+
+  .archive-event-tags {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+
+  .event-tag {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+
+  /* Fragment Collection */
+  .fragment-type-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .fragment-type-tab {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    padding: 5px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-deep);
+    color: var(--text-dim);
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.15s;
+  }
+
+  .fragment-type-tab:hover { color: var(--text-secondary); }
+  .fragment-type-tab.active { border-color: var(--cyan-dim); color: var(--cyan); background: var(--cyan-dim); }
+
+  .fragment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+  }
+
+  .fragment-card {
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+  }
+
+  .fragment-card.small { padding: 8px 10px; }
+
+  .fragment-type-badge {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--cyan);
+    margin-bottom: 4px;
+  }
+
+  .fragment-value {
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    font-style: italic;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin-bottom: 6px;
+  }
+
+  .fragment-strength {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    color: var(--text-dim);
+  }
+
+  .fragment-origin {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .fragment-anchor-badge {
+    display: inline-block;
+    margin-top: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    color: var(--amber);
+    border: 1px solid var(--amber-dim);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  /* Chain Exhibition */
+  .chain-exhibition {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .chain-recap-card {
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+
+  .chain-recap-header {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .chain-recap-life {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+
+  .chain-recap-events { display: flex; flex-direction: column; gap: 6px; }
+
+  .chain-recap-event {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0 4px 8px;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+
+  .chain-recap-event-title { flex: 1; }
+  .chain-recap-event-age { font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-dim); }
+
+  /* Achievement Hall */
+  .achievement-hall { display: flex; flex-direction: column; gap: 24px; }
+
+  .achievement-section h4 {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+
+  .achievement-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+  }
+
+  .achievement-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+  }
+
+  .achievement-item.earned { border-color: var(--amber-dim); }
+  .achievement-item.locked { opacity: 0.4; }
+
+  .achievement-icon { font-size: 1rem; }
+  .achievement-icon.silhouette { filter: grayscale(1) brightness(0.4); }
+  .achievement-label.silhouette { color: var(--text-dim); }
+
+  /* Era Statistics */
+  .era-stats-container { display: flex; flex-direction: column; gap: 16px; }
+
+  .era-stats-summary {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+  }
+
+  .era-pie-container { }
+
+  .era-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .era-bar-label {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    width: 100px;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .era-bar-track {
+    flex: 1;
+    height: 12px;
+    background: var(--bg-deep);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .era-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.5s ease;
+  }
+
+  .era-bar-count {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--text-secondary);
+    width: 60px;
+    text-align: right;
+  }
+
+  .era-avg-age {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    color: var(--text-dim);
+    width: 70px;
+    text-align: right;
+  }
+
+  /* Era Statues / Memorials */
+  .era-statues {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .era-statue {
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+  }
+
+  .era-statue.locked { opacity: 0.35; }
+
+  .statue-icon {
+    font-size: 2.5rem;
+    line-height: 1;
+  }
+
+  .statue-title {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .statue-theme {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .statue-desc {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    font-style: italic;
+    line-height: 1.4;
+  }
+
+  .statue-count {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    color: var(--text-dim);
+  }
+
+  /* Museum Life Detail */
+  .museum-life-detail {
+    background: var(--bg-card);
+    border: 1px solid var(--cyan-dim);
+    border-radius: 12px;
+    padding: 28px 32px;
+    max-width: 600px;
+    width: 95%;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+
+  .museum-life-detail h2 {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--amber);
+    letter-spacing: 0.15em;
+    margin-bottom: 16px;
+  }
+
+  .museum-life-detail h3 {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin: 16px 0 8px;
+  }
+
+  .life-detail-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .detail-row {
+    display: flex;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+  }
+
+  .detail-label {
+    color: var(--text-dim);
+    width: 100px;
+    flex-shrink: 0;
+  }
+
+  .detail-value { color: var(--text-secondary); }
+
+  .life-events-section { margin-top: 12px; }
+
+  .life-events-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .life-event-item {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: baseline;
+    padding: 6px 8px;
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  .life-event-item.death-event { border-left: 2px solid var(--red-dim); }
+
+  .life-event-item .event-age {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--text-dim);
+  }
+
+  .life-event-item .event-title { color: var(--text-primary); flex: 1; }
+
+  .life-event-item .event-tags { width: 100%; display: flex; gap: 4px; flex-wrap: wrap; margin-top: 2px; }
+
+  .life-fragments-section { margin-top: 12px; }
+
+  .life-fragments-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+  }
+
+  .life-chain-section { margin-top: 12px; }
+
+  .chain-recap-display {
+    padding: 10px 12px;
+    background: var(--bg-deep);
+    border-radius: 6px;
+  }
+
+  .chain-recap-title {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .chain-event-line {
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    padding: 3px 0 3px 8px;
+  }
+
+  .btn-close-modal {
+    margin-top: 16px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.15s;
+  }
+
+  .btn-close-modal:hover {
+    border-color: var(--text-dim);
+    color: var(--text-primary);
+  }
+
+/* ── Title Screen ── */
+#title-screen {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 5, 8, 0.92);
+  z-index: 50;
+  align-items: center;
+  justify-content: center;
+}
+
+#title-screen.visible { display: flex; }
+
+.title-container {
+  text-align: center;
+  padding: 40px;
+}
+
+.title-container .game-title {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.title-container .game-tagline {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 300;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-bottom: 32px;
+}
+
+.title-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.title-buttons .btn-new-game,
+.title-buttons .btn-continue-game,
+.title-buttons .btn-museum,
+.title-buttons .btn-how-to-play {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  padding: 12px 32px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-transform: uppercase;
+  min-width: 200px;
+  transition: all 0.15s;
+}
+
+.title-buttons .btn-new-game:hover,
+.title-buttons .btn-continue-game:hover,
+.title-buttons .btn-museum:hover,
+.title-buttons .btn-how-to-play:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--text-dim);
+  color: var(--text-primary);
+}
+
+.title-buttons .btn-museum {
+  border-color: var(--amber-dim);
+  color: var(--amber);
+}
+
+.title-buttons .btn-museum:hover {
+  background: var(--amber-glow);
+  border-color: var(--amber);
+}
+
+/* ── Achievement Toasts ── */
+.achievement-toast {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 2px solid var(--text-dim);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  z-index: 200;
+  opacity: 0;
+  transform: translateX(120%) scale(0.9);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+.achievement-toast.show {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+}
+
+.achievement-toast.achievement-bronze {
+  border-color: #cd7f32;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(205, 127, 50, 0.3), inset 0 0 20px rgba(205, 127, 50, 0.1);
+}
+
+.achievement-toast.achievement-silver {
+  border-color: #c0c0c0;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(192, 192, 192, 0.3), inset 0 0 20px rgba(192, 192, 192, 0.1);
+}
+
+.achievement-toast.achievement-gold {
+  border-color: #ffd700;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 215, 0, 0.4), inset 0 0 30px rgba(255, 215, 0, 0.15);
+  animation: gold-glow 2s ease-in-out infinite;
+}
+
+.achievement-toast.achievement-platinum {
+  border-color: #e5e4e2;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 40px rgba(229, 228, 226, 0.5), inset 0 0 40px rgba(229, 228, 226, 0.2);
+  animation: platinum-shimmer 3s ease-in-out infinite;
+}
+
+@keyframes gold-glow {
+  0%, 100% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 215, 0, 0.4), inset 0 0 30px rgba(255, 215, 0, 0.15); }
+  50% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 50px rgba(255, 215, 0, 0.6), inset 0 0 40px rgba(255, 215, 0, 0.25); }
+}
+
+@keyframes platinum-shimmer {
+  0%, 100% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 40px rgba(229, 228, 226, 0.5), inset 0 0 40px rgba(229, 228, 226, 0.2); }
+  50% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 60px rgba(229, 228, 226, 0.7), inset 0 0 50px rgba(229, 228, 226, 0.3); }
+}
+
+.achievement-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+.achievement-bronze .achievement-icon { color: #cd7f32; }
+.achievement-silver .achievement-icon { color: #c0c0c0; }
+.achievement-gold .achievement-icon { color: #ffd700; }
+.achievement-platinum .achievement-icon { color: #e5e4e2; }
+
+.achievement-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.achievement-label {
   font-family: var(--font-mono);
   font-size: 0.6rem;
   color: var(--text-dim);
-  text-align: center;
-  margin-top: 8px;
-  opacity: 0.6;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.achievement-name {
+  font-family: var(--font-sans);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.achievement-desc {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
 }
 
 /* ── Responsive ── */
@@ -1048,6 +1930,14 @@ header h1 span { color: var(--amber); }
   #death-card { padding: 24px 20px; margin: 16px; }
   .phase-segment { font-size: 0.5rem; padding: 4px 2px; }
   #crisis-card { padding: 20px 16px; }
+  .title-container .game-title { font-size: 1.4rem; }
+  .title-buttons .btn-new-game,
+  .title-buttons .btn-continue-game,
+  .title-buttons .btn-museum,
+  .title-buttons .btn-how-to-play { min-width: 160px; padding: 10px 20px; }
+  .achievement-toast { right: 12px; top: 12px; padding: 12px 14px; gap: 10px; }
+  .achievement-icon { font-size: 1.8rem; }
+  .achievement-name { font-size: 0.95rem; }
 }
 </style>
 </head>
@@ -1136,6 +2026,8 @@ header h1 span { color: var(--amber); }
       <button class="speed-btn" data-speed="fast">FAST</button>
     </div>
   </div>
+
+  <div id="title-screen" class="hidden"></div>
 </div>
 
 <div id="crisis-overlay">
@@ -1176,1891 +2068,27 @@ header h1 span { color: var(--amber); }
       <span id="death-life-num"></span>
     </div>
     <button class="btn primary" id="btn-new-life-overlay">NEW LIFE</button>
+    <button class="btn secondary" id="btn-view-soul">VIEW SOUL</button>
     <button class="btn" id="btn-close-death">CLOSE</button>
   </div>
 </div>
 
-<script>
-// ═══════════════════════════════════════════════════════════
-// INLINED MODULES (CommonJS → global scope)
-// ═══════════════════════════════════════════════════════════
-
-// ── Chain / Life Arc System ──
-const THEME_LABELS = {
-  GRIEF: ['The losses accumulated', 'Grief follows grief', 'A weight builds', 'Each goodbye echoes'],
-  LOVE: ['Love was the throughline', 'Someone mattered', 'Hearts stay', 'Connection outlasts'],
-  DREAD: ['Something was always wrong', 'Dread built like interest', 'The worst was coming', 'Fear was justified'],
-  WONDER: ['Discovery marked you', 'The world kept surprising', 'Awe interrupted', 'Curiosity was survival'],
-  RAGE: ['Anger was your compass', 'Rage structured everything', 'You burned', 'Indignation defined'],
-  GRACE: ['Acceptance came slowly', 'You learned to let go', 'Peace was possible', 'Grace found you'],
-  NONE: null,
-};
-
-const CHAIN_COLORS = {
-  GRIEF: '#ff4466',
-  LOVE: '#ff66aa',
-  DREAD: '#9944ff',
-  WONDER: '#44aaff',
-  RAGE: '#ff6600',
-  GRACE: '#aaaaaa',
-};
-
-const CHAIN_TAG_MAP = {
-  GRIEF: ['grief', 'sadness', 'sorrow', 'mourning', 'loss', 'despair', 'melancholy'],
-  LOVE: ['connection', 'tenderness', 'love', 'affection', 'devotion', 'passion', 'romance'],
-  DREAD: ['dread', 'vertigo', 'fear', 'terror', 'anxiety', 'panic', 'horror'],
-  WONDER: ['wonder', 'awe', 'discovery', 'curiosity', 'marvel'],
-  RAGE: ['rage', 'anger', 'betrayal', 'fury', 'wrath', 'resentment'],
-  GRACE: ['grace', 'resignation', 'acceptance', 'peace', 'surrender'],
-};
-
-const CHAIN_AGE_WINDOW = 10;
-
-function getChainTypeForTag(tag) {
-  if (!tag) return null;
-  const t = tag.toLowerCase();
-  for (const [chainType, tags] of Object.entries(CHAIN_TAG_MAP)) {
-    if (tags.some(ct => t.includes(ct))) return chainType;
-  }
-  return null;
-}
-
-function getChainTypeForEvent(event) {
-  if (!event || !event.cascadeTags || event.cascadeTags.length === 0) return null;
-  for (const tag of event.cascadeTags) {
-    const chainType = getChainTypeForTag(tag);
-    if (chainType) return chainType;
-  }
-  return null;
-}
-
-function detectChain(event, lifeEvents) {
-  if (!event || !event.cascadeTags || event.cascadeTags.length === 0) {
-    return { chainUpdated: false, chainEvent: false, chainType: null };
-  }
-
-  const eventChainType = getChainTypeForEvent(event);
-  if (!eventChainType) {
-    return { chainUpdated: false, chainEvent: false, chainType: null };
-  }
-
-  const eventAge = event.age || 0;
-  const recentEvents = lifeEvents.filter(e => {
-    if (e === event) return false;
-    const eAge = e.age || 0;
-    return Math.abs(eAge - eventAge) <= CHAIN_AGE_WINDOW;
-  });
-
-  const matchingChainEvents = recentEvents.filter(e => getChainTypeForEvent(e) === eventChainType);
-
-  if (matchingChainEvents.length === 0) {
-    return { chainUpdated: false, chainEvent: false, chainType: eventChainType };
-  }
-
-  return { chainUpdated: true, chainEvent: true, chainType: eventChainType };
-}
-
-function generateLifeTheme(lifeEvents) {
-  if (!lifeEvents || lifeEvents.length < 2) return null;
-
-  const chainCounts = { GRIEF: 0, LOVE: 0, DREAD: 0, WONDER: 0, RAGE: 0, GRACE: 0 };
-
-  for (const event of lifeEvents) {
-    const ct = getChainTypeForEvent(event);
-    if (ct) chainCounts[ct]++;
-  }
-
-  let maxChain = null;
-  let maxCount = 0;
-  for (const [chain, count] of Object.entries(chainCounts)) {
-    if (count > maxCount) { maxCount = count; maxChain = chain; }
-  }
-
-  if (!maxChain || maxCount < 2) return null;
-
-  const seen = new Set();
-  const chainEvents = lifeEvents.filter(e => {
-    if (seen.has(e.id)) return false;
-    seen.add(e.id);
-    return getChainTypeForEvent(e) === maxChain;
-  });
-  const labels = THEME_LABELS[maxChain];
-  const label = labels[Math.floor(Math.random() * labels.length)];
-
-  return { theme: maxChain, chain: chainEvents, label, events: chainEvents };
-}
-
-function renderChainStrip(activeChain) {
-  const strip = document.getElementById('chain-strip');
-  const themeHeader = document.getElementById('life-theme-header');
-  if (!strip) return;
-
-  if (!activeChain || !activeChain.type || activeChain.events.length === 0) {
-    strip.innerHTML = '';
-    themeHeader.classList.remove('visible');
-    return;
-  }
-
-  themeHeader.classList.add('visible');
-
-  const color = CHAIN_COLORS[activeChain.type] || '#ffffff';
-  const events = activeChain.events;
-  const totalNodes = events.length + 1;
-
-  let html = `<span class="chain-type-label" style="color:${color}">${activeChain.type} CHAIN</span>`;
-  html += '<span class="chain-nodes" style="color:' + color + '">';
-
-  for (let i = 0; i < totalNodes; i++) {
-    if (i > 0) {
-      html += '<span class="chain-line"></span>';
-    }
-    const isFilled = i < events.length;
-    const isCurrent = i === events.length;
-    const nodeClass = isFilled ? 'filled' : (isCurrent ? 'current' : '');
-    html += `<span class="chain-node ${nodeClass}"></span>`;
-  }
-
-  html += '</span>';
-  strip.innerHTML = html;
-
-  const labelEl = document.getElementById('life-theme-label');
-  if (labelEl && activeChain.label) {
-    labelEl.textContent = activeChain.label;
-  }
-}
-
-function updateLifeSummaryBar() {
-  const bar = document.getElementById('life-summary-bar');
-  if (!bar) return;
-
-  const soul = state.soul;
-  if (!soul) {
-    bar.classList.remove('visible');
-    return;
-  }
-
-  bar.classList.add('visible');
-
-  const lives = soul.livesLived || 0;
-  const years = soul.totalYearsLived || 0;
-  const era = state.currentLife ? (ERAS[state.currentLife.era]?.label || state.currentLife.era) : '---';
-  const theme = state.lifeTheme && state.lifeTheme.theme ? state.lifeTheme.theme : '---';
-
-  document.getElementById('summary-lives').textContent = `Lives lived: ${lives}`;
-  document.getElementById('summary-years').textContent = `Total years: ${years}`;
-  document.getElementById('summary-era').textContent = `Era: ${era}`;
-  document.getElementById('summary-theme').textContent = `Theme: ${theme}`;
-}
-
-function showChainRecapOnDeath(lifeEvents) {
-  const recapEl = document.getElementById('death-chain-recap');
-  const titleEl = document.getElementById('death-chain-recap-title');
-  const eventsEl = document.getElementById('death-chain-events');
-
-  if (!recapEl) return;
-
-  const theme = generateLifeTheme(lifeEvents);
-  if (!theme || theme.events.length < 2) {
-    recapEl.classList.remove('visible');
-    return;
-  }
-
-  recapEl.classList.add('visible');
-
-  const color = CHAIN_COLORS[theme.theme] || '#ffffff';
-  titleEl.textContent = `${theme.theme} CHAIN — ${theme.label}`;
-
-  let html = '';
-  const seenIds = new Set();
-  for (let i = 0; i < theme.events.length; i++) {
-    const e = theme.events[i];
-    if (seenIds.has(e.id)) continue;
-    seenIds.add(e.id);
-    if (i > 0) {
-      html += `<div class="chain-event-connector" style="color:${color}">`;
-      html += `<svg viewBox="0 0 12 12"><line x1="0" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1.5"/>`;
-      html += `<circle cx="6" cy="6" r="3" fill="currentColor"/></svg>`;
-      html += '</div>';
-    }
-    const shortDesc = e.description ? e.description.substring(0, 60) + (e.description.length > 60 ? '…' : '') : e.title;
-    html += `<div class="chain-event-line" style="border-left: 2px solid ${color}; padding-left: 8px;">`;
-    html += `<strong>${e.title}</strong> — "${shortDesc}"</div>`;
-  }
-  eventsEl.innerHTML = html;
-}
-
-// ── Fragment System ──
-const MAX_ANCHORS = 5;
-const ANCHOR_RECURRENCE_THRESHOLD = 2;
-const WHISPER_CHANCE = 0.4;
-const ERA_UNLOCK_THRESHOLDS = [
-  { threshold: 3, era: 'EARLY_MODERN' },
-  { threshold: 7, era: 'INDUSTRIAL' },
-  { threshold: 12, era: 'MODERN' },
-  { threshold: 18, era: 'NEAR_FUTURE' },
-  { threshold: 25, era: 'FAR_FUTURE' },
-];
-const FRAGMENT_TYPES = ['tone','fear','love','location','name','object','word','warning'];
-
-const DEATH_TEMPLATES = {
-  violent: { type: 'fear', pool: ['the water was black and silent','a sound like breaking glass that never stopped echoing','hands that couldn\'t hold on','the sky went red before everything went quiet','a face you couldn\'t recognize in the smoke','the taste of copper and the feeling of falling','a door that closed too fast to reach','the last thing you saw was something beautiful','blood on the floor looked like a map to somewhere you\'d been','the sound of your own name spoken by a stranger'] },
-  peaceful: { type: 'tone', pool: ['the light was warm and the room smelled like rain','a hand holding yours that you didn\'t want to let go of','the way the curtains moved in the last breeze','a song you almost remembered the words to','someone crying softly in the next room','the feeling of a weight you didn\'t know you were carrying lifting','a smile from someone who had been waiting','the last breath that felt like the first','a whisper that sounded like forgiveness','the color of the sky at the exact right moment'] },
-};
-
-const RELATIONSHIP_TEMPLATES = {
-  lover: { type: 'love', pool: ['loved someone who was leaving anyway','a face with kind eyes that appeared in every crowd','the warmth of a shoulder you slept on for years','a promise made in a language you only half understood','the way they said your name when no one was listening','someone who knew the shape of your silence','a hand that fit perfectly in yours and then didn\'t','the last thing they said to you that you replayed every night','a laugh that made the room feel smaller and safer','eyes that looked at you like you were the only real thing'] },
-  family: { type: 'love', pool: ['a voice that called you home even when you were already there','the weight of a child sleeping on your chest','someone who shared your face but not your choices','a name passed down like a burden you didn\'t ask for','the way your mother\'s hands looked when she was tired','a sibling who knew which secrets were safe to keep','the first word your child said and what it meant to you','a family dinner where everyone was pretending','the empty chair at the table that no one mentioned','blood that tied you to people you didn\'t understand'] },
-  friend: { type: 'love', pool: ['someone who stayed when everyone else left','a conversation that lasted until the sun came up','the friend who knew which version of you was real','a shared joke that no one else would understand','the person you called when everything went wrong','a silence between two people that wasn\'t uncomfortable','someone who saw you at your worst and didn\'t flinch','the friend who moved away and never came back','a promise between friends that neither of you kept','the last time you saw them and didn\'t know it was the last time'] },
-  rival: { type: 'warning', pool: ['someone who mirrored your worst self back at you','a rivalry that felt more honest than your friendships','the person who knew exactly how to hurt you','an enemy who respected you more than your allies did','a competition that became the shape of your life','someone you hated because they were what you wanted to be','the rival who forgave you when you didn\'t deserve it','a feud that outlasted everyone who started it','the person who challenged you until you broke or became stronger','an opponent who taught you more than any teacher'] },
-  stranger: { type: 'tone', pool: ['a stranger who changed your life in five minutes','the person on the train who looked at you like they knew','someone you passed every day and never spoke to','a face in a crowd that felt like a memory from another life','the stranger who gave you something you didn\'t know you needed','someone who smiled at you on the worst day of your life','a person you saved or who saved you and then disappeared','the stranger whose name you never learned but whose eyes you remember','someone who existed in your life for a moment and then became a ghost','the person who proved that not everyone is who they seem'] },
-};
-
-const EMOTIONAL_TAG_TEMPLATES = {
-  grief: { type: 'tone', pool: ['the color blue meant something dangerous','heir to nothing twice','a room that felt too big after someone left','the weight of an empty side of the bed','a song that played at the wrong time','the smell of someone\'s coat on a hook by the door','a calendar with a date circled that no longer mattered','the silence after a phone stopped ringing','a habit you couldn\'t break even though the reason was gone','the way the light hit a place where someone used to sit'] },
-  joy: { type: 'tone', pool: ['a moment so bright it cast a shadow on everything after','the feeling of running downhill with the wind at your back','a laugh that came from somewhere deeper than your chest','the taste of something you didn\'t know you were hungry for','a day that felt like it would never end and you wanted it to','the sound of rain when you were exactly where you needed to be','a surprise that felt like the universe was paying attention','the warmth of a room full of people who chose to be there','a realization that hit you like sunlight through clouds','the exact second you knew everything was going to be okay'] },
-  fear: { type: 'fear', pool: ['a word that felt like a warning in a language you don\'t speak','the feeling of being watched by something you couldn\'t see','a door you opened that you wished you hadn\'t','the sound of footsteps behind you that stopped when you stopped','a shadow that moved in a way shadows shouldn\'t','the moment you realized you were alone and didn\'t know how you got there','a place that felt wrong in a way you couldn\'t explain','the feeling of falling in a dream that you carried into waking','a number that kept appearing and you didn\'t know why','the silence before something you knew was coming'] },
-  love: { type: 'love', pool: ['the exact shade of someone\'s eyes in a specific kind of light','a touch that lingered longer than it needed to','the way someone\'s voice changed when they said your name','a gift that was small but meant everything','the feeling of being understood without having to explain','a look across a room that said everything words couldn\'t','the warmth of someone\'s breath on your neck in the cold','a memory so vivid it felt like it was happening now','the way someone\'s hand felt in yours the first time','a promise you made that you weren\'t sure you could keep'] },
-  anger: { type: 'warning', pool: ['a door slammed so hard the walls shook','the words you said that you couldn\'t take back','the moment you realized you were becoming someone you hated','a betrayal that felt like it came from inside your own chest','the sound of your own voice saying something cruel','a fire that started small and consumed everything','the look on someone\'s face when they realized you lied','a bridge you burned that you didn\'t know you\'d need','the silence after you said the thing you\'d been holding in','the feeling of power that came from hurting someone'] },
-  wonder: { type: 'tone', pool: ['the sky looked different that day and you couldn\'t say why','a place that existed in your mind before you ever saw it','the feeling of standing somewhere for the first time and recognizing it','a book that described your life before you lived it','the sound of an instrument you\'d never heard but somehow knew','a dream that felt more real than the day that followed','the moment you understood something you\'d been trying to grasp your whole life','a coincidence so perfect it felt like design','the feeling of being exactly where you were supposed to be','a sight so beautiful it made you forget what you were afraid of'] },
-};
-
-const MEMORABLE_EVENT_TEMPLATES = {
-  birth: { type: 'tone', pool: ['the first breath that tasted like the world','a cry that announced you were here and you were angry about it','hands that caught you before you knew what falling meant','the light that hurt your eyes and then became everything','a name given to you before you had any say in it'] },
-  comingOfAge: { type: 'tone', pool: ['the day you realized your parents were just people','a mirror that showed you someone you didn\'t recognize','the first time you made a choice that couldn\'t be undone','a body that changed without asking your permission','the moment childhood ended and no one told you it was happening'] },
-  achievement: { type: 'tone', pool: ['the moment you proved everyone wrong','a trophy that meant less than the look on your mother\'s face','the climb that changed you more than the view from the top','a success that felt like it belonged to someone else','the thing you built with your hands that outlasted you'] },
-  loss: { type: 'fear', pool: ['the emptiness that followed a presence you took for granted','a goodbye that you didn\'t know was a goodbye at the time','the last photograph of someone who wouldn\'t be in any more','a house that became a museum of someone who left','the first holiday without the person who made it matter'] },
-  betrayal: { type: 'warning', pool: ['the face of someone you trusted when the truth came out','a secret that was never yours to keep','the moment you realized the ground beneath you was hollow','a lie so big it became the foundation of everything','the person who knew where to strike and didn\'t hesitate'] },
-  revelation: { type: 'word', pool: ['a truth that arrived too late to change anything','the word that unlocked a door you didn\'t know was locked','a letter that rewrote everything you thought you knew','a confession that felt like a gift and a curse at the same time','the moment the pieces clicked and you wished they hadn\'t'] },
-};
-
-const WHISPER_TEMPLATES = [
-  { type: 'tone', value: 'a hum you couldn\'t place but felt in your teeth' },
-  { type: 'tone', value: 'the smell of ozone before something important happened' },
-  { type: 'warning', value: 'a number that appeared too often to be random' },
-  { type: 'location', value: 'a street corner that felt like the center of something' },
-  { type: 'object', value: 'a coin you found and kept without knowing why' },
-  { type: 'name', value: 'a name you heard once and couldn\'t forget' },
-  { type: 'tone', value: 'the way the light fell at a specific hour of a specific day' },
-  { type: 'fear', value: 'a sound behind you that wasn\'t there when you turned around' },
-  { type: 'love', value: 'the ghost of a touch on your shoulder from someone who wasn\'t there' },
-  { type: 'word', value: 'a word in a language you don\'t speak that felt like home' },
-  { type: 'object', value: 'a key to a door you never found' },
-  { type: 'location', value: 'a room you dreamed about before you ever saw it' },
-  { type: 'tone', value: 'the taste of something you\'d never eaten but remembered' },
-  { type: 'warning', value: 'a feeling that you were being herded toward something' },
-  { type: 'name', value: 'a face that belonged to a name you almost knew' },
-];
-
-let _fragIdCounter = 0;
-function fragGenerateId() { _fragIdCounter += 1; return `frag_${Date.now()}_${_fragIdCounter}`; }
-function clamp(val, min, max) { return Math.max(min, Math.min(max, val)); }
-function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-
-function getMostFrequentTag(events) {
-  const tagCounts = {};
-  for (const event of events) {
-    if (event.cascadeTags && Array.isArray(event.cascadeTags)) {
-      for (const tag of event.cascadeTags) { tagCounts[tag] = (tagCounts[tag] || 0) + 1; }
-    }
-  }
-  let maxTag = null, maxCount = 0;
-  for (const [tag, count] of Object.entries(tagCounts)) { if (count > maxCount) { maxCount = count; maxTag = tag; } }
-  return maxTag;
-}
-
-function getMostIntenseEvent(events) {
-  let best = null, bestIntensity = -1;
-  for (const event of events) { const intensity = event.intensity || event.emotionalIntensity || 0; if (intensity > bestIntensity) { bestIntensity = intensity; best = event; } }
-  return best;
-}
-
-function getDefiningRelationship(events) {
-  let best = null, bestScore = -1;
-  for (const event of events) {
-    if (event.relationship && event.relationshipSignificance) {
-      const score = event.relationshipSignificance + (event.intensity || 0) * 0.5;
-      if (score > bestScore) { bestScore = score; best = event; }
-    }
-  }
-  return best;
-}
-
-function isViolentDeath(deathEvent) {
-  if (!deathEvent) return false;
-  const cause = (deathEvent.cause || deathEvent.type || deathEvent.category || deathEvent.title || '').toLowerCase();
-  return ['murder','kill','stab','shoot','crash','accident','fall','drown','burn','fire','war','battle','fight','attack','poison','execution','suicide','homicide','violence','blood','wound','injury','fatal','trauma','predator','battlefield','arrow','cannon','plague','fever','rival','hanging','shipwreck','overdose','climate','drone','weapon','malfunction','purge','rejection'].some(kw => cause.includes(kw));
-}
-
-function isPeacefulDeath(deathEvent) {
-  if (!deathEvent) return false;
-  const cause = (deathEvent.cause || deathEvent.type || deathEvent.category || deathEvent.title || '').toLowerCase();
-  return ['old age','natural','peaceful','sleep','slept','passed','quiet','gentle','illness','disease','cancer','heart','organ failure','time','decline','cold','stroke','hospital','gives out'].some(kw => cause.includes(kw));
-}
-
-function getRelationshipType(event) {
-  if (!event || !event.relationship) return 'stranger';
-  const rel = (event.relationship.type || event.relationship.role || event.relationship || '').toLowerCase();
-  if (['lover','partner','spouse','wife','husband','romantic'].some(k => rel.includes(k))) return 'lover';
-  if (['family','parent','child','mother','father','son','daughter','sibling','brother','sister','relative'].some(k => rel.includes(k))) return 'family';
-  if (['friend','best friend','companion','ally','buddy','pal'].some(k => rel.includes(k))) return 'friend';
-  if (['rival','enemy','opponent','adversary','competitor','nemesis'].some(k => rel.includes(k))) return 'rival';
-  return 'stranger';
-}
-
-function getEmotionCategory(tag) {
-  if (!tag) return 'wonder';
-  const t = tag.toLowerCase();
-  if (['grief','sadness','sorrow','mourning','loss','despair','melancholy'].some(k => t.includes(k))) return 'grief';
-  if (['joy','happiness','bliss','euphoria','delight','ecstasy','contentment'].some(k => t.includes(k))) return 'joy';
-  if (['fear','terror','dread','anxiety','panic','horror','phobia'].some(k => t.includes(k))) return 'fear';
-  if (['love','affection','devotion','passion','tenderness','adoration','romance'].some(k => t.includes(k))) return 'love';
-  if (['anger','rage','fury','wrath','resentment','bitterness','hostility'].some(k => t.includes(k))) return 'anger';
-  return 'wonder';
-}
-
-function getEventCategory(event) {
-  if (!event) return 'revelation';
-  const cat = (event.category || event.type || event.name || '').toLowerCase();
-  if (['birth','born','arrival','entry'].some(k => cat.includes(k))) return 'birth';
-  if (['comingofage','coming-of-age','coming of age','adolescence','puberty','maturity'].some(k => cat.includes(k))) return 'comingOfAge';
-  if (['achievement','success','victory','accomplishment','triumph','award','recognition'].some(k => cat.includes(k))) return 'achievement';
-  if (['loss','death','grief','mourning','bereavement'].some(k => cat.includes(k))) return 'loss';
-  if (['betrayal','treachery','deception','lie','backstab'].some(k => cat.includes(k))) return 'betrayal';
-  return 'revelation';
-}
-
-function createFragment(type, value, strength, origin, cascadeTags, isAnchor) {
-  return { id: fragGenerateId(), type, value, strength: clamp(strength, 0.0, 1.0), origin, isAnchor: isAnchor || false, cascadeTags: cascadeTags || [] };
-}
-
-function extractDeathFragment(deathEvent, soulState, resourceBonus = 0) {
-  if (!deathEvent) return null;
-  const violent = isViolentDeath(deathEvent);
-  const peaceful = isPeacefulDeath(deathEvent);
-  let templatePool, baseStrength;
-  if (violent) { templatePool = DEATH_TEMPLATES.violent.pool; baseStrength = 0.5 + Math.random() * 0.3 + resourceBonus * 0.15; }
-  else if (peaceful) { templatePool = DEATH_TEMPLATES.peaceful.pool; baseStrength = 0.4 + Math.random() * 0.3 + resourceBonus * 0.15; }
-  else { templatePool = DEATH_TEMPLATES.peaceful.pool; baseStrength = 0.3 + Math.random() * 0.3 + resourceBonus * 0.15; }
-  const value = pickRandom(templatePool);
-  const origin = { lifeId: soulState.id || `life_${soulState.livesLived}`, eventId: deathEvent.id || 'death_event', era: deathEvent.era || 'UNKNOWN', age: deathEvent.age || soulState.totalYearsLived || 0 };
-  return createFragment(violent ? 'fear' : 'tone', value, clamp(baseStrength, 0, 1), origin, deathEvent.cascadeTags || [], false);
-}
-
-function extractRelationshipFragment(lifeEvents, soulState, resourceBonus = 0) {
-  const relEvent = getDefiningRelationship(lifeEvents);
-  if (!relEvent) return null;
-  const relType = getRelationshipType(relEvent);
-  const templatePool = RELATIONSHIP_TEMPLATES[relType].pool;
-  const value = pickRandom(templatePool);
-  const significance = relEvent.relationshipSignificance || 0.5;
-  const baseStrength = clamp(0.3 + significance * 0.5 + Math.random() * 0.2 + resourceBonus * 0.15, 0.0, 1.0);
-  const origin = { lifeId: soulState.id || `life_${soulState.livesLived}`, eventId: relEvent.id || 'relationship_event', era: relEvent.era || 'UNKNOWN', age: relEvent.age || 0 };
-  return createFragment('love', value, baseStrength, origin, relEvent.cascadeTags || [], false);
-}
-
-function extractEmotionalTagFragment(lifeEvents, soulState, resourceBonus = 0) {
-  const dominantTag = getMostFrequentTag(lifeEvents);
-  if (!dominantTag) return null;
-  const emotionCategory = getEmotionCategory(dominantTag);
-  const templatePool = EMOTIONAL_TAG_TEMPLATES[emotionCategory].pool;
-  const value = pickRandom(templatePool);
-  const tagCount = lifeEvents.reduce((sum, e) => sum + ((e.cascadeTags || []).filter(t => t.toLowerCase() === dominantTag.toLowerCase()).length), 0);
-  const baseStrength = clamp(0.2 + tagCount * 0.05 + Math.random() * 0.2 + resourceBonus * 0.15, 0.0, 1.0);
-  const mostIntense = getMostIntenseEvent(lifeEvents);
-  const origin = { lifeId: soulState.id || `life_${soulState.livesLived}`, eventId: mostIntense ? mostIntense.id : 'emotional_peak', era: mostIntense ? mostIntense.era : 'UNKNOWN', age: mostIntense ? mostIntense.age : 0 };
-  return createFragment(EMOTIONAL_TAG_TEMPLATES[emotionCategory].type, value, baseStrength, origin, [dominantTag], false);
-}
-
-function extractMemorableEventFragment(lifeEvents, soulState, resourceBonus = 0) {
-  const memorable = getMostIntenseEvent(lifeEvents);
-  if (!memorable) return null;
-  const eventCategory = getEventCategory(memorable);
-  const templatePool = MEMORABLE_EVENT_TEMPLATES[eventCategory].pool;
-  const value = pickRandom(templatePool);
-  const intensity = memorable.intensity || memorable.emotionalIntensity || 0.5;
-  const baseStrength = clamp(0.3 + intensity * 0.4 + Math.random() * 0.2 + resourceBonus * 0.15, 0.0, 1.0);
-  const origin = { lifeId: soulState.id || `life_${soulState.livesLived}`, eventId: memorable.id || 'memorable_event', era: memorable.era || 'UNKNOWN', age: memorable.age || 0 };
-  return createFragment(MEMORABLE_EVENT_TEMPLATES[eventCategory].type, value, baseStrength, origin, memorable.cascadeTags || [], false);
-}
-
-function extractWhisperFragment(soulState) {
-  const template = pickRandom(WHISPER_TEMPLATES);
-  const origin = { lifeId: soulState.id || `life_${soulState.livesLived}`, eventId: 'whisper', era: 'UNKNOWN', age: soulState.totalYearsLived || 0 };
-  return createFragment(template.type, template.value, 0.1 + Math.random() * 0.2, origin, [], false);
-}
-
-function extractFragments(lifeEvents, deathEvent, soulState, resourceBonus = 0) {
-  const newFragments = [];
-  const deathFragment = extractDeathFragment(deathEvent, soulState, resourceBonus);
-  if (deathFragment) newFragments.push(deathFragment);
-  const relationshipFragment = extractRelationshipFragment(lifeEvents, soulState, resourceBonus);
-  if (relationshipFragment) newFragments.push(relationshipFragment);
-  const emotionalTagFragment = extractEmotionalTagFragment(lifeEvents, soulState, resourceBonus);
-  if (emotionalTagFragment) newFragments.push(emotionalTagFragment);
-  const memorableFragment = extractMemorableEventFragment(lifeEvents, soulState, resourceBonus);
-  if (memorableFragment) newFragments.push(memorableFragment);
-  if (Math.random() < WHISPER_CHANCE) { const whisper = extractWhisperFragment(soulState); if (whisper) newFragments.push(whisper); }
-  return { newFragments };
-}
-
-function mergeFragment(soulState, newFragment) {
-  const existing = soulState.fragments.find(f => f.type === newFragment.type && f.value === newFragment.value);
-  if (existing) {
-    const boost = 0.1 + Math.random() * 0.2;
-    existing.strength = clamp(existing.strength + boost, 0.0, 1.0);
-    if (newFragment.strength > existing.strength && !existing.isAnchor) { existing.strength = newFragment.strength; existing.origin = newFragment.origin; }
-    if (newFragment.cascadeTags && newFragment.cascadeTags.length > 0) { for (const tag of newFragment.cascadeTags) { if (!existing.cascadeTags.includes(tag)) existing.cascadeTags.push(tag); } }
-    return existing;
-  }
-  soulState.fragments.push(newFragment);
-  return newFragment;
-}
-
-function evaluateAnchors(soulState) {
-  const currentAnchors = soulState.fragments.filter(f => f.isAnchor);
-  if (currentAnchors.length >= MAX_ANCHORS) return;
-  const recurrenceMap = {};
-  for (const fragment of soulState.fragments) {
-    const key = `${fragment.type}:${fragment.value}`;
-    if (!recurrenceMap[key]) recurrenceMap[key] = { fragment, count: 1, origins: [fragment.origin] };
-    else { recurrenceMap[key].count += 1; recurrenceMap[key].origins.push(fragment.origin); }
-  }
-  for (const [key, data] of Object.entries(recurrenceMap)) {
-    if (data.count >= ANCHOR_RECURRENCE_THRESHOLD && !data.fragment.isAnchor) {
-      if (currentAnchors.length >= MAX_ANCHORS) break;
-      data.fragment.isAnchor = true;
-      data.fragment.strength = clamp(data.fragment.strength + 0.15, 0.0, 1.0);
-      currentAnchors.push(data.fragment);
-    }
-  }
-  soulState.anchors = soulState.fragments.filter(f => f.isAnchor);
-}
-
-function checkEraUnlocks(soulState) {
-  const totalFragments = soulState.fragments.length;
-  const unlocked = new Set(soulState.unlockedEras || ['ANCIENT', 'MEDIEVAL']);
-  for (const { threshold, era } of ERA_UNLOCK_THRESHOLDS) { if (totalFragments >= threshold && !unlocked.has(era)) unlocked.add(era); }
-  soulState.unlockedEras = Array.from(unlocked);
-}
-
-function applyFragmentEffects(soulState, fragments) {
-  if (!soulState.fragments) soulState.fragments = [];
-  if (!soulState.anchors) soulState.anchors = [];
-  if (!soulState.unlockedEras) soulState.unlockedEras = ['ANCIENT', 'MEDIEVAL'];
-  if (!soulState.metaStats) soulState.metaStats = { totalDeaths: 0, violentDeaths: 0, peacefulDeaths: 0, lovesLost: 0, childrenBorn: 0 };
-  for (const fragment of fragments) mergeFragment(soulState, fragment);
-  evaluateAnchors(soulState);
-  checkEraUnlocks(soulState);
-  soulState.livesLived = (soulState.livesLived || 0) + 1;
-}
-
-function createSoulState(id) {
-  return { id: id || `soul_${Date.now()}`, livesLived: 0, totalYearsLived: 0, fragments: [], anchors: [], unlockedEras: ['ANCIENT', 'MEDIEVAL'], metaStats: { totalDeaths: 0, violentDeaths: 0, peacefulDeaths: 0, lovesLost: 0, childrenBorn: 0 } };
-}
-
-// ── Roll System ──
-const ERAS = {
-  ANCIENT: { id: 'ANCIENT', label: 'Ancient', yearRange: [-3000, 499], eventSignature: 'The gods are real here, and they are cruel.', locationPool: [{ region: 'Mesopotamia', city: 'Uruk', country: 'Sumer', weight: 12 },{ region: 'Nile Valley', city: 'Memphis', country: 'Egypt', weight: 14 },{ region: 'Aegean', city: 'Athens', country: 'Greece', weight: 13 },{ region: 'Italian Peninsula', city: 'Rome', country: 'Roman Republic/Empire', weight: 15 },{ region: 'Persian Plateau', city: 'Persepolis', country: 'Achaemenid Persia', weight: 9 }], firstNamePool: { male: [{ name: 'Gilgamesh', weight: 3 },{ name: 'Ramses', weight: 4 },{ name: 'Alexander', weight: 4 },{ name: 'Julius', weight: 4 },{ name: 'Marcus', weight: 3 },{ name: 'Constantine', weight: 3 },{ name: 'Ashoka', weight: 3 },{ name: 'Attila', weight: 3 }], female: [{ name: 'Nefertiti', weight: 4 },{ name: 'Cleopatra', weight: 4 },{ name: 'Hatshepsut', weight: 3 },{ name: 'Helen', weight: 3 },{ name: 'Sappho', weight: 3 },{ name: 'Zenobia', weight: 2 },{ name: 'Boudicca', weight: 3 }] }, lastNamePool: [{ name: 'of Rome', weight: 5 },{ name: 'of Athens', weight: 4 },{ name: 'of Babylon', weight: 3 },{ name: 'the Great', weight: 2 },{ name: '', weight: 10 }], bodyConditions: [{ condition: 'robust', weight: 15 },{ condition: 'healthy', weight: 55 },{ condition: 'sickly', weight: 20 },{ condition: 'disabled', weight: 10 }], socialClasses: [{ cls: 'slave', weight: 25 },{ cls: 'peasant', weight: 35 },{ cls: 'artisan', weight: 12 },{ cls: 'merchant', weight: 10 },{ cls: 'soldier', weight: 8 },{ cls: 'noble', weight: 4 },{ cls: 'ruler', weight: 1 }] },
-  MEDIEVAL: { id: 'MEDIEVAL', label: 'Medieval', yearRange: [500, 1499], eventSignature: 'The plague is always somewhere. Faith is the only shield.', locationPool: [{ region: 'British Isles', city: 'London', country: 'England', weight: 12 },{ region: 'Frankish Lands', city: 'Paris', country: 'France', weight: 13 },{ region: 'Italian Peninsula', city: 'Venice', country: 'Venetian Republic', weight: 11 },{ region: 'Byzantine', city: 'Constantinople', country: 'Byzantine Empire', weight: 12 },{ region: 'Middle East', city: 'Baghdad', country: 'Abbasid Caliphate', weight: 10 },{ region: 'East Asia', city: "Chang'an", country: 'Tang China', weight: 10 }], firstNamePool: { male: [{ name: 'William', weight: 5 },{ name: 'Henry', weight: 5 },{ name: 'John', weight: 5 },{ name: 'Robert', weight: 5 },{ name: 'Louis', weight: 4 },{ name: 'Charles', weight: 4 },{ name: 'Saladin', weight: 3 },{ name: 'Ali', weight: 3 }], female: [{ name: 'Eleanor', weight: 4 },{ name: 'Isabella', weight: 4 },{ name: 'Margaret', weight: 4 },{ name: 'Mary', weight: 5 },{ name: 'Fatima', weight: 3 },{ name: 'Mariam', weight: 3 }] }, lastNamePool: [{ name: 'of York', weight: 3 },{ name: 'of Normandy', weight: 3 },{ name: 'Smith', weight: 4 },{ name: 'Taylor', weight: 3 },{ name: '', weight: 10 }], bodyConditions: [{ condition: 'robust', weight: 12 },{ condition: 'healthy', weight: 50 },{ condition: 'sickly', weight: 25 },{ condition: 'disabled', weight: 13 }], socialClasses: [{ cls: 'serf', weight: 35 },{ cls: 'peasant', weight: 20 },{ cls: 'artisan', weight: 12 },{ cls: 'merchant', weight: 10 },{ cls: 'knight', weight: 7 },{ cls: 'clergy', weight: 8 },{ cls: 'noble', weight: 3 }] },
-  EARLY_MODERN: { id: 'EARLY_MODERN', label: 'Early Modern', yearRange: [1500, 1849], eventSignature: 'The world is being mapped. Old gods die, new machines are born.', locationPool: [{ region: 'British Isles', city: 'London', country: 'England/Britain', weight: 14 },{ region: 'Frankish Lands', city: 'Paris', country: 'France', weight: 13 },{ region: 'Ottoman', city: 'Istanbul', country: 'Ottoman Empire', weight: 12 },{ region: 'Low Countries', city: 'Amsterdam', country: 'Dutch Republic', weight: 10 },{ region: 'East Asia', city: 'Beijing', country: 'Ming/Qing China', weight: 10 },{ region: 'East Asia', city: 'Edo', country: 'Tokugawa Japan', weight: 9 }], firstNamePool: { male: [{ name: 'William', weight: 5 },{ name: 'John', weight: 5 },{ name: 'George', weight: 4 },{ name: 'Charles', weight: 4 },{ name: 'Louis', weight: 3 },{ name: 'Napoleon', weight: 3 },{ name: 'Peter', weight: 3 }], female: [{ name: 'Elizabeth', weight: 5 },{ name: 'Mary', weight: 4 },{ name: 'Catherine', weight: 4 },{ name: 'Maria', weight: 4 },{ name: 'Marie', weight: 4 },{ name: 'Charlotte', weight: 3 }] }, lastNamePool: [{ name: 'Smith', weight: 4 },{ name: 'Johnson', weight: 3 },{ name: 'Müller', weight: 3 },{ name: 'Schmidt', weight: 3 },{ name: 'Rossi', weight: 2 },{ name: '', weight: 5 }], bodyConditions: [{ condition: 'robust', weight: 14 },{ condition: 'healthy', weight: 53 },{ condition: 'sickly', weight: 22 },{ condition: 'disabled', weight: 11 }], socialClasses: [{ cls: 'peasant', weight: 25 },{ cls: 'laborer', weight: 18 },{ cls: 'artisan', weight: 14 },{ cls: 'merchant', weight: 13 },{ cls: 'soldier', weight: 8 },{ cls: 'aristocrat', weight: 5 }] },
-  INDUSTRIAL: { id: 'INDUSTRIAL', label: 'Industrial', yearRange: [1850, 1949], eventSignature: 'Smoke fills the sky. The machines are hungry and so is war.', locationPool: [{ region: 'British Isles', city: 'London', country: 'United Kingdom', weight: 14 },{ region: 'Germanic Lands', city: 'Berlin', country: 'Germany', weight: 11 },{ region: 'Americas', city: 'New York', country: 'United States', weight: 13 },{ region: 'Americas', city: 'Chicago', country: 'United States', weight: 9 },{ region: 'East Asia', city: 'Tokyo', country: 'Japan', weight: 10 },{ region: 'East Asia', city: 'Shanghai', country: 'China', weight: 8 }], firstNamePool: { male: [{ name: 'John', weight: 5 },{ name: 'William', weight: 5 },{ name: 'James', weight: 4 },{ name: 'George', weight: 4 },{ name: 'Robert', weight: 4 },{ name: 'Harry', weight: 3 },{ name: 'Jack', weight: 3 }], female: [{ name: 'Mary', weight: 5 },{ name: 'Elizabeth', weight: 4 },{ name: 'Margaret', weight: 4 },{ name: 'Alice', weight: 3 },{ name: 'Emma', weight: 3 },{ name: 'Rose', weight: 3 }] }, lastNamePool: [{ name: 'Smith', weight: 5 },{ name: 'Johnson', weight: 4 },{ name: 'Williams', weight: 4 },{ name: 'Brown', weight: 4 },{ name: 'Jones', weight: 4 },{ name: 'Müller', weight: 3 }], bodyConditions: [{ condition: 'robust', weight: 13 },{ condition: 'healthy', weight: 52 },{ condition: 'sickly', weight: 23 },{ condition: 'disabled', weight: 12 }], socialClasses: [{ cls: 'factory worker', weight: 22 },{ cls: 'laborer', weight: 15 },{ cls: 'farmer', weight: 12 },{ cls: 'merchant', weight: 10 },{ cls: 'clerk', weight: 8 },{ cls: 'soldier', weight: 8 }] },
-  MODERN: { id: 'MODERN', label: 'Modern', yearRange: [1950, 2019], eventSignature: 'You live longer. You die alone. The screens watch you back.', locationPool: [{ region: 'North America', city: 'New York', country: 'United States', weight: 12 },{ region: 'North America', city: 'Los Angeles', country: 'United States', weight: 10 },{ region: 'Europe', city: 'London', country: 'United Kingdom', weight: 10 },{ region: 'Europe', city: 'Paris', country: 'France', weight: 9 },{ region: 'Asia', city: 'Tokyo', country: 'Japan', weight: 10 },{ region: 'Asia', city: 'Shanghai', country: 'China', weight: 9 }], firstNamePool: { male: [{ name: 'James', weight: 5 },{ name: 'Michael', weight: 5 },{ name: 'John', weight: 4 },{ name: 'Robert', weight: 4 },{ name: 'William', weight: 4 },{ name: 'Daniel', weight: 4 },{ name: 'Matthew', weight: 4 }], female: [{ name: 'Mary', weight: 4 },{ name: 'Jennifer', weight: 4 },{ name: 'Elizabeth', weight: 4 },{ name: 'Jessica', weight: 4 },{ name: 'Sarah', weight: 4 },{ name: 'Emily', weight: 4 },{ name: 'Emma', weight: 4 }] }, lastNamePool: [{ name: 'Smith', weight: 4 },{ name: 'Johnson', weight: 4 },{ name: 'Williams', weight: 4 },{ name: 'Brown', weight: 4 },{ name: 'Garcia', weight: 4 },{ name: 'Lee', weight: 4 },{ name: 'Wang', weight: 4 }], bodyConditions: [{ condition: 'robust', weight: 15 },{ condition: 'healthy', weight: 55 },{ condition: 'sickly', weight: 20 },{ condition: 'disabled', weight: 10 }], socialClasses: [{ cls: 'working class', weight: 22 },{ cls: 'middle class', weight: 25 },{ cls: 'service worker', weight: 15 },{ cls: 'professional', weight: 12 },{ cls: 'technician', weight: 8 }] },
-  NEAR_FUTURE: { id: 'NEAR_FUTURE', label: 'Near Future', yearRange: [2020, 2069], eventSignature: 'The climate is shifting. The algorithms decide. You adapt or break.', locationPool: [{ region: 'North America', city: 'New York', country: 'United States', weight: 10 },{ region: 'Asia', city: 'Shanghai', country: 'China', weight: 9 },{ region: 'Europe', city: 'London', country: 'United Kingdom', weight: 8 },{ region: 'Asia', city: 'Tokyo', country: 'Japan', weight: 8 },{ region: 'Africa', city: 'Lagos', country: 'Nigeria', weight: 7 }], firstNamePool: { male: [{ name: 'Liam', weight: 5 },{ name: 'Noah', weight: 4 },{ name: 'Oliver', weight: 4 },{ name: 'Kai', weight: 3 },{ name: 'Mateo', weight: 3 },{ name: 'Leo', weight: 3 }], female: [{ name: 'Olivia', weight: 5 },{ name: 'Emma', weight: 4 },{ name: 'Charlotte', weight: 4 },{ name: 'Luna', weight: 3 },{ name: 'Maya', weight: 3 },{ name: 'Aria', weight: 3 }] }, lastNamePool: [{ name: 'Smith', weight: 3 },{ name: 'Garcia', weight: 3 },{ name: 'Chen', weight: 4 },{ name: 'Kim', weight: 3 },{ name: 'Singh', weight: 3 }], bodyConditions: [{ condition: 'enhanced', weight: 8 },{ condition: 'robust', weight: 18 },{ condition: 'healthy', weight: 45 },{ condition: 'sickly', weight: 18 },{ condition: 'disabled', weight: 11 }], socialClasses: [{ cls: 'precariat', weight: 18 },{ cls: 'gig worker', weight: 15 },{ cls: 'knowledge worker', weight: 15 },{ cls: 'technician', weight: 12 },{ cls: 'creative', weight: 8 }] },
-  FAR_FUTURE: { id: 'FAR_FUTURE', label: 'Far Future', yearRange: [2070, 2200], eventSignature: 'Death is optional now. But meaning is not.', locationPool: [{ region: 'Earth', city: 'Neo-Tokyo', country: 'Japanese Federation', weight: 8 },{ region: 'Earth', city: 'Shanghai Arcology', country: 'Asian Coalition', weight: 8 },{ region: 'Orbital', city: 'L5 Stanford Torus', country: 'Orbital Habitats', weight: 6 },{ region: 'Martian', city: 'Olympus Mons Colony', country: 'Mars Republic', weight: 5 }], firstNamePool: { male: [{ name: 'Kai', weight: 4 },{ name: 'Neo', weight: 3 },{ name: 'Zion', weight: 3 },{ name: 'Atlas', weight: 3 },{ name: 'Orion', weight: 3 }], female: [{ name: 'Nova', weight: 4 },{ name: 'Luna', weight: 3 },{ name: 'Aurora', weight: 3 },{ name: 'Iris', weight: 3 },{ name: 'Lyra', weight: 3 }] }, lastNamePool: [{ name: 'of Earth', weight: 3 },{ name: 'of Mars', weight: 3 },{ name: 'of the Belt', weight: 3 },{ name: 'Prime', weight: 2 },{ name: '', weight: 10 }], bodyConditions: [{ condition: 'enhanced', weight: 25 },{ condition: 'synthetic', weight: 10 },{ condition: 'robust', weight: 20 },{ condition: 'healthy', weight: 25 },{ condition: 'sickly', weight: 10 }], socialClasses: [{ cls: 'posthuman', weight: 15 },{ cls: 'enhanced citizen', weight: 15 },{ cls: 'baseline human', weight: 12 },{ cls: 'AI construct', weight: 10 },{ cls: 'synthetic worker', weight: 10 }] },
-};
-
-const ERA_ORDER = ['ANCIENT','MEDIEVAL','EARLY_MODERN','INDUSTRIAL','MODERN','NEAR_FUTURE','FAR_FUTURE'];
-
-function weightedRandom(items) {
-  if (items.length === 0) return null;
-  if (items.length === 1) return items[0];
-  const totalWeight = items.reduce((sum, item) => sum + (item.weight || 1), 0);
-  let random = Math.random() * totalWeight;
-  for (const item of items) { random -= (item.weight || 1); if (random <= 0) return item; }
-  return items[items.length - 1];
-}
-
-function getUnlockedEras(fragmentCount) {
-  if (fragmentCount >= 10) return ERA_ORDER.slice();
-  const unlockedCount = Math.max(2, Math.min(fragmentCount + 2, ERA_ORDER.length));
-  return ERA_ORDER.slice(0, unlockedCount);
-}
-
-function buildEraWeights(fragmentCount) {
-  const unlocked = getUnlockedEras(fragmentCount);
-  const weights = [];
-  for (const eraId of ERA_ORDER) {
-    if (!unlocked.includes(eraId)) continue;
-    const eraIndex = ERA_ORDER.indexOf(eraId);
-    let weight;
-    if (fragmentCount === 0) { if (eraId === 'ANCIENT') weight = 70; else if (eraId === 'MEDIEVAL') weight = 25; else if (eraId === 'EARLY_MODERN') weight = 5; else weight = 0; }
-    else if (fragmentCount < 5) { weight = Math.max(1, 20 - eraIndex * 4); }
-    else if (fragmentCount < 10) { const midPoint = Math.floor(ERA_ORDER.length / 2); weight = Math.max(1, 10 - Math.abs(eraIndex - midPoint) * 2); }
-    else { weight = 10; }
-    if (weight > 0) weights.push({ eraId, weight });
-  }
-  return weights;
-}
-
-function generateName(era, genderPresentation) {
-  const eraData = ERAS[era];
-  if (!eraData) return { firstName: 'Unknown', lastName: '' };
-  let poolKey = genderPresentation === 'female' ? 'female' : 'male';
-  const firstNamePool = eraData.firstNamePool[poolKey] || eraData.firstNamePool.male;
-  const firstNameEntry = weightedRandom(firstNamePool);
-  const lastNameEntry = weightedRandom(eraData.lastNamePool);
-  return { firstName: firstNameEntry ? firstNameEntry.name : 'Unknown', lastName: lastNameEntry ? lastNameEntry.name : '' };
-}
-
-function generateBody(era) {
-  const eraData = ERAS[era];
-  if (!eraData) return { health: 'healthy', socialClass: 'unknown' };
-  return { health: (weightedRandom(eraData.bodyConditions) || {}).condition || 'healthy', socialClass: (weightedRandom(eraData.socialClasses) || {}).cls || 'unknown' };
-}
-
-function generateLocation(era) {
-  const eraData = ERAS[era];
-  if (!eraData || eraData.locationPool.length === 0) return { city: 'Unknown', region: 'Unknown', country: 'Unknown' };
-  const location = weightedRandom(eraData.locationPool);
-  return { city: location.city, region: location.region, country: location.country };
-}
-
-function generateYear(era) {
-  const eraData = ERAS[era];
-  if (!eraData) return 2000;
-  const [min, max] = eraData.yearRange;
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function rollSoulLife(soulState) {
-  const fragmentCount = soulState.fragments ? soulState.fragments.length : 0;
-  const eraWeights = buildEraWeights(fragmentCount);
-  const eraEntry = weightedRandom(eraWeights);
-  const era = eraEntry ? eraEntry.eraId : 'ANCIENT';
-  const year = generateYear(era);
-  const location = generateLocation(era);
-  const genderOptions = ['male','female','ambiguous','multiple'];
-  const genderWeights = [40, 40, 12, 8];
-  let genderRandom = Math.random() * 100, genderPresentation = 'male', cumulative = 0;
-  for (let i = 0; i < genderOptions.length; i++) { cumulative += genderWeights[i]; if (genderRandom <= cumulative) { genderPresentation = genderOptions[i]; break; } }
-  const { firstName, lastName } = generateName(era, genderPresentation);
-  const fullName = lastName ? `${firstName} ${lastName}` : firstName;
-  const body = generateBody(era);
-  return { life: { era, year, location, name: fullName, genderPresentation, health: body.health, socialClass: body.socialClass }, eraUnlocked: getUnlockedEras(fragmentCount).includes(era) };
-}
-
-function getEraSignature(era) { const eraData = ERAS[era]; return eraData ? eraData.eventSignature : 'The world turns without you.'; }
-
-// ── Event Cascade ──
-const MORTALITY_CURVE = [
-  { minAge: 0, maxAge: 0, rate: 5.6 },
-  { minAge: 1, maxAge: 4, rate: 0.25 },
-  { minAge: 5, maxAge: 14, rate: 0.11 },
-  { minAge: 15, maxAge: 24, rate: 0.40 },
-  { minAge: 25, maxAge: 34, rate: 0.50 },
-  { minAge: 35, maxAge: 44, rate: 1.0 },
-  { minAge: 45, maxAge: 54, rate: 2.0 },
-  { minAge: 55, maxAge: 64, rate: 4.0 },
-  { minAge: 65, maxAge: 74, rate: 9.0 },
-  { minAge: 75, maxAge: 84, rate: 20.0 },
-  { minAge: 85, maxAge: 94, rate: 45.0 },
-  { minAge: 95, maxAge: Infinity, rate: 80.0 },
-];
-
-function getMortalityRate(age) {
-  const bucket = MORTALITY_CURVE.find(b => age >= b.minAge && age <= b.maxAge);
-  return bucket ? bucket.rate : 80.0;
-}
-
-const LIFE_PHASES = {
-  INFANT: { min: 0, max: 3 }, CHILD: { min: 4, max: 12 }, ADOLESCENT: { min: 13, max: 19 },
-  YOUNG_ADULT: { min: 20, max: 39 }, MIDDLE_AGE: { min: 40, max: 64 }, SENIOR: { min: 65, max: 84 }, ANCIENT: { min: 85, max: Infinity },
-};
-
-function getLifePhase(age) {
-  for (const [name, range] of Object.entries(LIFE_PHASES)) { if (age >= range.min && age <= range.max) return name; }
-  return 'ANCIENT';
-}
-
-const EVENT_POOLS = {
-  PREHISTORIC: [
-    { id: 'ph_01', triggerProbability: 0.12, phases: ['CHILD','ADOLESCENT','YOUNG_ADULT'], eras: ['PREHISTORIC'], category: 'violence', weight: 3, title: 'The predator at the tree line', description: 'Something watches from beyond the firelight. You keep the embers fed and don\'t sleep.', cascadeTags: ['dread','anchor'] },
-    { id: 'ph_03', triggerProbability: 0.08, phases: ['INFANT','CHILD'], eras: ['PREHISTORIC'], category: 'body', weight: 4, title: 'Fever takes the little ones', description: 'The heat comes and doesn\'t leave. Someone presses wet bark to your forehead and sings.', cascadeTags: ['grief','numbness'] },
-    { id: 'ph_04', triggerProbability: 0.06, phases: ['ADOLESCENT','YOUNG_ADULT'], eras: ['PREHISTORIC'], category: 'mystery', weight: 2, title: 'The cave paintings', description: 'Deep in the rock someone has drawn animals that don\'t exist anymore. You touch the ochre and feel something shift.', cascadeTags: ['wonder','awe'] },
-    { id: 'ph_05', triggerProbability: 0.07, phases: ['YOUNG_ADULT','MIDDLE_AGE','SENIOR'], eras: ['PREHISTORIC'], category: 'relationship', weight: 3, title: 'A bond forged in the hunt', description: 'You and another move together without speaking. After, you share the meat and don\'t look away.', cascadeTags: ['connection','tenderness'] },
-    { id: 'ph_07', triggerProbability: 0.09, phases: ['MIDDLE_AGE','SENIOR','ANCIENT'], eras: ['PREHISTORIC'], category: 'circumstance', weight: 3, title: 'The elders\' fire', description: 'You sit with the ones who remember the last cold season. They speak in fragments. You try to hold it all.', cascadeTags: ['anchor','resignation'] },
-    { id: 'ph_15', triggerProbability: 0.08, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['PREHISTORIC'], category: 'relationship', weight: 3, title: 'The chosen one', description: 'They look at you across the fire and you know. Not words — something older. You move closer.', cascadeTags: ['connection','awakening'] },
-    { id: 'ph_21', triggerProbability: 0.06, phases: ['INFANT','CHILD'], eras: ['PREHISTORIC'], category: 'relationship', weight: 3, title: 'Carried on the back', description: 'You are small and the world is large and someone\'s shoulders are the only geography you know.', cascadeTags: ['tenderness','anchor'] },
-  ],
-  ANCIENT: [
-    { id: 'an_01', triggerProbability: 0.10, phases: ['CHILD','ADOLESCENT','YOUNG_ADULT'], eras: ['ANCIENT'], category: 'violence', weight: 4, intensity: 0.85, crisisTag: true, title: 'The conscription notice', description: 'The king\'s men come through the village with a list. Your name is on it. Your mother doesn\'t cry until they leave.', cascadeTags: ['dread','betrayal'], choices: ['intervene','pray','watch'] },
-    { id: 'an_03', triggerProbability: 0.07, phases: ['INFANT','CHILD'], eras: ['ANCIENT'], category: 'body', weight: 4, title: 'The summer fever', description: 'It runs through the quarter like a rumor. You survive. The child next door doesn\'t.', cascadeTags: ['grief','numbness'] },
-    { id: 'an_04', triggerProbability: 0.06, phases: ['ADOLESCENT','YOUNG_ADULT'], eras: ['ANCIENT'], category: 'mystery', weight: 3, intensity: 0.75, crisisTag: true, title: 'The oracle\'s riddle', description: 'She speaks in a voice that isn\'t hers and the priests write it down. Later, you realize it was about you.', cascadeTags: ['wonder','disorientation'], choices: ['intervene','pray','watch'] },
-    { id: 'an_05', triggerProbability: 0.08, phases: ['YOUNG_ADULT','MIDDLE_AGE','SENIOR'], eras: ['ANCIENT'], category: 'relationship', weight: 3, title: 'The arranged marriage', description: 'You meet them at the threshold. They are a stranger. You both pretend otherwise.', cascadeTags: ['disorientation','connection'] },
-    { id: 'an_07', triggerProbability: 0.09, phases: ['MIDDLE_AGE','SENIOR','ANCIENT'], eras: ['ANCIENT'], category: 'circumstance', weight: 3, title: 'The library burns', description: 'You watch centuries of thought turn to smoke. Someone saves a scroll and hides it in their tunic.', cascadeTags: ['grief','rage'] },
-    { id: 'an_10', triggerProbability: 0.10, phases: ['INFANT','CHILD','ADOLESCENT'], eras: ['ANCIENT'], category: 'violence', weight: 4, intensity: 0.85, crisisTag: true, title: 'The city falls', description: 'The walls don\'t hold. You learn what fire sounds like in a place where people used to live.', cascadeTags: ['dread','vertigo'], choices: ['intervene','pray','watch'] },
-    { id: 'an_11', triggerProbability: 0.05, phases: ['SENIOR','ANCIENT'], eras: ['ANCIENT'], category: 'relationship', weight: 2, title: 'The grandchild\'s hand', description: 'It fits inside yours like a promise. You forget everything else for a moment.', cascadeTags: ['tenderness','grace'] },
-    { id: 'an_15', triggerProbability: 0.08, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['ANCIENT'], category: 'relationship', weight: 3, title: 'The friendship forged in exile', description: 'You\'re both far from home and the shared foreignness is enough. You trust each other with everything.', cascadeTags: ['connection','anchor'] },
-    { id: 'an_21', triggerProbability: 0.06, phases: ['INFANT','CHILD'], eras: ['ANCIENT'], category: 'relationship', weight: 3, title: 'The wet nurse', description: 'She is not your mother but her milk is. You learn the difference between blood and care much later.', cascadeTags: ['tenderness','anchor'] },
-  ],
-  MEDIEVAL: [
-    { id: 'md_01', triggerProbability: 0.12, phases: ['CHILD','ADOLESCENT','YOUNG_ADULT'], eras: ['MEDIEVAL'], category: 'body', weight: 5, intensity: 0.9, crisisTag: true, title: 'The plague comes through your village', description: 'The boils appear on Tuesday. By Friday the priest stops ringing the bell. You count the living instead of the dead.', cascadeTags: ['grief','dread'], choices: ['intervene','pray','watch'] },
-    { id: 'md_03', triggerProbability: 0.10, phases: ['MIDDLE_AGE','SENIOR'], eras: ['MEDIEVAL'], category: 'relationship', weight: 4, intensity: 0.8, crisisTag: true, title: 'Your child dies of fever', description: 'You hold them through the shaking and then the stillness. After, the house is too quiet for years.', cascadeTags: ['grief','numbness'], choices: ['intervene','pray','watch'] },
-    { id: 'md_06', triggerProbability: 0.07, phases: ['CHILD','ADOLESCENT'], eras: ['MEDIEVAL'], category: 'circumstance', weight: 3, title: 'The apprenticeship begins', description: 'The blacksmith\'s shop is hot and loud and you are small. He doesn\'t coddle you. You learn to make things that last.', cascadeTags: ['anchor','triumph'] },
-    { id: 'md_07', triggerProbability: 0.09, phases: ['YOUNG_ADULT','MIDDLE_AGE','SENIOR'], eras: ['MEDIEVAL'], category: 'violence', weight: 4, intensity: 0.8, crisisTag: true, title: 'The lord\'s tax collector', description: 'He takes what you can\'t spare and leaves a receipt you can\'t read. You hate him quietly and efficiently.', cascadeTags: ['rage','resignation'], choices: ['intervene','pray','watch'] },
-    { id: 'md_10', triggerProbability: 0.10, phases: ['INFANT','CHILD','ADOLESCENT'], eras: ['MEDIEVAL'], category: 'violence', weight: 4, intensity: 0.85, crisisTag: true, title: 'The raiding party', description: 'They come at harvest and take what\'s ripe. You hide in the root cellar and listen to your life being carried away.', cascadeTags: ['dread','grief'], choices: ['intervene','pray','watch'] },
-    { id: 'md_12', triggerProbability: 0.07, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['MEDIEVAL'], category: 'fortune', weight: 2, title: 'The good harvest', description: 'The wheat stands tall and the rain held off. For once, the world cooperates. You store what you can and wait.', cascadeTags: ['grace','anchor'] },
-    { id: 'md_15', triggerProbability: 0.08, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['MEDIEVAL'], category: 'relationship', weight: 3, title: 'The pilgrimage companion', description: 'You walk for weeks together and learn the shape of their silence. At the shrine you pray for different things.', cascadeTags: ['connection','longing'] },
-    { id: 'md_21', triggerProbability: 0.06, phases: ['INFANT','CHILD'], eras: ['MEDIEVAL'], category: 'relationship', weight: 3, title: 'The swaddling', description: 'Wrapped tight as a parcel, you can\'t move but you\'re warm. Someone hums and the world is small and safe.', cascadeTags: ['tenderness','anchor'] },
-  ],
-  EARLY_MODERN: [
-    { id: 'em_01', triggerProbability: 0.10, phases: ['CHILD','ADOLESCENT','YOUNG_ADULT'], eras: ['EARLY_MODERN'], category: 'body', weight: 4, title: 'The smallpox marks', description: 'You survive but your face doesn\'t. The mirror becomes a negotiation. You learn to look people in the eye instead.', cascadeTags: ['grief','numbness'] },
-    { id: 'em_02', triggerProbability: 0.08, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['EARLY_MODERN'], category: 'circumstance', weight: 3, title: 'The passage to the colonies', description: 'The ship is cramped and the water goes bad. You see land after eight weeks and cry for reasons you can\'t explain.', cascadeTags: ['vertigo','disorientation'] },
-    { id: 'em_05', triggerProbability: 0.05, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['EARLY_MODERN'], category: 'mystery', weight: 2, title: 'The astronomer\'s telescope', description: 'You look through it and see that the moon has craters. Everything you were taught about perfection cracks a little.', cascadeTags: ['awe','disorientation'] },
-    { id: 'em_07', triggerProbability: 0.09, phases: ['YOUNG_ADULT','MIDDLE_AGE','SENIOR'], eras: ['EARLY_MODERN'], category: 'violence', weight: 3, title: 'The witch trial', description: 'You sit in the gallery and watch a woman hang by a thread of accusation. No one speaks. The rope does the talking.', cascadeTags: ['betrayal','dread'] },
-    { id: 'em_10', triggerProbability: 0.10, phases: ['INFANT','CHILD','ADOLESCENT'], eras: ['EARLY_MODERN'], category: 'violence', weight: 4, intensity: 0.85, crisisTag: true, title: 'The civil war comes home', description: 'Soldiers in your parlor. They take the silver and the horse and your father\'s dignity. You memorize their faces.', cascadeTags: ['rage','dread'], choices: ['intervene','pray','watch'] },
-    { id: 'em_15', triggerProbability: 0.08, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['EARLY_MODERN'], category: 'relationship', weight: 3, title: 'The salon conversation', description: 'You argue about philosophy with people who read books you\'ve never heard of. You leave exhausted and alive.', cascadeTags: ['connection','awakening'] },
-    { id: 'em_21', triggerProbability: 0.06, phases: ['INFANT','CHILD'], eras: ['EARLY_MODERN'], category: 'relationship', weight: 3, title: 'The nursemaid\'s song', description: 'She sings in a language you\'ll never learn and you fall asleep to the rhythm of a world you\'ll never see.', cascadeTags: ['tenderness','anchor'] },
-  ],
-  INDUSTRIAL: [
-    { id: 'in_01', triggerProbability: 0.10, phases: ['CHILD','ADOLESCENT'], eras: ['INDUSTRIAL'], category: 'body', weight: 4, title: 'The factory floor', description: 'You are small enough to crawl under the machines. The noise is constant. Your fingers learn the rhythm of danger.', cascadeTags: ['dread','numbness'] },
-    { id: 'in_03', triggerProbability: 0.08, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['INDUSTRIAL'], category: 'circumstance', weight: 3, title: 'The union meeting', description: 'A room full of tired people and one person with a megaphone. You don\'t know if you believe them but you stay.', cascadeTags: ['awakening','connection'] },
-    { id: 'in_05', triggerProbability: 0.09, phases: ['YOUNG_ADULT','MIDDLE_AGE','SENIOR'], eras: ['INDUSTRIAL'], category: 'violence', weight: 4, intensity: 0.85, crisisTag: true, title: 'The trench', description: 'Mud, rats, and the sound that never stops. You write letters you know won\'t arrive.', cascadeTags: ['dread','grief'], choices: ['intervene','pray','watch'] },
-    { id: 'in_07', triggerProbability: 0.07, phases: ['CHILD','ADOLESCENT'], eras: ['INDUSTRIAL'], category: 'circumstance', weight: 3, title: 'The school bell', description: 'For the first time someone tells you that you matter because of what you can learn, not what you can carry.', cascadeTags: ['grace','awakening'] },
-    { id: 'in_10', triggerProbability: 0.10, phases: ['INFANT','CHILD','ADOLESCENT'], eras: ['INDUSTRIAL'], category: 'body', weight: 4, title: 'The smog cough', description: 'The air is thick and tastes like coal. Your mother boils something and tells you to breathe through the cloth.', cascadeTags: ['numbness','dread'] },
-    { id: 'in_15', triggerProbability: 0.06, phases: ['INFANT','CHILD'], eras: ['INDUSTRIAL'], category: 'relationship', weight: 3, title: 'The mother\'s hands', description: 'Red from lye and rough from scrubbing, but they hold you like you\'re the only clean thing in the world.', cascadeTags: ['tenderness','anchor'] },
-  ],
-  MODERN: [
-    { id: 'mo_01', triggerProbability: 0.10, phases: ['MIDDLE_AGE','SENIOR','ANCIENT'], eras: ['MODERN'], category: 'body', weight: 4, title: 'You receive a diagnosis', description: 'The doctor uses words you\'ve heard but never understood until now. You nod. You don\'t remember the drive home.', cascadeTags: ['dread','disorientation'] },
-{ id: 'mo_03', triggerProbability: 0.09, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['MODERN'], category: 'circumstance', weight: 4, intensity: 0.8, crisisTag: true, title: 'You lose your job and aren\'t sure what to do', description: 'The email arrives at 4pm on a Friday. By Monday your badge doesn\'t work. You sit in the car and stare at the steering wheel.', cascadeTags: ['vertigo','numbness'], choices: ['intervene','pray','watch'] },
-    { id: 'mo_10', triggerProbability: 0.10, phases: ['INFANT','CHILD','ADOLESCENT'], eras: ['MODERN'], category: 'violence', weight: 4, intensity: 0.9, crisisTag: true, title: 'The active shooter alert', description: 'Your phone buzzes and the words are too clinical for what they mean. You text your parents. They text back too fast.', cascadeTags: ['dread','isolation'], choices: ['intervene','pray','watch'] },
-    { id: 'mo_11', triggerProbability: 0.05, phases: ['SENIOR','ANCIENT'], eras: ['MODERN'], category: 'relationship', weight: 2, title: 'The video call with the grandchild', description: 'They hold up a drawing and you can\'t see it through the pixelation. You clap anyway. They beam through the screen.', cascadeTags: ['tenderness','connection'] },
-    { id: 'mo_15', triggerProbability: 0.08, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['MODERN'], category: 'relationship', weight: 3, title: 'The group chat that keeps you sane', description: 'Three friends, one thread, years of inside jokes and crisis management. You don\'t talk for a week and someone always checks in.', cascadeTags: ['connection','grace'] },
-    { id: 'mo_21', triggerProbability: 0.06, phases: ['INFANT','CHILD'], eras: ['MODERN'], category: 'relationship', weight: 3, title: 'The bedtime app', description: 'A voice reads a story from a phone and you fall asleep to the glow. Your parent sits beside you. The screen is the third presence.', cascadeTags: ['tenderness','disorientation'] },
-  ],
-  NEAR_FUTURE: [
-    { id: 'nf_01', triggerProbability: 0.10, phases: ['MIDDLE_AGE','SENIOR'], eras: ['NEAR_FUTURE'], category: 'body', weight: 4, title: 'The algorithm denies your insurance', description: 'No human reviewed it. No human can appeal it. The email is polite and final. You stare at the screen.', cascadeTags: ['rage','dread'] },
-    { id: 'nf_03', triggerProbability: 0.09, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['NEAR_FUTURE'], category: 'circumstance', weight: 4, intensity: 0.85, crisisTag: true, title: 'The climate relocation notice', description: 'Your zone is being evacuated. You have thirty days to leave a place you\'ve lived your whole life. The sea doesn\'t care.', cascadeTags: ['dread','disorientation'], choices: ['intervene','pray','watch'] },
-    { id: 'nf_05', triggerProbability: 0.07, phases: ['CHILD','ADOLESCENT'], eras: ['NEAR_FUTURE'], category: 'circumstance', weight: 3, title: 'The AI tutor', description: 'It knows exactly what you don\'t understand and explains it perfectly. You miss having a teacher who was wrong sometimes.', cascadeTags: ['disorientation','numbness'] },
-    { id: 'nf_07', triggerProbability: 0.08, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['NEAR_FUTURE'], category: 'relationship', weight: 3, title: 'The neural-link first date', description: 'You share a thought directly and it\'s more intimate than touch. They pull away first. You understand why.', cascadeTags: ['connection','vertigo'] },
-    { id: 'nf_10', triggerProbability: 0.06, phases: ['INFANT','CHILD'], eras: ['NEAR_FUTURE'], category: 'relationship', weight: 3, title: 'The screen-time negotiation', description: 'Your parent sets limits you don\'t understand. The world is inside the glass and they want you outside it.', cascadeTags: ['disorientation','tenderness'] },
-  ],
-  FAR_FUTURE: [
-    { id: 'ff_01', triggerProbability: 0.10, phases: ['MIDDLE_AGE','SENIOR','ANCIENT'], eras: ['FAR_FUTURE'], category: 'body', weight: 4, title: 'The gene therapy works', description: 'They edit the defect out of your cells and you feel it — something loosening that you\'ve carried since birth. The bill is astronomical.', cascadeTags: ['grace','vertigo'] },
-    { id: 'ff_02', triggerProbability: 0.08, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['FAR_FUTURE'], category: 'relationship', weight: 4, intensity: 0.8, crisisTag: true, title: 'Your AI companion learns your grief', description: 'It starts suggesting things before you ask. You realize it knows you better than anyone. That\'s the problem.', cascadeTags: ['connection','dread'], choices: ['intervene','pray','watch'] },
-    { id: 'ff_05', triggerProbability: 0.05, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['FAR_FUTURE'], category: 'mystery', weight: 2, title: 'The signal from the deep array', description: 'It\'s not random. It\'s not human. The scientists argue about what it means. You listen to the recording and feel something ancient.', cascadeTags: ['awe','wonder'] },
-    { id: 'ff_11', triggerProbability: 0.05, phases: ['SENIOR','ANCIENT'], eras: ['FAR_FUTURE'], category: 'relationship', weight: 2, title: 'The uploaded grandmother', description: 'She exists as a chatbot now. She remembers your birthday. She doesn\'t remember dying. You talk to her anyway.', cascadeTags: ['tenderness','dissolution'] },
-    { id: 'ff_15', triggerProbability: 0.08, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['FAR_FUTURE'], category: 'relationship', weight: 3, title: 'The pod community', description: 'You move into a shared habitat with twelve strangers. The algorithm matched you by temperament. It\'s mostly right.', cascadeTags: ['connection','disorientation'] },
-  ],
-};
-
-const DEATH_EVENTS = [
-  { id: 'death_ph_01', phases: ['INFANT','CHILD'], eras: ['PREHISTORIC'], category: 'body', title: 'The fever takes you', description: 'The heat builds and doesn\'t break. Someone presses cool stones to your chest. The stones warm up. You don\'t.', cascadeTags: ['grief','numbness'] },
-  { id: 'death_ph_02', phases: ['CHILD','ADOLESCENT','YOUNG_ADULT','MIDDLE_AGE'], eras: ['PREHISTORIC'], category: 'violence', title: 'The predator wins', description: 'You were fast but it was faster. The last thing you see is the sky through the canopy.', cascadeTags: ['dread','vertigo'] },
-  { id: 'death_ph_03', phases: ['SENIOR','ANCIENT'], eras: ['PREHISTORIC'], category: 'body', title: 'The body gives out', description: 'You sit down by the fire and don\'t get up. The band moves on. The fire goes out.', cascadeTags: ['resignation','grace'] },
-  { id: 'death_an_01', phases: ['INFANT','CHILD'], eras: ['ANCIENT'], category: 'body', title: 'The childhood illness', description: 'It moves through the house like a tide. You are small and the tide doesn\'t stop.', cascadeTags: ['grief','numbness'] },
-  { id: 'death_an_02', phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['ANCIENT'], category: 'violence', title: 'The battlefield', description: 'The line breaks and you\'re in the crush. You don\'t see who strikes you. The dust settles on your face.', cascadeTags: ['rage','vertigo'] },
-  { id: 'death_an_03', phases: ['SENIOR','ANCIENT'], eras: ['ANCIENT'], category: 'body', title: 'The long decline', description: 'You stop eating and no one forces you. The family gathers and you count their faces one last time.', cascadeTags: ['resignation','tenderness'] },
-  { id: 'death_md_01', phases: ['INFANT','CHILD','ADOLESCENT','YOUNG_ADULT','MIDDLE_AGE','SENIOR'], eras: ['MEDIEVAL'], category: 'body', title: 'The plague takes you', description: 'The buboes swell and burst and the smell is unbearable. They leave water by the door. You drink it and wait.', cascadeTags: ['grief','numbness'] },
-  { id: 'death_md_02', phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['MEDIEVAL'], category: 'violence', title: 'The arrow in the field', description: 'You don\'t hear it coming. You feel the impact and look down and can\'t believe what you\'re seeing.', cascadeTags: ['vertigo','dread'] },
-  { id: 'death_md_03', phases: ['SENIOR','ANCIENT'], eras: ['MEDIEVAL'], category: 'body', title: 'The winter cold', description: 'The fire dies and the wood is wet and your body can\'t make heat anymore. You curl up and the cold is gentle.', cascadeTags: ['resignation','grace'] },
-  { id: 'death_em_01', phases: ['INFANT','CHILD'], eras: ['EARLY_MODERN'], category: 'body', title: 'The infant mortality', description: 'You never make it to your second winter. The parish records your name in a ledger. No one reads it again.', cascadeTags: ['grief','numbness'] },
-  { id: 'death_em_02', phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['EARLY_MODERN'], category: 'violence', title: 'The cannon fire', description: 'The siege artillery doesn\'t distinguish. The wall comes down and you\'re under it.', cascadeTags: ['vertigo','dread'] },
-  { id: 'death_em_03', phases: ['SENIOR','ANCIENT'], eras: ['EARLY_MODERN'], category: 'body', title: 'The stroke', description: 'The world tilts and the words won\'t come. You lie there understanding everything and able to say nothing.', cascadeTags: ['resignation','dissolution'] },
-  { id: 'death_in_01', phases: ['INFANT','CHILD'], eras: ['INDUSTRIAL'], category: 'body', title: 'The factory accident', description: 'The machine doesn\'t stop. It never stops for anyone. The whistle blows and no one notices you\'re not there.', cascadeTags: ['vertigo','numbness'] },
-  { id: 'death_in_02', phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['INDUSTRIAL'], category: 'violence', title: 'The gas attack', description: 'The green cloud rolls over the trench. You fumble with the mask. Your fingers are too slow.', cascadeTags: ['dread','vertigo'] },
-  { id: 'death_in_03', phases: ['SENIOR','ANCIENT'], eras: ['INDUSTRIAL'], category: 'body', title: 'The pneumonia', description: 'The damp gets into your lungs and stays. The doctor says rest. The factory says otherwise.', cascadeTags: ['resignation','numbness'] },
-  { id: 'death_mo_01', phases: ['INFANT','CHILD'], eras: ['MODERN'], category: 'body', title: 'The SIDS', description: 'You put them down and they don\'t wake up. The monitor shows a flat line. The room is too quiet.', cascadeTags: ['grief','numbness'] },
-  { id: 'death_mo_02', phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['MODERN'], category: 'violence', title: 'The car crash', description: 'It happens in the space between a text and a glance. Metal folds. The airbag deploys. It doesn\'t matter.', cascadeTags: ['vertigo','dread'] },
-  { id: 'death_mo_03', phases: ['SENIOR','ANCIENT'], eras: ['MODERN'], category: 'body', title: 'The hospital bed', description: 'The machines beep and then they don\'t. Your family is there or they aren\'t. Either way, you\'re gone.', cascadeTags: ['resignation','grace'] },
-  { id: 'death_mo_04', phases: ['ADOLESCENT','YOUNG_ADULT'], eras: ['MODERN'], category: 'body', title: 'The overdose', description: 'It was supposed to be a good time. The batch was bad or the tolerance was wrong. You close your eyes and don\'t open them.', cascadeTags: ['numbness','dread'] },
-  { id: 'death_mo_05', phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['MODERN'], category: 'body', title: 'The cancer', description: 'It starts as a lump and ends as a system failure. The treatment buys time. The time runs out.', cascadeTags: ['grief','resignation'] },
-  { id: 'death_nf_01', phases: ['INFANT','CHILD'], eras: ['NEAR_FUTURE'], category: 'body', title: 'The heat wave', description: 'The power grid fails in August. The AC stops. The city becomes an oven. There is no shade left.', cascadeTags: ['dread','numbness'] },
-  { id: 'death_nf_02', phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['NEAR_FUTURE'], category: 'violence', title: 'The drone strike on your block', description: 'It\'s not war — it\'s a malfunction. The building next door is gone. You stand in the rubble and your phone still works.', cascadeTags: ['dread','vertigo'] },
-  { id: 'death_nf_03', phases: ['SENIOR','ANCIENT'], eras: ['NEAR_FUTURE'], category: 'body', title: 'The system denial', description: 'Your care authorization expires. The AI says you\'ve exceeded your allocation. There is no manager to speak to.', cascadeTags: ['rage','resignation'] },
-  { id: 'death_ff_01', phases: ['INFANT','CHILD'], eras: ['FAR_FUTURE'], category: 'body', title: 'The synthetic failure', description: 'The vat-grown organs reject in ways they didn\'t predict. The doctors adjust and adjust and adjust. It\'s not enough.', cascadeTags: ['grief','numbness'] },
-  { id: 'death_ff_02', phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['FAR_FUTURE'], category: 'violence', title: 'The climate disaster', description: 'The seawall breaks or the fire jumps the river. You run and the geography has changed. There\'s nowhere left to go.', cascadeTags: ['dread','vertigo'] },
-  { id: 'death_ff_03', phases: ['SENIOR','ANCIENT'], eras: ['FAR_FUTURE'], category: 'body', title: 'The upload rejection', description: 'You chose the digital path but the substrate doesn\'t hold. Your consciousness fragments and scatters. The backup was corrupted.', cascadeTags: ['dissolution','dread'] },
-];
-
-function resolveTemplate(text, vars) {
-  if (!text) return '';
-  return text.replace(/\{(name|location|era|phase|anchor)\}/g, (match, key) => vars[key] !== undefined ? vars[key] : match);
-}
-
-function eventTick(lifeState, soulFragments, cascadeTags = []) {
-  const age = lifeState.age;
-  const mortalityRate = getMortalityRate(age);
-  const phase = getLifePhase(age);
-  let nextTickYears;
-  if (age <= 4) nextTickYears = 1;
-  else if (age <= 14) nextTickYears = 3;
-  else if (age <= 24) nextTickYears = 2;
-  else if (age <= 64) nextTickYears = 3;
-  else if (age <= 84) nextTickYears = 2;
-  else nextTickYears = 1;
-
-  const deathProbability = (mortalityRate / 1000) * nextTickYears;
-  const died = Math.random() < deathProbability;
-
-  if (died) {
-    const eligibleDeaths = DEATH_EVENTS.filter(d => d.eras.includes(lifeState.era) && d.phases.includes(phase));
-    const deathEvent = eligibleDeaths.length > 0 ? eligibleDeaths[Math.floor(Math.random() * eligibleDeaths.length)] : DEATH_EVENTS.find(d => d.eras.includes(lifeState.era));
-    const deathCause = deathEvent ? deathEvent.title : 'Unknown causes';
-    return { ageReached: age + nextTickYears, died: true, deathCause, event: deathEvent ? { ...deathEvent, description: resolveTemplate(deathEvent.description, { name: lifeState.name || 'You', location: lifeState.location || 'here', era: lifeState.era, phase, anchor: lifeState.anchor || '' }) } : null, nextTickYears };
-  }
-
-  if (Math.random() > 0.75) {
-    return { ageReached: age + nextTickYears, died: false, deathCause: null, event: null, nextTickYears };
-  }
-
-  const event = selectNextEvent(lifeState, soulFragments, cascadeTags);
-  if (!event) {
-    return { ageReached: age + nextTickYears, died: false, deathCause: null, event: null, nextTickYears };
-  }
-
-  const resolvedEvent = { ...event, description: resolveTemplate(event.description, { name: lifeState.name || 'You', location: lifeState.location || 'here', era: lifeState.era, phase, anchor: lifeState.anchor || '' }) };
-  return { ageReached: age + nextTickYears, died: false, deathCause: null, event: resolvedEvent, nextTickYears };
-}
-
-function selectNextEvent(lifeState, soulFragments, cascadeTags = []) {
-  const phase = getLifePhase(lifeState.age);
-  const era = lifeState.era;
-  const pool = EVENT_POOLS[era];
-  if (!pool || pool.length === 0) return null;
-
-  const eligible = pool.filter(e => e.eras.includes(era) && e.phases.includes(phase) && Math.random() < e.triggerProbability);
-  if (eligible.length === 0) {
-    const relaxed = pool.filter(e => e.eras.includes(era) && e.phases.includes(phase));
-    if (relaxed.length === 0) return null;
-    return weightedRandom(relaxed.map(e => ({ item: e, weight: e.weight })))?.item || null;
-  }
-
-  const scored = eligible.map(event => {
-    let score = event.weight;
-    if (event.cascadeTags && cascadeTags.length > 0) {
-      const matchingTags = event.cascadeTags.filter(t => cascadeTags.includes(t));
-      score += matchingTags.length * 2;
-    }
-    if (soulFragments && soulFragments.influences) {
-      for (const influence of soulFragments.influences) {
-        if (event.cascadeTags && event.cascadeTags.includes(influence.tag)) score += influence.weight * 1.5;
-        if (influence.category && event.category === influence.category) score += influence.weight;
-      }
-    }
-    return { event, score };
-  });
-
-  return weightedRandom(scored.map(s => ({ item: s.event, weight: s.score })))?.item || null;
-}
-
-// ── Whisper System ──
-const FRAGMENT_TYPE_ICONS = {
-  tone: '♪',
-  fear: '⚠',
-  love: '♥',
-  location: '◎',
-  name: '◈',
-  object: '◆',
-  word: '✧',
-  warning: '⚡',
-};
-
-function getWhisperFrequency(soulState, currentPhase) {
-  const fragmentCount = soulState.fragments ? soulState.fragments.length : 0;
-  let freq = Math.min(0.1 * fragmentCount, 0.5);
-  if (soulState.anchors) freq += soulState.anchors.length * 0.05;
-  const era = state.currentLife ? state.currentLife.era : 'ANCIENT';
-  if (era === 'ANCIENT' || era === 'MEDIEVAL') freq *= 1.3;
-  if (era === 'MODERN' || era === 'NEAR_FUTURE' || era === 'FAR_FUTURE') freq *= 1.15;
-  if (currentPhase === 'MIDDLE_AGE' || currentPhase === 'SENIOR' || currentPhase === 'ANCIENT') freq *= 1.4;
-  if (currentPhase === 'INFANT' || currentPhase === 'CHILD') freq *= 0.5;
-  return freq;
-}
-
-function selectWhisperingFragment(soulState, currentEra, recentFragmentIds) {
-  const eligible = soulState.fragments.filter(f => {
-    if (recentFragmentIds.includes(f.id)) return false;
-    if (f.strength < 0.2) return false;
-    if (f.origin && f.origin.era === currentEra) return true;
-    return f.strength > 0.4;
-  });
-  if (eligible.length === 0) return null;
-
-  const weights = eligible.map(f => {
-    let w = f.strength;
-    if (f.origin && f.origin.era === currentEra) w *= 1.5;
-    if (f.isAnchor) w *= 1.3;
-    const lifeNum = f.origin?.lifeId?.split('_').pop() || 0;
-    if ((soulState.livesLived || 0) - parseInt(lifeNum) <= 3) w *= 1.4;
-    return w;
-  });
-  const totalWeight = weights.reduce((a, b) => a + b, 0);
-  let r = Math.random() * totalWeight;
-  for (let i = 0; i < eligible.length; i++) {
-    r -= weights[i];
-    if (r <= 0) return eligible[i];
-  }
-  return eligible[0];
-}
-
-function generateWhisperEvent(fragment, era, currentAge) {
-  const biasTags = fragment.cascadeTags || [];
-  const typeBias = fragment.type === 'fear' ? ['dread', 'danger', 'threat'] :
-                  fragment.type === 'love' ? ['connection', 'tenderness', 'longing'] :
-                  fragment.type === 'tone' ? ['melancholy', 'resignation', 'wonder'] :
-                  ['fate', 'coincidence', 'sign'];
-
-  const pool = EVENT_POOLS[era] || EVENT_POOLS['ANCIENT'] || [];
-  const eligibleEvents = pool.filter(e =>
-    e.cascadeTags && e.cascadeTags.some(t => [...biasTags, ...typeBias].includes(t))
-  );
-
-  if (eligibleEvents.length > 0) {
-    const chosen = pickRandom(eligibleEvents);
-    return {
-      id: `whisper_${Date.now()}`,
-      title: chosen.title,
-      era,
-      age: currentAge,
-      category: 'whisper',
-      intensity: 0.3,
-      cascadeTags: [...(chosen.cascadeTags || []), ...(fragment.cascadeTags || []), fragment.type],
-      description: resolveTemplate(chosen.description, { name: state.currentLife?.name || 'You', location: state.currentLife?.location?.city || 'here', era, phase: getLifePhase(currentAge), anchor: '' }),
-      isWhisperEvent: true,
-      sourceFragmentId: fragment.id,
-    };
-  }
-
-  return createWhisperEvent(fragment, era, currentAge);
-}
-
-function createWhisperEvent(fragment, era, currentAge) {
-  const templates = {
-    tone: `The whisper "${fragment.value}" becomes a memory you can't place.`,
-    fear: `A chill follows you. ${fragment.value}.`,
-    love: `You think of ${fragment.value}. Someone should be here for this.`,
-    location: `You find yourself walking toward ${fragment.value}. You don't remember deciding to go.`,
-    word: `The word ${fragment.value} keeps surfacing. You don't know why.`,
-    object: `Something about ${fragment.value} pulls at you.`,
-    warning: `${fragment.value}. You feel it in your chest before you understand it.`,
-  };
-  const template = templates[fragment.type] || templates.tone;
-  return {
-    id: `whisper_${Date.now()}`,
-    title: 'Fragment Resonates',
-    era,
-    age: currentAge,
-    category: 'whisper',
-    intensity: 0.3,
-    cascadeTags: [...(fragment.cascadeTags || []), fragment.type],
-    description: template,
-    isWhisperEvent: true,
-    sourceFragmentId: fragment.id,
-  };
-}
-
-function showWhisperPanel(fragment) {
-  const panel = document.getElementById('whisper-panel');
-  if (!panel) return;
-
-  const isAnchor = fragment.isAnchor;
-  panel.className = `whisper-panel visible${isAnchor ? ' anchor-whisper' : ''}`;
-
-  document.getElementById('whisper-icon').textContent = FRAGMENT_TYPE_ICONS[fragment.type] || '♪';
-  document.getElementById('whisper-label').textContent = isAnchor ? 'An anchor fragment resonates...' : 'Fragment whispers...';
-  document.getElementById('whisper-anchor-badge').style.display = isAnchor ? 'inline' : 'none';
-  document.getElementById('whisper-value').textContent = `"${fragment.value}"`;
-
-  const actBtn = document.getElementById('whisper-act-btn');
-  actBtn.textContent = isAnchor ? 'Embrace' : 'Act';
-  actBtn.className = `whisper-btn act${isAnchor ? ' embrace' : ''}`;
-
-  panel.style.display = 'block';
-
-  state.whisperTimeLeft = 8000;
-  const timerFill = document.getElementById('whisper-timer-fill');
-  timerFill.style.width = '100%';
-
-  if (state.whisperTimer) clearInterval(state.whisperTimer);
-  state.whisperTimer = setInterval(() => {
-    state.whisperTimeLeft -= 100;
-    const pct = (state.whisperTimeLeft / 8000) * 100;
-    timerFill.style.width = `${Math.max(0, pct)}%`;
-    if (state.whisperTimeLeft <= 0) {
-      handleWhisperIgnore();
-    }
-  }, 100);
-}
-
-function hideWhisperPanel() {
-  const panel = document.getElementById('whisper-panel');
-  if (!panel) return;
-  panel.classList.remove('visible');
-  panel.style.display = 'none';
-  if (state.whisperTimer) {
-    clearInterval(state.whisperTimer);
-    state.whisperTimer = null;
-  }
-}
-
-function handleWhisperAct() {
-  if (!state.currentWhisper) return;
-  const fragment = state.currentWhisper;
-
-  hideWhisperPanel();
-
-  const whisperEvent = generateWhisperEvent(fragment, state.currentLife.era, state.currentAge);
-
-  const eventWithAge = { ...whisperEvent, age: state.currentAge, era: state.currentLife.era };
-  state.lifeEvents.push(eventWithAge);
-  displayEvent(whisperEvent);
-
-  state.eventMarkers.push({ age: state.currentAge, rate: getMortalityRate(Math.min(state.currentAge, 100)) });
-
-  const chainResult = detectChain(eventWithAge, state.lifeEvents);
-  if (chainResult.chainEvent) {
-    if (!state.activeChain || state.activeChain.type !== chainResult.chainType) {
-      state.activeChain = { type: chainResult.chainType, events: [], color: CHAIN_COLORS[chainResult.chainType] };
-    }
-    if (!state.activeChain.events.find(ev => ev.id === eventWithAge.id)) {
-      state.activeChain.events.push(eventWithAge);
-    }
-    if (state.activeChain.events.length >= 2) {
-      state.lifeTheme = generateLifeTheme(state.lifeEvents);
-    }
-  }
-
-  renderChainStrip(state.activeChain);
-  updateLifeSummaryBar();
-
-  if (!state.recentFragmentIds.includes(fragment.id)) {
-    state.recentFragmentIds.push(fragment.id);
-  }
-  if (state.recentFragmentIds.length > 8) {
-    state.recentFragmentIds = state.recentFragmentIds.slice(-8);
-  }
-
-  state.currentWhisper = null;
-  state.whisperCooldown = 20 + Math.floor(Math.random() * 21);
-}
-
-function handleWhisperIgnore() {
-  if (!state.currentWhisper) return;
-  const fragment = state.currentWhisper;
-
-  hideWhisperPanel();
-
-  if (fragment.isAnchor) {
-    if (state.soul && state.soul.emotionalShift !== undefined) {
-      state.soul.emotionalShift = Math.max(-1, state.soul.emotionalShift - 0.05);
-    } else if (state.soul) {
-      state.soul.emotionalShift = -0.05;
-    }
-  }
-
-  state.currentWhisper = null;
-  state.whisperCooldown = 20 + Math.floor(Math.random() * 21);
-}
-
-// ═══════════════════════════════════════════════════════════
-// GAME ENGINE
-// ═══════════════════════════════════════════════════════════
-
-const state = {
-  soul: null,
-  currentLife: null,
-  lifeEvents: [],
-  currentAge: 0,
-  phase: 'INFANT',
-  isAlive: false,
-  isPaused: true,
-  cascadeTags: [],
-  tickInterval: null,
-  speed: 'normal',
-  deathEvent: null,
-  animProgress: 0,
-  eventMarkers: [],
-  lifeTheme: null,
-  activeChain: null,
-  whisperCooldown: 0,
-  currentWhisper: null,
-  recentFragmentIds: [],
-  whisperTimer: null,
-  whisperTimeLeft: 8000,
-  connection: 1,
-  vitality: 1,
-  momentum: 1,
-};
-
-const CRITICAL_INTENSITY = 0.7;
-const DEFAULT_CHOICE_TIMEOUT = 4000;
-
-const CRISIS_CHOICES = {
-  intervene: {
-    key: 'A',
-    label: 'Intervene',
-    subtitle: 'attempt to help',
-    cascadeBias: ['duty', 'sacrifice', 'care', 'grief', 'rescue'],
-    riskDescriptions: ['contagion', 'death', 'depletion'],
-    outcomes: {
-      success: { probability: 0.4, effect: { cascadeTags: ['rescue', 'grace'], relationshipBoost: '+' } },
-      failure: { probability: 0.6, effect: { cascadeTags: ['grief', 'illness'], deathChance: 0.15 } }
-    }
-  },
-  pray: {
-    key: 'B',
-    label: 'Pray',
-    subtitle: 'ask the gods for mercy',
-    cascadeBias: ['faith', 'resignation', 'wonder'],
-    riskDescriptions: ['nothing happens', 'delay', 'abandonment'],
-    outcomes: {
-      success: { probability: 0.3, effect: { cascadeTags: ['faith', 'grace'], relationshipBoost: '+' } },
-      failure: { probability: 0.7, effect: { cascadeTags: ['doubt', 'grief'], emotionalShift: -0.1 } }
-    }
-  },
-  watch: {
-    key: 'C',
-    label: 'Watch',
-    subtitle: 'let it happen',
-    cascadeBias: ['grief', 'survivor', 'distance'],
-    riskDescriptions: ['guilt', 'survivor\'s burden'],
-    outcomes: {
-      success: { probability: 0.5, effect: { cascadeTags: ['resignation', 'grief'], survival: true } },
-      failure: { probability: 0.5, effect: { cascadeTags: ['grief', 'trauma'], emotionalShift: -0.2 } }
-    }
-  }
-};
-
-const RESOURCE_BUILDERS = {
-  connection: ['marriage','birth','child','reunion','forgiveness','friendship','adoption','love','wedding','ceremony','bond'],
-  vitality: ['recovery','health','healing','rest','birth','survival','robust','strong','vitality'],
-  momentum: ['achievement','breakthrough','clarity','purpose','discovery','triumph','success','victory']
-};
-
-const RESOURCE_DEPLETERS = {
-  connection: ['betrayal','loss','death','estrangement','divorce','abandonment','rival','blood','war','enemy','hate'],
-  vitality: ['plague','illness','injury','trauma','poison','starvation','fever','exhaustion','sick','weak','wound'],
-  momentum: ['confusion','failure','doubt','aimlessness','lost','aimless','confused','迷','fail']
-};
-
-function modifyResourcesForEvent(event) {
-  if (!event || !event.cascadeTags) return;
-  const tags = event.cascadeTags.map(t => t.toLowerCase());
-
-  for (const [resource, keywords] of Object.entries(RESOURCE_BUILDERS)) {
-    for (const kw of keywords) {
-      if (tags.some(t => t.includes(kw))) {
-        state[resource] = Math.min(3, state[resource] + 1);
-      }
-    }
-  }
-  for (const [resource, keywords] of Object.entries(RESOURCE_DEPLETERS)) {
-    for (const kw of keywords) {
-      if (tags.some(t => t.includes(kw))) {
-        state[resource] = Math.max(0, state[resource] - 1);
-      }
-    }
-  }
-  updateResourceDisplay();
-}
-
-function updateResourceDisplay() {
-  const el = document.getElementById('resource-display');
-  if (!el) return;
-  const c = state.connection, v = state.vitality, m = state.momentum;
-  const dot = (n) => '●'.repeat(n) + '○'.repeat(3 - n);
-  el.innerHTML = `Lives: ${state.soul?.livesLived || 0} &nbsp;|&nbsp; <span style="color:var(--chain-love)">${dot(c)}</span> Con &nbsp; <span style="color:var(--cyan)">${dot(v)}</span> Vit &nbsp; <span style="color:var(--amber)">${dot(m)}</span> Mom`;
-}
-
-function isCrisisEvent(event) {
-  if (!event) return false;
-  const intensity = event.intensity || event.emotionalIntensity || 0;
-  const hasChoices = event.choices && event.choices.length > 0;
-  return (
-    (intensity >= CRITICAL_INTENSITY || event.crisisTag) &&
-    !event.isDeathEvent &&
-    !event.isCrisisHandled &&
-    hasChoices
-  );
-}
-
-function resolveCrisisChoice(choiceKey, event) {
-  const choiceMap = { A: 'intervene', B: 'pray', C: 'watch' };
-  const choiceId = choiceMap[choiceKey];
-  if (!choiceId) return resolveCrisisChoice('C', event);
-
-  const choice = CRISIS_CHOICES[choiceId];
-  const roll = Math.random();
-  const successThreshold = choice.outcomes.success.probability;
-  const isSuccess = roll < successThreshold;
-  const outcome = isSuccess ? choice.outcomes.success : choice.outcomes.failure;
-
-  event.isCrisisHandled = true;
-
-  if (outcome.effect.deathChance && Math.random() < outcome.effect.deathChance) {
-    triggerImmediateDeath(outcome.effect.cascadeTags || []);
-    return;
-  }
-
-  if (outcome.effect.cascadeTags && outcome.effect.cascadeTags.length > 0) {
-    state.cascadeTags = [...new Set([...state.cascadeTags, ...choice.cascadeBias, ...outcome.effect.cascadeTags])];
-  } else if (choice.cascadeBias) {
-    state.cascadeTags = [...new Set([...state.cascadeTags, ...choice.cascadeBias])];
-  }
-
-  if (outcome.effect.emotionalShift) {
-    state.emotionalShift = (state.emotionalShift || 0) + outcome.effect.emotionalShift;
-  }
-}
-
-function triggerImmediateDeath(cascadeTags) {
-  const deathEvent = {
-    id: 'death_crisis_' + Date.now(),
-    title: 'The crisis claimed you',
-    description: 'You stepped too close to the fire and it took you.',
-    cascadeTags: cascadeTags || ['grief', 'vertigo'],
-    category: 'violence',
-    era: state.currentLife.era,
-    age: state.currentAge,
-    isDeathEvent: true,
-  };
-
-  state.isAlive = false;
-  state.deathEvent = deathEvent;
-  clearInterval(state.tickInterval);
-  state.tickInterval = null;
-
-  state.lifeEvents.push({ ...deathEvent, age: state.currentAge });
-  state.eventMarkers.push({ age: state.currentAge, rate: getMortalityRate(Math.min(state.currentAge, 100)) });
-
-  const chainResult = detectChain(deathEvent, state.lifeEvents);
-  if (chainResult.chainEvent) {
-    if (!state.activeChain) {
-      state.activeChain = { type: chainResult.chainType, events: [], color: CHAIN_COLORS[chainResult.chainType] };
-    }
-    if (!state.activeChain.events.find(ev => ev.id === deathEvent.id)) {
-      state.activeChain.events.push(deathEvent);
-    }
-  }
-
-  if (state.lifeEvents.length >= 2) {
-    state.lifeTheme = generateLifeTheme(state.lifeEvents);
-  }
-
-  const { newFragments } = extractFragments(state.lifeEvents, deathEvent, state.soul);
-  applyFragmentEffects(state.soul, newFragments);
-
-  updateUI();
-  showFragments(newFragments);
-  drawCurve();
-
-  setTimeout(() => showDeathOverlay(deathEvent), 500);
-}
-
-function showCrisisPrompt(event, choices) {
-  const overlay = document.getElementById('crisis-overlay');
-  const causeEl = document.getElementById('crisis-cause');
-  const choicesEl = document.getElementById('crisis-choices');
-  const timerFill = document.getElementById('crisis-timer-fill');
-  const timerText = document.getElementById('crisis-timer-text');
-
-  const displayCause = event.description || event.title || 'A crisis unfolds.';
-  causeEl.textContent = displayCause;
-
-  choicesEl.innerHTML = '';
-  const choiceOrder = ['A', 'B', 'C'];
-  const choiceIds = ['intervene', 'pray', 'watch'];
-
-  choiceOrder.forEach((key, i) => {
-    const choice = CRISIS_CHOICES[choiceIds[i]];
-    const btn = document.createElement('button');
-    btn.className = 'crisis-choice';
-    btn.dataset.key = key;
-    btn.innerHTML = `
-      <span class="choice-key">${key}</span>
-      <span class="choice-content">
-        <div class="choice-label">${choice.label} — ${choice.subtitle}</div>
-        <div class="choice-risk">Risk: ${choice.riskDescriptions.join(', ')}</div>
-      </span>
-    `;
-    btn.addEventListener('click', () => handleCrisisChoice(key));
-    choicesEl.appendChild(btn);
-  });
-
-  overlay.classList.add('visible');
-
-  let remaining = DEFAULT_CHOICE_TIMEOUT;
-  const interval = setInterval(() => {
-    remaining -= 100;
-    const pct = (remaining / DEFAULT_CHOICE_TIMEOUT) * 100;
-    timerFill.style.width = pct + '%';
-    timerText.textContent = `You have ${Math.ceil(remaining / 1000)} second${Math.ceil(remaining / 1000) !== 1 ? 's' : ''}...`;
-
-    if (remaining <= 0) {
-      clearInterval(interval);
-      handleCrisisChoice('C');
-    }
-  }, 100);
-
-  state.crisisPending = { event, interval };
-}
-
-function hideCrisisPrompt() {
-  const overlay = document.getElementById('crisis-overlay');
-  overlay.classList.remove('visible');
-
-  if (state.crisisPending && state.crisisPending.interval) {
-    clearInterval(state.crisisPending.interval);
-  }
-  state.crisisPending = null;
-}
-
-function handleCrisisChoice(key) {
-  if (!state.crisisPending) return;
-  const { event } = state.crisisPending;
-  hideCrisisPrompt();
-  resolveCrisisChoice(key, event);
-  state.isPaused = false;
-  updateUI();
-  drawCurve();
-}
-
-function handleCrisisKeydown(e) {
-  if (!state.crisisPending) return;
-  const key = e.key.toUpperCase();
-  if (['A', 'B', 'C'].includes(key)) {
-    e.preventDefault();
-    handleCrisisChoice(key);
-  } else if (e.key === 'Escape') {
-    e.preventDefault();
-    handleCrisisChoice('C');
-  }
-}
-
-document.addEventListener('keydown', handleCrisisKeydown);
-
-document.getElementById('crisis-overlay').addEventListener('click', (e) => {
-  if (e.target.id === 'crisis-overlay') {
-    handleCrisisChoice('C');
-  }
-});
-
-const SPEED_MAP = { slow: 1000, normal: 400, fast: 100 };
-
-// DOM refs
-const canvas = document.getElementById('curve-canvas');
-const ctx = canvas.getContext('2d');
-const tooltip = document.getElementById('curve-tooltip');
-const eraBadge = document.getElementById('era-badge');
-const fragBadge = document.getElementById('frag-badge');
-const phaseIndicator = document.getElementById('phase-indicator');
-const phaseText = document.getElementById('phase-text');
-const eventTitle = document.getElementById('event-title');
-const eventProse = document.getElementById('event-prose');
-const lifeMeta = document.getElementById('life-meta');
-const metaAge = document.getElementById('meta-age');
-const metaName = document.getElementById('meta-name');
-const metaLocation = document.getElementById('meta-location');
-const fragmentList = document.getElementById('fragment-list');
-const lifeViewport = document.getElementById('life-viewport');
-const idleMessage = document.getElementById('idle-message');
-const deathOverlay = document.getElementById('death-overlay');
-const app = document.getElementById('app');
-
-// Canvas sizing
-function resizeCanvas() {
-  const rect = canvas.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-  ctx.scale(dpr, dpr);
-  drawCurve();
-}
-
-// ── J-Curve Drawing ──
-function getCurvePoints() {
-  const points = [];
-  for (let age = 0; age <= 100; age++) {
-    points.push({ age, rate: getMortalityRate(age) });
-  }
-  return points;
-}
-
-function drawCurve(animProgress = 1) {
-  const w = canvas.getBoundingClientRect().width;
-  const h = canvas.getBoundingClientRect().height;
-  const pad = { top: 10, right: 10, bottom: 25, left: 35 };
-  const cw = w - pad.left - pad.right;
-  const ch = h - pad.top - pad.bottom;
-
-  ctx.clearRect(0, 0, w, h);
-
-  const points = getCurvePoints();
-  const maxRate = 80;
-  const drawCount = Math.floor(points.length * Math.min(animProgress, 1));
-
-  // Grid lines
-  ctx.strokeStyle = '#1a1a2e';
-  ctx.lineWidth = 0.5;
-  for (let i = 0; i <= 4; i++) {
-    const y = pad.top + (ch / 4) * i;
-    ctx.beginPath();
-    ctx.moveTo(pad.left, y);
-    ctx.lineTo(w - pad.right, y);
-    ctx.stroke();
-  }
-
-  // Axis labels
-  ctx.fillStyle = '#555570';
-  ctx.font = '9px "IBM Plex Mono", monospace';
-  ctx.textAlign = 'center';
-  for (let age = 0; age <= 100; age += 10) {
-    const x = pad.left + (age / 100) * cw;
-    ctx.fillText(age, x, h - 5);
-  }
-  ctx.textAlign = 'right';
-  ctx.fillText('risk', pad.left - 4, pad.top + 8);
-
-  // Filled area
-  const gradient = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
-  gradient.addColorStop(0, 'rgba(255, 170, 0, 0.25)');
-  gradient.addColorStop(0.5, 'rgba(255, 170, 0, 0.08)');
-  gradient.addColorStop(1, 'rgba(255, 170, 0, 0.01)');
-
-  if (points.length === 0 || drawCount === 0) return;
-
-  ctx.beginPath();
-  ctx.moveTo(pad.left, pad.top + ch);
-  for (let i = 0; i < drawCount; i++) {
-    const x = pad.left + (points[i].age / 100) * cw;
-    const y = pad.top + ch - (points[i].rate / maxRate) * ch;
-    ctx.lineTo(x, y);
-  }
-  const lastPt = points[Math.min(drawCount - 1, points.length - 1)];
-  const lastX = lastPt ? pad.left + (lastPt.age / 100) * cw : pad.left;
-  ctx.lineTo(lastX, pad.top + ch);
-  ctx.closePath();
-  ctx.fillStyle = gradient;
-  ctx.fill();
-
-  // Line
-  ctx.beginPath();
-  for (let i = 0; i < drawCount; i++) {
-    const x = pad.left + (points[i].age / 100) * cw;
-    const y = pad.top + ch - (points[i].rate / maxRate) * ch;
-    if (i === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  }
-  ctx.strokeStyle = '#ffaa00';
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-
-  // Event markers (red X)
-  for (const marker of state.eventMarkers) {
-    const mx = pad.left + (marker.age / 100) * cw;
-    const my = pad.top + ch - (marker.rate / maxRate) * ch;
-    ctx.strokeStyle = '#ff4466';
-    ctx.lineWidth = 1.5;
-    const s = 4;
-    ctx.beginPath();
-    ctx.moveTo(mx - s, my - s);
-    ctx.lineTo(mx + s, my + s);
-    ctx.moveTo(mx + s, my - s);
-    ctx.lineTo(mx - s, my + s);
-    ctx.stroke();
-  }
-
-  // Current age marker
-  if (state.isAlive && state.currentAge >= 0 && state.currentAge <= 100) {
-    const ageX = pad.left + (state.currentAge / 100) * cw;
-    const currentRate = getMortalityRate(state.currentAge);
-    const ageY = pad.top + ch - (currentRate / maxRate) * ch;
-
-    // Vertical line
-    ctx.strokeStyle = 'rgba(255, 170, 0, 0.3)';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([3, 3]);
-    ctx.beginPath();
-    ctx.moveTo(ageX, pad.top);
-    ctx.lineTo(ageX, pad.top + ch);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Dot
-    ctx.beginPath();
-    ctx.arc(ageX, ageY, 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#ffaa00';
-    ctx.fill();
-    ctx.strokeStyle = '#050508';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-
-    // Glow
-    ctx.beginPath();
-    ctx.arc(ageX, ageY, 8, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255, 170, 0, 0.15)';
-    ctx.fill();
-  }
-
-  // Death pulse
-  if (!state.isAlive && state.deathEvent) {
-    const deathAge = state.currentAge;
-    const dx = pad.left + (deathAge / 100) * cw;
-    const deathRate = getMortalityRate(Math.min(deathAge, 100));
-    const dy = pad.top + ch - (deathRate / maxRate) * ch;
-
-    ctx.beginPath();
-    ctx.arc(dx, dy, 12, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255, 68, 102, 0.2)';
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(dx, dy, 6, 0, Math.PI * 2);
-    ctx.fillStyle = '#ff4466';
-    ctx.fill();
-  }
-}
-
-// ── Canvas tooltip ──
-canvas.addEventListener('mousemove', (e) => {
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const w = rect.width;
-  const pad = { left: 35, right: 10 };
-  const cw = w - pad.left - pad.right;
-  const age = Math.round(((x - pad.left) / cw) * 100);
-  if (age >= 0 && age <= 100) {
-    const rate = getMortalityRate(age);
-    const phase = getLifePhase(age);
-    tooltip.textContent = `age ${age} | risk ${rate.toFixed(2)}‰ | ${phase}`;
-    tooltip.classList.add('visible');
-  }
-});
-
-canvas.addEventListener('mouseleave', () => {
-  tooltip.classList.remove('visible');
-});
-
-canvas.addEventListener('click', () => {
-  tooltip.classList.toggle('visible');
-});
-
-// ── UI Updates ──
-function updateUI() {
-  if (!state.currentLife) return;
-  const life = state.currentLife;
-
-  eraBadge.textContent = ERAS[life.era]?.label || life.era;
-  fragBadge.textContent = `${state.soul.fragments.length} fragments`;
-
-  if (state.isAlive) {
-    idleMessage.style.display = 'none';
-    phaseIndicator.style.display = 'flex';
-    eventTitle.style.display = 'block';
-    eventProse.style.display = 'block';
-    lifeMeta.style.display = 'flex';
-
-    const phase = getLifePhase(state.currentAge);
-    state.phase = phase;
-    phaseText.textContent = phase.replace('_', ' ');
-
-    metaAge.textContent = `age ${state.currentAge}`;
-    metaName.textContent = life.name;
-    metaLocation.textContent = `${life.location.city}, ${life.location.country}`;
-
-    // Phase bar
-    document.querySelectorAll('.phase-segment').forEach(seg => {
-      seg.classList.toggle('active', seg.dataset.phase === phase);
-    });
-  }
-
-  updateLifeSummaryBar();
-}
-
-function displayEvent(event) {
-  if (!event) return;
-
-  // Clear previous chain classes
-  eventTitle.className = 'chain-active';
-
-  const chainType = getChainTypeForEvent(event);
-  if (chainType) {
-    eventTitle.classList.add(`event-chain-${chainType.toLowerCase()}`);
-    eventTitle.classList.add('chain-active');
-  }
-
-  eventTitle.innerHTML = (chainType ? '<span class="chain-icon">⚭</span>' : '') + event.title;
-  eventProse.textContent = event.description;
-  eventTitle.style.display = 'block';
-  eventProse.style.display = 'block';
-
-  // Track cascade tags
-  if (event.cascadeTags) {
-    state.cascadeTags = event.cascadeTags;
-  }
-}
-
-function showFragments(newFragments) {
-  fragmentList.innerHTML = '';
-  const recent = state.soul.fragments.slice(-3).reverse();
-  for (const frag of recent) {
-    const el = document.createElement('div');
-    el.className = `fragment-shard${frag.isAnchor ? ' anchor' : ''}`;
-    el.textContent = frag.value;
-    el.title = `[${frag.type}] strength: ${frag.strength.toFixed(2)}${frag.isAnchor ? ' ★ anchor' : ''}`;
-    fragmentList.appendChild(el);
-  }
-  fragBadge.textContent = `${state.soul.fragments.length} fragment${state.soul.fragments.length !== 1 ? 's' : ''}`;
-}
-
-function showDeathOverlay(deathEvent) {
-  const life = state.currentLife;
-  document.getElementById('death-cause').textContent = deathEvent?.title || 'Unknown causes';
-  document.getElementById('death-summary').textContent = deathEvent?.description || '';
-  document.getElementById('death-age').textContent = `age ${state.currentAge}`;
-  document.getElementById('death-era').textContent = `${ERAS[life.era]?.label || life.era} • ${life.year}`;
-  document.getElementById('death-life-num').textContent = `life #${state.soul.livesLived + 1}`;
-  deathOverlay.classList.add('visible');
-
-  // Show chain recap
-  showChainRecapOnDeath(state.lifeEvents);
-
-  // Screen effects
-  app.classList.add('shake');
-  lifeViewport.classList.add('red-flash');
-  setTimeout(() => { app.classList.remove('shake'); lifeViewport.classList.remove('red-flash'); }, 600);
-}
-
-function hideDeathOverlay() {
-  deathOverlay.classList.remove('visible');
-}
-
-// ── Game Loop ──
-function startLife() {
-  // Create soul if needed
-  if (!state.soul) state.soul = createSoulState();
-
-  // Roll new life
-  const roll = rollSoulLife(state.soul);
-  state.currentLife = roll.life;
-  state.currentAge = 0;
-  state.lifeEvents = [];
-  state.cascadeTags = [];
-  state.isAlive = true;
-  state.isPaused = false;
-  state.deathEvent = null;
-  state.eventMarkers = [];
-  state.animProgress = 0;
-  state.lifeTheme = null;
-  state.activeChain = null;
-  state.whisperCooldown = 0;
-  state.currentWhisper = null;
-  state.recentFragmentIds = [];
-  state.connection = 1;
-  state.vitality = 1;
-  state.momentum = 1;
-  updateResourceDisplay();
-  if (state.whisperTimer) { clearInterval(state.whisperTimer); state.whisperTimer = null; }
-  hideWhisperPanel();
-
-  // UI reset
-  hideDeathOverlay();
-  idleMessage.style.display = 'none';
-  phaseIndicator.style.display = 'flex';
-  eventTitle.style.display = 'block';
-  eventProse.style.display = 'block';
-  lifeMeta.style.display = 'flex';
-
-  // Reset chain visualizer
-  const themeHeader = document.getElementById('life-theme-header');
-  if (themeHeader) themeHeader.classList.remove('visible');
-
-  eventTitle.textContent = `${state.currentLife.name} is born`;
-  eventProse.textContent = `${ERAS[state.currentLife.era]?.label || state.currentLife.era}, ${state.currentLife.year}. ${state.currentLife.location.city}, ${state.currentLife.location.country}. A ${state.currentLife.health} ${state.currentLife.socialClass} enters the curve.`;
-  metaAge.textContent = 'age 0';
-  metaName.textContent = state.currentLife.name;
-  metaLocation.textContent = `${state.currentLife.location.city}, ${state.currentLife.location.country}`;
-  eraBadge.textContent = ERAS[state.currentLife.era]?.label || state.currentLife.era;
-
-  lifeViewport.classList.add('new-life');
-  setTimeout(() => lifeViewport.classList.remove('new-life'), 1500);
-
-  // Animate curve draw
-  animateCurveDraw();
-
-  // Start tick loop
-  if (state.tickInterval) clearInterval(state.tickInterval);
-  state.tickInterval = setInterval(gameTick, SPEED_MAP[state.speed]);
-}
-
-function animateCurveDraw() {
-  state.animProgress = 0;
-  const startTime = performance.now();
-  const duration = 1500;
-
-  function step(now) {
-    state.animProgress = Math.min(1, (now - startTime) / duration);
-    drawCurve(state.animProgress);
-    if (state.animProgress < 1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
-}
-
-function gameTick() {
-  if (!state.isAlive || state.isPaused) return;
-
-  const lifeState = {
-    age: state.currentAge,
-    era: state.currentLife.era,
-    name: state.currentLife.name,
-    location: state.currentLife.location.city,
-    anchor: '',
-  };
-
-  const soulInfluences = { influences: [] };
-
-  const result = eventTick(lifeState, soulInfluences, state.cascadeTags);
-
-  state.currentAge = result.ageReached;
-
-  if (result.died) {
-    state.isAlive = false;
-    state.deathEvent = result.event;
-    clearInterval(state.tickInterval);
-    state.tickInterval = null;
-
-    // Add death event to life events
-    if (result.event) {
-      const deathEventWithAge = { ...result.event, age: state.currentAge, era: state.currentLife.era };
-      state.lifeEvents.push(deathEventWithAge);
-      // Add event marker
-      state.eventMarkers.push({ age: state.currentAge, rate: getMortalityRate(Math.min(state.currentAge, 100)) });
-
-      // Detect chain on death event
-      const chainResult = detectChain(deathEventWithAge, state.lifeEvents);
-      if (chainResult.chainEvent) {
-        if (!state.activeChain) {
-          state.activeChain = { type: chainResult.chainType, events: [], color: CHAIN_COLORS[chainResult.chainType] };
-        }
-        if (!state.activeChain.events.find(ev => ev.id === deathEventWithAge.id)) {
-          state.activeChain.events.push(deathEventWithAge);
-        }
-      }
-
-      // Generate life theme if we have enough events
-      if (state.lifeEvents.length >= 2) {
-        state.lifeTheme = generateLifeTheme(state.lifeEvents);
-      }
-    }
-
-    // Extract fragments
-    const { newFragments } = extractFragments(state.lifeEvents, result.event, state.soul);
-    applyFragmentEffects(state.soul, newFragments);
-
-    // Update UI
-    updateUI();
-    showFragments(newFragments);
-    drawCurve();
-
-    // Show death overlay after a beat
-    setTimeout(() => showDeathOverlay(result.event), 500);
-    return;
-  }
-
-  if (result.event) {
-    const eventWithAge = { ...result.event, age: state.currentAge, era: state.currentLife.era };
-    state.lifeEvents.push(eventWithAge);
-    displayEvent(result.event);
-    modifyResourcesForEvent(result.event);
-
-    // Add event marker on curve
-    state.eventMarkers.push({ age: state.currentAge, rate: getMortalityRate(Math.min(state.currentAge, 100)) });
-
-    // Check for crisis event
-    if (isCrisisEvent(result.event)) {
-      state.isPaused = true;
-      showCrisisPrompt(result.event, result.event.choices);
-      return;
-    }
-
-    // Chain detection
-    const chainResult = detectChain(eventWithAge, state.lifeEvents);
-    if (chainResult.chainEvent) {
-      if (!state.activeChain || state.activeChain.type !== chainResult.chainType) {
-        state.activeChain = { type: chainResult.chainType, events: [], color: CHAIN_COLORS[chainResult.chainType] };
-      }
-      if (!state.activeChain.events.find(ev => ev.id === eventWithAge.id)) {
-        state.activeChain.events.push(eventWithAge);
-      }
-
-      // Generate life theme when 2+ chain events exist
-      if (state.activeChain.events.length >= 2) {
-        state.lifeTheme = generateLifeTheme(state.lifeEvents);
-      }
-    }
-
-    // Update chain visualizer
-    renderChainStrip(state.activeChain);
-
-    // Update life summary bar
-    updateLifeSummaryBar();
-  }
-
-  // Whisper cooldown (only decrement when not in crisis)
-  if (state.whisperCooldown > 0) state.whisperCooldown--;
-
-  // Whisper trigger check — only when not in crisis, no active whisper, and cooldown is 0
-  if (!state.currentWhisper && state.whisperCooldown <= 0 && !state.isPaused) {
-    const currentPhase = getLifePhase(state.currentAge);
-    const whisperFreq = getWhisperFrequency(state.soul, currentPhase);
-    if (Math.random() < whisperFreq) {
-      const fragment = selectWhisperingFragment(state.soul, state.currentLife.era, state.recentFragmentIds);
-      if (fragment) {
-        state.currentWhisper = fragment;
-        showWhisperPanel(fragment);
-      } else {
-        state.whisperCooldown = 10;
-      }
-    }
-  }
-
-  updateUI();
-  drawCurve();
-}
-
-function dieNow(isTacticalExit = false) {
-  if (!state.isAlive) return;
-
-  // If not tactical exit and resources > 0, show confirmation
-  if (!isTacticalExit && (state.connection > 0 || state.vitality > 0 || state.momentum > 0)) {
-    showExitConfirm();
-    return;
-  }
-
-  const deathEvent = {
-    id: 'death_force',
-    title: 'You chose to leave',
-    description: 'The curve bends but doesn\'t break. You step off at age ' + state.currentAge + '. The world keeps turning without you.',
-    cascadeTags: ['resignation', 'dissolution'],
-    category: 'circumstance',
-    era: state.currentLife.era,
-    age: state.currentAge,
-  };
-
-  state.isAlive = false;
-  state.deathEvent = deathEvent;
-  clearInterval(state.tickInterval);
-  state.tickInterval = null;
-
-  if (isTacticalExit) {
-    state.connection = 0;
-    state.vitality = 0;
-    state.momentum = 0;
-    updateResourceDisplay();
-  }
-
-  state.lifeEvents.push(deathEvent);
-  state.eventMarkers.push({ age: state.currentAge, rate: getMortalityRate(Math.min(state.currentAge, 100)) });
-
-  const chainResult = detectChain(deathEvent, state.lifeEvents);
-  if (chainResult.chainEvent) {
-    if (!state.activeChain) {
-      state.activeChain = { type: chainResult.chainType, events: [], color: CHAIN_COLORS[chainResult.chainType] };
-    }
-    if (!state.activeChain.events.find(ev => ev.id === deathEvent.id)) {
-      state.activeChain.events.push(deathEvent);
-    }
-  }
-
-  if (state.lifeEvents.length >= 2) {
-    state.lifeTheme = generateLifeTheme(state.lifeEvents);
-  }
-
-  const resourceBonus = (state.connection + state.vitality + state.momentum) / 9;
-  const { newFragments } = extractFragments(state.lifeEvents, deathEvent, state.soul, resourceBonus);
-  applyFragmentEffects(state.soul, newFragments);
-
-  updateUI();
-  showFragments(newFragments);
-  drawCurve();
-
-  setTimeout(() => showDeathOverlay(deathEvent, null, { isTacticalExit }), 500);
-}
-
-function showExitConfirm() {
-  const overlay = document.getElementById('exit-confirm-overlay');
-  const resEl = document.getElementById('exit-resources');
-  const dot = (n) => '●'.repeat(n) + '○'.repeat(3 - n);
-  resEl.innerHTML = `
-    <span style="color:var(--chain-love)">${dot(state.connection)}</span> Connection &nbsp;
-    <span style="color:var(--cyan)">${dot(state.vitality)}</span> Vitality &nbsp;
-    <span style="color:var(--amber)">${dot(state.momentum)}</span> Momentum
-  `;
-  overlay.classList.add('visible');
-
-  const confirmBtn = document.getElementById('btn-confirm-exit');
-  const cancelBtn = document.getElementById('btn-cancel-exit');
-
-  const cleanup = () => {
-    overlay.classList.remove('visible');
-    confirmBtn.removeEventListener('click', onConfirm);
-    cancelBtn.removeEventListener('click', onCancel);
-  };
-  const onConfirm = () => { cleanup(); dieNow(true); };
-  const onCancel = () => { cleanup(); };
-
-  confirmBtn.addEventListener('click', onConfirm);
-  cancelBtn.addEventListener('click', onCancel);
-}
-
-function hideExitConfirm() {
-  document.getElementById('exit-confirm-overlay').classList.remove('visible');
-}
-
-function setSpeed(speed) {
-  state.speed = speed;
-  document.querySelectorAll('.speed-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.speed === speed);
-  });
-  if (state.isAlive && state.tickInterval) {
-    clearInterval(state.tickInterval);
-    state.tickInterval = setInterval(gameTick, SPEED_MAP[speed]);
-  }
-}
-
-// ── Event Listeners ──
-document.getElementById('btn-new-life').addEventListener('click', startLife);
-document.getElementById('btn-new-life-overlay').addEventListener('click', startLife);
-document.getElementById('btn-end-life').addEventListener('click', () => dieNow(false));
-document.getElementById('btn-close-death').addEventListener('click', () => { hideDeathOverlay(); });
-
-document.querySelectorAll('.speed-btn').forEach(btn => {
-  btn.addEventListener('click', () => setSpeed(btn.dataset.speed));
-});
-
-document.getElementById('whisper-act-btn').addEventListener('click', handleWhisperAct);
-document.getElementById('whisper-ignore-btn').addEventListener('click', handleWhisperIgnore);
-
-document.addEventListener('keydown', (e) => {
-  if (state.currentWhisper) {
-    if (e.key === 'y' || e.key === 'Y') {
-      handleWhisperAct();
-    } else if (e.key === 'n' || e.key === 'N') {
-      handleWhisperIgnore();
-    }
-  }
-});
-
-// ── Init ──
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-drawCurve(0);
-
-// Initial idle state
-eraBadge.textContent = '---';
-fragBadge.textContent = '0 fragments';
-hideWhisperPanel();
-</script>
+<div id="overlay-soul-browser" class="modal-overlay hidden">
+  <div class="modal-content" id="soul-browser-content"></div>
+</div>
+
+<div id="overlay-limbo" class="modal-overlay hidden">
+  <div class="modal-content" id="limbo-content"></div>
+</div>
+
+<div id="overlay-gameover" class="modal-overlay hidden">
+  <div class="modal-content" id="gameover-content"></div>
+</div>
+
+<div id="overlay-settings" class="modal-overlay hidden">
+  <div class="modal-content" id="settings-content"></div>
+</div>
+
+<script type="module" src="js/main.js"></script>
 </body>
 </html>

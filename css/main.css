@@ -1,0 +1,136 @@
+:root {
+    --color-bg: #0a0a0f;
+    --color-surface: #141420;
+    --color-surface-light: #1e1e30;
+    --color-border: #2a2a45;
+    --color-text: #e8e6e3;
+    --color-text-dim: #9a9a9a;
+    --color-accent-gold: #d4af37;
+    --color-accent-copper: #b87333;
+    --color-accent-cyan: #00b4d8;
+    --color-era-ancient: #8b7355;
+    --color-era-medieval: #4a4a6a;
+    --color-era-industrial: #6b4423;
+    --color-era-modern: #3a5f3a;
+    --color-era-future: #1a3a5c;
+    --color-health: #c0392b;
+    --color-souls: #9b59b6;
+    --color-xp: #27ae60;
+    --font-display: 'Cinzel', serif;
+    --font-body: 'Crimson Text', serif;
+    --shadow-glow: 0 0 20px rgba(212, 175, 55, 0.3);
+    --transition-fast: 150ms ease;
+    --transition-med: 300ms ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+#title-screen {
+}
+
+#game-container {
+}
+
+#overlay-start {
+}
+
+#overlay-pause {
+}
+
+.event-scene-container {
+  width: 100%;
+  height: 120px;
+  overflow: hidden;
+  border-radius: 4px 4px 0 0;
+  position: relative;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+
+.event-scene-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  display: block;
+}
+
+.event-scene-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.4) 100%);
+  pointer-events: none;
+}
+
+.event-scene-container.expanded {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  max-width: 800px;
+  height: auto;
+  max-height: 80vh;
+  z-index: 1000;
+  border-radius: 8px;
+  box-shadow: 0 0 40px rgba(0,0,0,0.8);
+}
+
+.event-scene-container.expanded .event-scene-image {
+  width: 100%;
+  height: auto;
+  max-height: 80vh;
+  object-fit: contain;
+}
+
+.event-scene-placeholder {
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.3s ease;
+}
+
+.event-scene-fallback {
+  opacity: 0.7;
+}
+
+.event-scene-loading {
+  background: var(--color-surface);
+}
+
+.event-scene-generating {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  font-size: 11px;
+  color: var(--color-text-dim);
+  background: rgba(0,0,0,0.6);
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+
+#overlay-gameover {
+}
+
+#overlay-victory {
+}
+
+#overlay-era {
+}
+
+#overlay-upgrade {
+}

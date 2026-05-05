@@ -1,0 +1,9 @@
+tmp/
+test-results/
+node_modules/
+*.log
+
+# Internal draft/recruiting material; keep public docs in README/STRUCTURE.md.
+PLAYTEST_*.md
+REVIEWER_BRIEF.md
+deploy.bat

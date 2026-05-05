@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soul Cycle - Music</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Raleway:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e0e0e0;
+            font-family: 'Raleway', sans-serif;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(180deg, rgba(30,30,50,0.8) 0%, transparent 100%);
+            border-bottom: 1px solid rgba(200,169,110,0.3);
+            margin-bottom: 50px;
+        }
+        .header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3.5em;
+            color: #c8a96e;
+            text-shadow: 0 0 40px rgba(200,169,110,0.4);
+            letter-spacing: 8px;
+            margin-bottom: 15px;
+        }
+        .header p {
+            font-size: 1.1em;
+            color: #888;
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        .now-playing {
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 40px;
+            display: none;
+        }
+        .now-playing.active {
+            display: block;
+        }
+        .now-playing-label {
+            font-size: 0.75em;
+            color: #c8a96e;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 8px;
+        }
+        .now-playing-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5em;
+            color: #fff;
+        }
+        .songs-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .song-card {
+            background: linear-gradient(135deg, rgba(20,20,35,0.9) 0%, rgba(30,30,50,0.7) 100%);
+            border: 1px solid rgba(200,169,110,0.2);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+        .song-card:hover {
+            border-color: rgba(200,169,110,0.5);
+            box-shadow: 0 0 30px rgba(200,169,110,0.1);
+        }
+        .song-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .play-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #c8a96e 0%, #a08050 100%);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        .play-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 25px rgba(200,169,110,0.5);
+        }
+        .play-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: #0a0a0f;
+            margin-left: 3px;
+        }
+        .play-btn.playing svg {
+            margin-left: 0;
+        }
+        .song-info {
+            flex: 1;
+        }
+        .song-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4em;
+            color: #c8a96e;
+            margin-bottom: 5px;
+        }
+        .song-meta {
+            font-size: 0.85em;
+            color: #666;
+        }
+        .audio-player {
+            width: 100%;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .audio-player.loaded {
+            display: block;
+        }
+        .audio-player::-webkit-media-controls-panel {
+            background: rgba(200,169,110,0.1);
+        }
+        .lyrics {
+            background: rgba(0,0,0,0.3);
+            border-left: 3px solid rgba(200,169,110,0.4);
+            padding: 20px;
+            font-size: 0.95em;
+            line-height: 1.8;
+            color: #aaa;
+            font-style: italic;
+            display: none;
+        }
+        .lyrics.expanded {
+            display: block;
+        }
+        .lyrics-toggle {
+            background: none;
+            border: 1px solid rgba(200,169,110,0.3);
+            color: #888;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+        }
+        .lyrics-toggle:hover {
+            border-color: #c8a96e;
+            color: #c8a96e;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>SOUL CYCLE</h1>
+        <p>Original Soundtrack</p>
+        <p style="margin-top: 10px; text-transform: none; letter-spacing: 1px; font-size: 0.9em;">AI-generated project music by Fred McCullough</p>
+    </div>
+
+    <div class="now-playing" id="nowPlaying">
+        <div class="now-playing-label">Now Playing</div>
+        <div class="now-playing-title" id="nowPlayingTitle">-</div>
+    </div>
+
+    <div class="songs-container">
+        <div class="song-card" data-song="soul_cycle_theme" data-title="Soul Cycle Theme">
+            <div class="song-header">
+                <button class="play-btn" onclick="togglePlay('soul_cycle_theme', this)">
+                    <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+                </button>
+                <div class="song-info">
+                    <div class="song-title">Soul Cycle Theme</div>
+                    <div class="song-meta">Main Theme Song | 3:00</div>
+                </div>
+            </div>
+            <audio class="audio-player" id="audio_soul_cycle_theme" src="assets/music/soul_cycle_theme.mp3"></audio>
+            <button class="lyrics-toggle" onclick="toggleLyrics(this)">Show Lyrics</button>
+            <div class="lyrics">
+                Born to die, born to try, souls will fly through space and time.<br>
+                Every life a precious rhyme, death's not the end it's just a climb.<br>
+                <br>
+                Soul cycle, we come back again.<br>
+                Soul cycle, embrace the spin.<br>
+                <br>
+                Living twice, living thrice, breaking through death's cold device.<br>
+                Soul cycle, feel it spin.<br>
+                <br>
+                [Chorus]<br>
+                Round and round we go, leaving echoes in the snow,<br>
+                Every end a brand new begin, soul cycle, spin again.<br>
+                We are born to live and die, but we never truly end,<br>
+                In the cycle, we're ascendent, soul cycle, permanent.
+            </div>
+        </div>
+
+        <div class="song-card" data-song="mortality_curve" data-title="The Mortality Curve">
+            <div class="song-header">
+                <button class="play-btn" onclick="togglePlay('mortality_curve', this)">
+                    <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+                </button>
+                <div class="song-info">
+                    <div class="song-title">The Mortality Curve</div>
+                    <div class="song-meta">Folk-Rock | 2:30</div>
+                </div>
+            </div>
+            <audio class="audio-player" id="audio_mortality_curve" src="assets/music/mortality_curve.mp3"></audio>
+            <button class="lyrics-toggle" onclick="toggleLyrics(this)">Show Lyrics</button>
+            <div class="lyrics">
+                The curve ascends, the curve descends,<br>
+                Certainty of endings my friend.<br>
+                We rise, we fall, we answer death's call,<br>
+                Live fully before the final bend.<br>
+                <br>
+                Every breath a gift, every moment finite,<br>
+                The J-curve of mortality is written.<br>
+                In the shadow of the end, we find the fire within.<br>
+                <br>
+                [Bridge]<br>
+                When the last leaf falls and the winter comes,<br>
+                We'll have lived, not merely survived.<br>
+                Every heartbeat borrowed, every setting sun,<br>
+                Reminds us we arrived.
+            </div>
+        </div>
+
+        <div class="song-card" data-song="fragment_song" data-title="Fragment">
+            <div class="song-header">
+                <button class="play-btn" onclick="togglePlay('fragment_song', this)">
+                    <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+                </button>
+                <div class="song-info">
+                    <div class="song-title">Fragment</div>
+                    <div class="song-meta">Ethereal Ambient | 3:00</div>
+                </div>
+            </div>
+            <audio class="audio-player" id="audio_fragment_song" src="assets/music/fragment_song.mp3"></audio>
+            <button class="lyrics-toggle" onclick="toggleLyrics(this)">Show Lyrics</button>
+            <div class="lyrics">
+                Fragments linger in the light,<br>
+                Echoes floating through the night.<br>
+                Past lives whisper soft and true,<br>
+                Fragments of me, fragments of you.<br>
+                <br>
+                Memory's ghost, a silver thread,<br>
+                Woven through the living and the dead.<br>
+                We carry pieces of every shore,<br>
+                Fragments of forever and before.<br>
+                <br>
+                [Outro]<br>
+                Scattered pieces of who we've been,<br>
+                Shards of souls that don't quite fit,<br>
+                In the space between the then and when,<br>
+                We remember... bit by bit.
+            </div>
+        </div>
+
+        <div class="song-card" data-song="limbo_track" data-title="Limbo">
+            <div class="song-header">
+                <button class="play-btn" onclick="togglePlay('limbo_track', this)">
+                    <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+                </button>
+                <div class="song-info">
+                    <div class="song-title">Limbo</div>
+                    <div class="song-meta">Instrumental | Between Worlds | 2:30</div>
+                </div>
+            </div>
+            <audio class="audio-player" id="audio_limbo_track" src="assets/music/limbo_track.mp3"></audio>
+            <button class="lyrics-toggle" onclick="toggleLyrics(this)">Show Lyrics</button>
+            <div class="lyrics">
+                <em>[No lyrics — instrumental track]</em><br><br>
+                Between the last breath and the first breath of a new life,<br>
+                there exists a space without time.<br>
+                This is Limbo — the threshold, the waiting room,<br>
+                where souls rest between their stories.
+            </div>
+        </div>
+
+        <div class="song-card" data-song="era_hopper" data-title="Era Hopper">
+            <div class="song-header">
+                <button class="play-btn" onclick="togglePlay('era_hopper', this)">
+                    <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+                </button>
+                <div class="song-info">
+                    <div class="song-title">Era Hopper</div>
+                    <div class="song-meta">Synth-Pop | 2:30</div>
+                </div>
+            </div>
+            <audio class="audio-player" id="audio_era_hopper" src="assets/music/era_hopper.mp3"></audio>
+            <button class="lyrics-toggle" onclick="toggleLyrics(this)">Show Lyrics</button>
+            <div class="lyrics">
+                Era to era, watch me soar,<br>
+                Ancient worlds to modern door.<br>
+                Roman baths to Viking raids,<br>
+                Shifting through centuries' cascades.<br>
+                <br>
+                Era hopper, time traveler,<br>
+                Every age is my savasana.<br>
+                From the stone age to the light,<br>
+                Era hopper, every night!<br>
+                <br>
+                [Chorus]<br>
+                Jump around, the world's our ground,<br>
+                From kingdoms lost to cities found.<br>
+                Through every age we come around,<br>
+                Era hopper! Time unbound!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAudio = null;
+        let currentBtn = null;
+        let currentSong = null;
+
+        function togglePlay(songId, btn) {
+            const audio = document.getElementById('audio_' + songId);
+
+            if (currentAudio && currentAudio !== audio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                if (currentBtn) {
+                    currentBtn.classList.remove('playing');
+                    currentBtn.querySelector('svg').innerHTML = '<polygon points="5,3 19,12 5,21"/>';
+                }
+            }
+
+            if (audio.paused) {
+                audio.play();
+                btn.classList.add('playing');
+                btn.querySelector('svg').innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+                currentAudio = audio;
+                currentBtn = btn;
+                currentSong = songId;
+                document.getElementById('nowPlaying').classList.add('active');
+                document.getElementById('nowPlayingTitle').textContent = btn.closest('.song-card').dataset.title;
+            } else {
+                audio.pause();
+                audio.currentTime = 0;
+                btn.classList.remove('playing');
+                btn.querySelector('svg').innerHTML = '<polygon points="5,3 19,12 5,21"/>';
+                currentAudio = null;
+                currentBtn = null;
+                currentSong = null;
+                document.getElementById('nowPlaying').classList.remove('active');
+            }
+
+            audio.onended = function() {
+                btn.classList.remove('playing');
+                btn.querySelector('svg').innerHTML = '<polygon points="5,3 19,12 5,21"/>';
+                currentAudio = null;
+                currentBtn = null;
+                currentSong = null;
+                document.getElementById('nowPlaying').classList.remove('active');
+            };
+
+            audio.onloadedmetadata = function() {
+                audio.closest('.song-card').querySelector('.audio-player').classList.add('loaded');
+            };
+        }
+
+        function toggleLyrics(btn) {
+            const lyrics = btn.nextElementSibling;
+            if (lyrics.classList.contains('expanded')) {
+                lyrics.classList.remove('expanded');
+                btn.textContent = 'Show Lyrics';
+            } else {
+                lyrics.classList.add('expanded');
+                btn.textContent = 'Hide Lyrics';
+            }
+        }
+    </script>
+</body>
+</html>
