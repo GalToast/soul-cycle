@@ -185,6 +185,28 @@ export async function awaitDivineSign(era, phase) {
   }, 1500));
 }
 
+// ─── Resource Application ───
+// Applies an event's resource effects to the state (momentum, emotional
+// shift, cascade tags). Called at life-start and by any event that carries
+// resource effects outside the choice-flow path.
+export function modifyResourcesForEvent(event) {
+  if (!event) return;
+  // cascade tags merge into the running set
+  if (Array.isArray(event.cascadeTags) && event.cascadeTags.length > 0) {
+    state.cascadeTags = [...new Set([...(state.cascadeTags || []), ...event.cascadeTags])];
+  }
+  // the momentum loss class (mirrors the choice-flow pattern at the resourceLoss branch)
+  const effect = (event.outcome && event.outcome.effect) || event.effect;
+  if (effect && effect.resourceLoss && !effect.isSuccess) {
+    state.momentum = Math.max(0, (state.momentum || 1) - 1);
+  }
+  // the emotional shift (bounded -1..1)
+  if (typeof event.emotionalShift === 'number') {
+    state.emotionalShift = Math.max(-1, Math.min(1, (state.emotionalShift || 0) + event.emotionalShift));
+  }
+  updateResourceDisplay();
+}
+
 export function showDivineToast(message) {
   const toast = document.createElement('div');
   toast.style.cssText = 'position:fixed;top:20%;left:50%;transform:translateX(-50%);background:#0e0e16;border:1px solid #ffaa00;border-radius:8px;padding:16px 24px;color:#ffaa00;font-family:var(--font-mono);font-size:0.85rem;z-index:300;text-align:center;animation:fadeIn 0.5s ease;';
