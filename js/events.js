@@ -397,13 +397,13 @@ function triggerImmediateDeath(cascadeTags) {
 // rich version (the death-card fields + the chain recap + the shake/flash effects
 // + the CORRECT #death-overlay) is the canonical death display.
 export function showDeathOverlay(deathEvent) {
-  const life = state.currentLife;
+  const life = state.currentLife || {};
   const deathOverlay = document.getElementById('death-overlay');
   if (!deathOverlay) return;
   document.getElementById('death-cause').textContent = deathEvent?.title || 'Unknown causes';
   document.getElementById('death-summary').textContent = deathEvent?.description || '';
   document.getElementById('death-age').textContent = `age ${state.currentAge}`;
-  document.getElementById('death-era').textContent = `${ERAS[life.era]?.label || life.era} â ¢ ${life.year}`;
+  document.getElementById('death-era').textContent = `${ERAS[life.era]?.label || life.era || 'Unknown'} • ${life.year ?? ''}`;
   document.getElementById('death-life-num').textContent = `life #${(state.soul?.livesLived ?? 0) + 1}`;
   const fragEl = document.getElementById('death-fragments-count');
   const anchEl = document.getElementById('death-anchors-count');
