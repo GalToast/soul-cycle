@@ -2041,6 +2041,34 @@ function gameTick() {
   ui.drawCurve();
 }
 
+// ── The dieNow flow's missing helpers (the dangling-ref sweep's catch, 2026-10-13) ──
+// buildLifeRecord: the per-life summary record for state.lifeHistory (the same
+// shape the gameTick death path pushes into soul._lifeHistory).
+function buildLifeRecord(deathEvent) {
+  return {
+    id: `life_${state.soul.livesLived || 0}`,
+    name: state.currentLife?.name,
+    era: state.currentLife?.era,
+    year: state.currentLife?.year,
+    location: state.currentLife?.location,
+    health: state.currentLife?.health,
+    socialClass: state.currentLife?.socialClass,
+    genderPresentation: state.currentLife?.genderPresentation,
+    age: state.currentAge,
+    deathCause: deathEvent?.title || 'Unknown',
+    events: [...state.lifeEvents],
+    fragments: [], // extracted below by buildSoulForLimbo (the dieNow ordering)
+    dominantChain: state.lifeTheme?.theme || null,
+  };
+}
+
+// buildSoulForLimbo: the soul snapshot carrying the freshly extracted fragments
+// (the dieNow flow reads finalSoul.fragments + applies them via applyFragmentEffects).
+function buildSoulForLimbo(deathEvent) {
+  const { newFragments } = extractFragments(state.lifeEvents, deathEvent, state.soul);
+  return { ...state.soul, fragments: newFragments };
+}
+
 function dieNow(isTacticalExit = false) {
   if (!state.isAlive) return;
 
@@ -2092,7 +2120,7 @@ function dieNow(isTacticalExit = false) {
   const newAchievements = world.checkAndUnlockAchievements(state.soul, state.lifeEvents, deathEvent);
 
   state.lifeHistory = state.lifeHistory || [];
-  const lifeRecord = buildLifeRecord();
+  const lifeRecord = buildLifeRecord(deathEvent);
   state.lifeHistory.push(lifeRecord);
   state.soul.livesLived = (state.soul.livesLived || 0) + 1;
   state.soul.totalYearsLived = (state.soul.totalYearsLived || 0) + state.currentAge;
@@ -2104,7 +2132,7 @@ function dieNow(isTacticalExit = false) {
   }
 
   state.isAlive = false;
-  const finalSoul = buildSoulForLimbo();
+  const finalSoul = buildSoulForLimbo(deathEvent);
   const newFragments = finalSoul.fragments || [];
   const { newAnchors } = applyFragmentEffects(state.soul, newFragments, state.currentLife?.era);
 
