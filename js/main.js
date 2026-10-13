@@ -1894,6 +1894,11 @@ function gameTick() {
     const { newFragments } = extractFragments(state.lifeEvents, result.event, state.soul);
     const { newAnchors } = applyFragmentEffects(state.soul, newFragments, state.currentLife?.era);
 
+    // FIX 2026-10-13: persist the soul on the natural death path too
+    save.saveSoulState(state.soul);
+    save.saveOnDeath(state, result.event, newFragments);
+    save.clearInProgressLife();
+
     // Archive life in soul history
     if (!state.soul._lifeHistory) state.soul._lifeHistory = [];
     state.soul._lifeHistory.push({
@@ -2136,6 +2141,12 @@ function dieNow(isTacticalExit = false) {
   const newFragments = finalSoul.fragments || [];
   const { newAnchors } = applyFragmentEffects(state.soul, newFragments, state.currentLife?.era);
 
+  // FIX 2026-10-13: PERSIST THE SOUL ACROSS SESSIONS (the save.js module existed but
+  // exported nothing + no call was ever wired — every reload lost the soul).
+  save.saveSoulState(state.soul);
+  save.saveOnDeath(state, deathEvent, newFragments);
+  save.clearInProgressLife();
+
   updateLifeSummaryBar(); // FIX: refresh the summary after livesLived++ (the stale 'Lives lived: 0' catch)
   ui.updateUI();
   ui.showFragments(newFragments);
@@ -2371,8 +2382,21 @@ document.addEventListener('click', (e) => {
         setTimeout(() => ui.showContextualTip('resources'), 2500);
       }
     }, 1800);
-  } else if (action === 'continue' || action === 'continue-game') {
+  } else if (action === 'continue') {
     transitionFromDeathToLimbo();
+  } else if (action === 'continue-game') {
+    // FIX 2026-10-13: the INTRO's Continue loads the persisted soul (was routing to
+    // the death-to-limbo transition — the intro had no save-resume at all).
+    const saved = save.loadSoulState();
+    if (saved && saved.fragments) {
+      state.soul = saved;
+      state.livesLived = saved.livesLived || 0;
+      ui.updateUI();
+      ui.hideOverlay('intro-overlay');
+      transitionFromDeathToLimbo();
+    } else {
+      ui.showDivineToast('No saved soul found — start a new one.', 3000);
+    }
   } else if (action === 'reincarnate') {
     ui.hideOverlay('overlay-limbo');
     ui.hideOverlay('overlay-soul-browser');

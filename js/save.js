@@ -23,12 +23,12 @@ function removeItem(key) {
 }
 
 // â” â”  Save / Load â ” Soul State â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
-function saveSoulState(soul) {
+export function saveSoulState(soul) {
   if (!soul) return;
   setItem(SAVE_KEYS.SOUL, JSON.stringify(soul));
 }
 
-function loadSoulState() {
+export function loadSoulState() {
   const raw = getItem(SAVE_KEYS.SOUL);
   if (!raw) return null;
   try { return JSON.parse(raw); } catch { return null; }
@@ -37,7 +37,7 @@ function loadSoulState() {
 // â” â”  Save / Load â ” In-progress life â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 // Called on startLife() to enable auto-resume on next load.
 // Called when life ends normally (death) to clear in-progress.
-function saveInProgressLife(stateObj) {
+export function saveInProgressLife(stateObj) {
   if (!stateObj) return;
   const snapshot = {
     soul:           stateObj.soul,
@@ -61,29 +61,29 @@ function saveInProgressLife(stateObj) {
   setItem(SAVE_KEYS.INPROGRESS, JSON.stringify(snapshot));
 }
 
-function loadInProgressLife() {
+export function loadInProgressLife() {
   const raw = getItem(SAVE_KEYS.INPROGRESS);
   if (!raw) return null;
   try { return JSON.parse(raw); } catch { return null; }
 }
 
-function clearInProgressLife() {
+export function clearInProgressLife() {
   removeItem(SAVE_KEYS.INPROGRESS);
 }
 
 // â” â”  Save / Load â ” Settings â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
-function saveSettings(settings) {
+export function saveSettings(settings) {
   setItem(SAVE_KEYS.SETTINGS, JSON.stringify(settings));
 }
 
-function loadSettings() {
+export function loadSettings() {
   const raw = getItem(SAVE_KEYS.SETTINGS);
   if (!raw) return {};
   try { return JSON.parse(raw); } catch { return {}; }
 }
 
 // â” â”  Save on Death â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
-function saveOnDeath(stateObj, deathEvent, newFragments) {
+export function saveOnDeath(stateObj, deathEvent, newFragments) {
   if (!stateObj || !stateObj.soul) return;
 
   // Always persist the updated soul
@@ -99,7 +99,7 @@ function saveOnDeath(stateObj, deathEvent, newFragments) {
 
 // â” â”  Lifetime Records â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 // Aggregated across all lives â ” achievements, totals, eras
-function getLifetimeRecords(stateObj) {
+export function getLifetimeRecords(stateObj) {
   const soul = stateObj ? stateObj.soul : loadSoulState();
   if (!soul) {
     return {
