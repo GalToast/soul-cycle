@@ -1263,7 +1263,10 @@ export const showDeathOverlay = (deathData, newAchievements = []) => {
   `;
 
   container.appendChild(deathDiv);
-  showOverlay('overlay-gameover');
+  // FIX 2026-10-13: the death content lives in #death-overlay (the alertdialog
+  // with death-overlay-content) — NOT the empty #overlay-gameover modal. Showing
+  // the wrong overlay left the gameover visible-but-blank over the game.
+  showOverlay('death-overlay');
 };
 
 export const showSettingsPanel = () => {

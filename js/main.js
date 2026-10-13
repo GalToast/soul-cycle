@@ -2359,11 +2359,37 @@ document.addEventListener('click', (e) => {
 });
 
 document.addEventListener('visibilitychange', () => {
+  // FIX 2026-10-13 (the pause UX): the hidden-tab pause now AUTO-RESUMES when the
+  // tab returns — guarded so a MANUAL pause (the player pressed P) is never
+  // clobbered. The resume is also click-affordable (the overlay listener below).
   if (document.hidden && state.isAlive && !state.crisisPending && !state.currentWhisper) {
+    if (!state.isPaused) state.pauseWasAuto = true;
     state.isPaused = true;
     const overlay = document.getElementById('pause-overlay');
     const indicator = document.getElementById('pause-indicator');
     if (overlay) overlay.classList.add('visible');
     if (indicator) indicator.style.display = 'inline';
+  } else if (!document.hidden && state.pauseWasAuto && state.isPaused && state.isAlive && !state.crisisPending && !state.currentWhisper) {
+    // the tab's back + the pause was ours (not the player's) -> resume
+    state.isPaused = false;
+    state.pauseWasAuto = false;
+    const overlay = document.getElementById('pause-overlay');
+    const indicator = document.getElementById('pause-indicator');
+    if (overlay) overlay.classList.remove('visible');
+    if (indicator) indicator.style.display = 'none';
+  }
+});
+
+// FIX 2026-10-13: the pause overlay is click-to-resume (previously the only
+// resume was the undiscoverable P/Escape shortcut — a player who tabbed away
+// and returned had no visible affordance).
+document.getElementById('pause-overlay')?.addEventListener('click', () => {
+  if (state.isPaused && state.isAlive && !state.crisisPending && !state.currentWhisper) {
+    state.isPaused = false;
+    state.pauseWasAuto = false;
+    const overlay = document.getElementById('pause-overlay');
+    const indicator = document.getElementById('pause-indicator');
+    if (overlay) overlay.classList.remove('visible');
+    if (indicator) indicator.style.display = 'none';
   }
 });
