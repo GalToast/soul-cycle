@@ -402,7 +402,7 @@ export function showDeathOverlay(deathEvent) {
   if (!deathOverlay) return;
   document.getElementById('death-cause').textContent = deathEvent?.title || 'Unknown causes';
   document.getElementById('death-summary').textContent = deathEvent?.description || '';
-  document.getElementById('death-age').textContent = `age ${state.currentAge}`;
+  document.getElementById('death-age').textContent = `age ${state.currentAge ?? '?'}`;
   document.getElementById('death-era').textContent = `${ERAS[life.era]?.label || life.era || 'Unknown'} • ${life.year ?? ''}`;
   document.getElementById('death-life-num').textContent = `life #${(state.soul?.livesLived ?? 0) + 1}`;
   const fragEl = document.getElementById('death-fragments-count');
