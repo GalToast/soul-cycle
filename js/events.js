@@ -393,7 +393,10 @@ function triggerImmediateDeath(cascadeTags) {
 
 // â” â”  Internal Helpers â” â” 
 
-function showDeathOverlay(deathEvent) {
+// EXPORTED 2026-10-13: main.js's death paths call events.showDeathOverlay() — this
+// rich version (the death-card fields + the chain recap + the shake/flash effects
+// + the CORRECT #death-overlay) is the canonical death display.
+export function showDeathOverlay(deathEvent) {
   const life = state.currentLife;
   const deathOverlay = document.getElementById('death-overlay');
   if (!deathOverlay) return;
