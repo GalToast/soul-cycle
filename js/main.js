@@ -2136,6 +2136,7 @@ function dieNow(isTacticalExit = false) {
   const newFragments = finalSoul.fragments || [];
   const { newAnchors } = applyFragmentEffects(state.soul, newFragments, state.currentLife?.era);
 
+  updateLifeSummaryBar(); // FIX: refresh the summary after livesLived++ (the stale 'Lives lived: 0' catch)
   ui.updateUI();
   ui.showFragments(newFragments);
   ui.drawCurve();
