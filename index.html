@@ -18,8 +18,8 @@
   --amber-glow: #ffaa0022;
   --cyan: #00d4ff;
   --cyan-dim: #00d4ff44;
-  --red: #ff4466;
-  --red-dim: #ff446644;
+  --red: #ff6677;
+  --red-dim: #ff667744;
   --text-primary: #e8e8f0;
   --text-secondary: #8888aa;
   --text-dim: #555570;
@@ -34,6 +34,23 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+*:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
 
 body {
   background: var(--bg-deep);
@@ -91,7 +108,19 @@ header h1 span { color: var(--amber); }
 }
 
 .badge.era { border-color: var(--cyan-dim); color: var(--cyan); }
+.pause-indicator { border-color: var(--cyan-dim); color: var(--cyan); font-size: 0.7rem; letter-spacing: 0.1em; }
 .badge.fragments { border-color: var(--amber-dim); color: var(--amber); }
+.badge.ach-badge { border-color: var(--amber-dim); color: var(--amber); cursor: pointer; }
+
+.btn-achievements {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.btn-achievements:hover { border-color: var(--amber-dim); }
 
 /* ── Canvas ── */
 #curve-container {
@@ -381,7 +410,7 @@ header h1 span { color: var(--amber); }
 
 .fragment-shard {
   font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-size: 0.85rem;
   color: var(--cyan);
   background: var(--bg-deep);
   border: 1px solid var(--cyan-dim);
@@ -424,7 +453,7 @@ header h1 span { color: var(--amber); }
   flex: 1;
   text-align: center;
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   padding: 6px 4px;
   color: var(--text-dim);
@@ -830,7 +859,7 @@ header h1 span { color: var(--amber); }
 
 .whisper-key-hint {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.75rem;
   color: var(--text-dim);
   text-align: center;
   margin-top: 8px;
@@ -1058,7 +1087,7 @@ header h1 span { color: var(--amber); }
 
 .crisis-timer-text {
   font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-size: 0.9rem;
   color: var(--text-dim);
   text-align: center;
   letter-spacing: 0.1em;
@@ -1521,7 +1550,7 @@ header h1 span { color: var(--amber); }
 
   .era-bar-label {
     font-family: var(--font-mono);
-    font-size: 0.6rem;
+    font-size: 0.8rem;
     width: 100px;
     flex-shrink: 0;
     text-transform: uppercase;
@@ -1923,7 +1952,107 @@ header h1 span { color: var(--amber); }
   color: var(--text-secondary);
 }
 
-/* ── Responsive ── */
+.setting-item input:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+  }
+
+  .setting-desc {
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    font-weight: 300;
+  }
+
+  .resource-dot {
+    position: relative;
+    cursor: default;
+  }
+
+  .resource-dot::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+    z-index: 100;
+  }
+
+  .resource-dot:hover::after,
+  .resource-dot:focus::after {
+    opacity: 1;
+  }
+
+  .risk-dial-legend {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    text-align: center;
+    margin-top: 4px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .risk-dial-legend span { display: flex; align-items: center; gap: 4px; }
+
+  .risk-dial-legend .legend-safe::before {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #27ae60;
+  }
+
+  .risk-dial-legend .legend-danger::before {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #c0392b;
+  }
+
+  .era-unlock-progress {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    padding: 8px 12px;
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-top: 8px;
+  }
+
+  .era-unlock-progress .progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 4px;
+    overflow: hidden;
+  }
+
+  .era-unlock-progress .progress-fill {
+    height: 100%;
+    background: var(--amber);
+    transition: width 0.5s ease;
+  }
+
+  .crisis-choice:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+  }
 @media (max-width: 600px) {
   #app { padding: 8px; }
   #curve-canvas { height: 150px; }
@@ -1939,6 +2068,42 @@ header h1 span { color: var(--amber); }
   .achievement-icon { font-size: 1.8rem; }
   .achievement-name { font-size: 0.95rem; }
 }
+
+/* ── Achievement Modal ── */
+.achievement-modal-content { max-width: 600px; max-height: 80vh; overflow-y: auto; }
+
+.ach-modal-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.ach-modal-header h2 { margin: 0; }
+.ach-counter { font-family: var(--font-mono); font-size: 0.8rem; color: var(--amber); margin-left: auto; }
+.btn-close-ach { background: none; border: none; color: var(--text-secondary); font-size: 1.2rem; cursor: pointer; padding: 4px 8px; }
+.btn-close-ach:hover { color: var(--text-primary); }
+
+.ach-recent { margin-bottom: 16px; padding: 12px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border); }
+.ach-recent h4 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 8px; }
+.ach-recent-list { display: flex; gap: 12px; flex-wrap: wrap; }
+.ach-recent-item { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; }
+
+.ach-all-list { display: flex; flex-direction: column; gap: 16px; }
+.ach-category-group { }
+.ach-category-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+.ach-category-list { display: flex; flex-direction: column; gap: 6px; }
+.ach-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; background: var(--bg-card); border: 1px solid var(--border); }
+.ach-item.locked { opacity: 0.5; }
+.ach-item.earned { border-color: var(--amber-dim); }
+.ach-icon { font-size: 1.2rem; width: 28px; text-align: center; }
+.ach-info { display: flex; flex-direction: column; gap: 2px; }
+.ach-name { font-size: 0.85rem; }
+.ach-item.locked .ach-name { color: var(--text-dim); }
+.ach-desc { font-size: 0.7rem; color: var(--text-dim); }
+.ach-earned-date { font-size: 0.65rem; color: var(--text-dim); margin-top: 2px; }
+
+/* ── Death Overlay Achievements ── */
+.death-achievements { margin: 16px 0; padding: 12px; background: rgba(255,170,0,0.05); border: 1px solid var(--amber-dim); border-radius: 8px; }
+.death-achievements h4 { font-size: 0.8rem; color: var(--amber); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+.death-achievement-list { display: flex; flex-direction: column; gap: 6px; }
+.death-achievement-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+.death-ach-icon { font-size: 1rem; }
+.death-ach-name { }
 </style>
 </head>
 <body>
@@ -1946,14 +2111,18 @@ header h1 span { color: var(--amber); }
   <header>
     <h1>SOUL <span>CYCLE</span></h1>
     <div class="header-badges">
+      <span class="pause-indicator" id="pause-indicator" style="display:none">⏸ PAUSED</span>
       <span class="badge era" id="era-badge">---</span>
       <span class="badge fragments" id="frag-badge">0 fragments</span>
+      <button class="btn-achievements" id="btn-achievements" title="Achievements">
+        <span class="badge ach-badge" id="ach-badge">0/0</span>
+      </button>
     </div>
   </header>
 
   <div id="curve-container">
     <div class="label">THE CURVE — mortality risk by age</div>
-    <canvas id="curve-canvas"></canvas>
+    <canvas id="curve-canvas" aria-label="Mortality risk curve showing your current position"></canvas>
     <div id="curve-tooltip"></div>
   </div>
 
@@ -1962,7 +2131,7 @@ header h1 span { color: var(--amber); }
       A soul waits between lives.
       <div class="hint">Press NEW LIFE to begin</div>
     </div>
-    <div id="phase-indicator" style="display:none"><span class="dot"></span><span id="phase-text"></span></div>
+    <div id="phase-indicator" aria-live="polite" style="display:none"><span class="dot"></span><span id="phase-text"></span></div>
     <div class="life-theme-header" id="life-theme-header">
       <div class="chain-strip" id="chain-strip"></div>
       <div class="life-theme-label" id="life-theme-label"></div>
@@ -1971,6 +2140,7 @@ header h1 span { color: var(--amber); }
       <span class="chain-icon">⚭</span>
     </div>
     <div id="event-prose" style="display:none"></div>
+    <div id="event-announcer" aria-live="polite" aria-atomic="true" class="sr-only"></div>
     <div id="life-meta" style="display:none">
       <span id="meta-age"></span>
       <span id="meta-name"></span>
@@ -1985,8 +2155,8 @@ header h1 span { color: var(--amber); }
       <span class="summary-divider">|</span>
       <span id="summary-theme">Theme: ---</span>
     </div>
-    <div id="resource-display" style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-dim); padding: 4px 0;"></div>
-    <div id="whisper-panel" class="whisper-panel" style="display:none">
+    <div id="resource-display" style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-dim); padding: 4px 0;" aria-label="Resource stats: souls, faith, and experience"></div>
+    <div id="whisper-panel" class="whisper-panel" role="status" style="display:none">
       <div class="whisper-header">
         <span id="whisper-icon">♪</span>
         <span id="whisper-label">Fragment whispers...</span>
@@ -2007,14 +2177,14 @@ header h1 span { color: var(--amber); }
     <div id="fragment-list"></div>
   </div>
 
-  <div id="phase-bar">
-    <div class="phase-segment" data-phase="INFANT">INFANT</div>
-    <div class="phase-segment" data-phase="CHILD">CHILD</div>
-    <div class="phase-segment" data-phase="ADOLESCENT">ADOLESCENT</div>
-    <div class="phase-segment" data-phase="YOUNG_ADULT">ADULT</div>
-    <div class="phase-segment" data-phase="MIDDLE_AGE">MID</div>
-    <div class="phase-segment" data-phase="SENIOR">SENIOR</div>
-    <div class="phase-segment" data-phase="ANCIENT">ANCIENT</div>
+  <div id="phase-bar" role="region" aria-label="Life phase indicator">
+    <div class="phase-segment" data-phase="INFANT" tabindex="0" aria-label="Phase: Infant">INFANT</div>
+    <div class="phase-segment" data-phase="CHILD" tabindex="0" aria-label="Phase: Child">CHILD</div>
+    <div class="phase-segment" data-phase="ADOLESCENT" tabindex="0" aria-label="Phase: Adolescent">ADOLESCENT</div>
+    <div class="phase-segment" data-phase="YOUNG_ADULT" tabindex="0" aria-label="Phase: Young Adult">ADULT</div>
+    <div class="phase-segment" data-phase="MIDDLE_AGE" tabindex="0" aria-label="Phase: Middle Age">MID</div>
+    <div class="phase-segment" data-phase="SENIOR" tabindex="0" aria-label="Phase: Senior">SENIOR</div>
+    <div class="phase-segment" data-phase="ANCIENT" tabindex="0" aria-label="Phase: Ancient">ANCIENT</div>
   </div>
 
   <div id="controls">
@@ -2030,15 +2200,19 @@ header h1 span { color: var(--amber); }
   <div id="title-screen" class="hidden"></div>
 </div>
 
-<div id="crisis-overlay">
+<div id="crisis-overlay" role="dialog" aria-labelledby="crisis-header-title">
   <div id="crisis-card">
-    <div class="crisis-header">CRISIS</div>
+    <div class="crisis-header" id="crisis-header-title">CRISIS</div>
     <div class="crisis-cause" id="crisis-cause"></div>
     <div class="crisis-choices" id="crisis-choices"></div>
     <div class="crisis-timer-bar"><div class="crisis-timer-fill" id="crisis-timer-fill"></div></div>
     <div class="crisis-timer-text" id="crisis-timer-text"></div>
     <div class="crisis-skip-hint">ESC or clicking outside auto-selects Watch</div>
   </div>
+</div>
+
+<div id="pause-overlay" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:150;background:rgba(5,5,8,0.7);">
+  <div style="font-family:var(--font-mono);font-size:1.5rem;color:var(--cyan);letter-spacing:0.3em;">PAUSED</div>
 </div>
 
 <div id="exit-confirm-overlay">
@@ -2053,9 +2227,9 @@ header h1 span { color: var(--amber); }
   </div>
 </div>
 
-<div id="death-overlay">
+<div id="death-overlay" role="alertdialog" aria-labelledby="death-card-title">
   <div id="death-card">
-    <h2>Life Ended</h2>
+    <h2 id="death-card-title">Life Ended</h2>
     <div class="cause" id="death-cause"></div>
     <div class="summary" id="death-summary"></div>
     <div class="chain-recap" id="death-chain-recap">
@@ -2066,7 +2240,10 @@ header h1 span { color: var(--amber); }
       <span id="death-age"></span>
       <span id="death-era"></span>
       <span id="death-life-num"></span>
+      <span id="death-fragments-count"></span>
+      <span id="death-anchors-count"></span>
     </div>
+    <div id="death-overlay-content"></div>
     <button class="btn primary" id="btn-new-life-overlay">NEW LIFE</button>
     <button class="btn secondary" id="btn-view-soul">VIEW SOUL</button>
     <button class="btn" id="btn-close-death">CLOSE</button>
@@ -2087,6 +2264,10 @@ header h1 span { color: var(--amber); }
 
 <div id="overlay-settings" class="modal-overlay hidden">
   <div class="modal-content" id="settings-content"></div>
+</div>
+
+<div id="how-to-play-overlay" class="modal-overlay hidden">
+  <div class="modal-content" id="how-to-play-content"></div>
 </div>
 
 <script type="module" src="js/main.js"></script>

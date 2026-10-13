@@ -1,12 +1,12 @@
 /**
- * SOUL-CYCLE — Game Engine
+ * SOUL-CYCLE â ” Game Engine
  *
  * Core state, loop, era system, roll utilities, name generators,
  * risk appetite, speed control, and life phase management.
  * No DOM manipulation (ui.js), no audio logic (audio.js), no event data (events.js).
  */
 
-// ─── Constants ─────────────────────────────────────────────────────────────────
+// â” â” â”  Constants â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 const ERA_ORDER = [
   'ANCIENT', 'MEDIEVAL', 'EARLY_MODERN', 'INDUSTRIAL',
@@ -37,7 +37,7 @@ const ERA_DATA = {
     eventSignature: 'The world is being mapped. Old gods die, new machines are born.',
     locationPool: [{ region: 'British Isles', city: 'London', country: 'England/Britain', weight: 14 },{ region: 'Frankish Lands', city: 'Paris', country: 'France', weight: 13 },{ region: 'Ottoman', city: 'Istanbul', country: 'Ottoman Empire', weight: 12 },{ region: 'Low Countries', city: 'Amsterdam', country: 'Dutch Republic', weight: 10 },{ region: 'East Asia', city: 'Beijing', country: 'Ming/Qing China', weight: 10 },{ region: 'East Asia', city: 'Edo', country: 'Tokugawa Japan', weight: 9 }],
     firstNamePool: { male: [{ name: 'William', weight: 5 },{ name: 'John', weight: 5 },{ name: 'George', weight: 4 },{ name: 'Charles', weight: 4 },{ name: 'Louis', weight: 3 },{ name: 'Napoleon', weight: 3 },{ name: 'Peter', weight: 3 }], female: [{ name: 'Elizabeth', weight: 5 },{ name: 'Mary', weight: 4 },{ name: 'Catherine', weight: 4 },{ name: 'Maria', weight: 4 },{ name: 'Marie', weight: 4 },{ name: 'Charlotte', weight: 3 }] },
-    lastNamePool: [{ name: 'Smith', weight: 4 },{ name: 'Johnson', weight: 3 },{ name: 'Müller', weight: 3 },{ name: 'Schmidt', weight: 3 },{ name: 'Rossi', weight: 2 },{ name: '', weight: 5 }],
+    lastNamePool: [{ name: 'Smith', weight: 4 },{ name: 'Johnson', weight: 3 },{ name: 'MÃ¼ller', weight: 3 },{ name: 'Schmidt', weight: 3 },{ name: 'Rossi', weight: 2 },{ name: '', weight: 5 }],
     bodyConditions: [{ condition: 'robust', weight: 14 },{ condition: 'healthy', weight: 53 },{ condition: 'sickly', weight: 22 },{ condition: 'disabled', weight: 11 }],
     socialClasses: [{ cls: 'peasant', weight: 25 },{ cls: 'laborer', weight: 18 },{ cls: 'artisan', weight: 14 },{ cls: 'merchant', weight: 13 },{ cls: 'soldier', weight: 8 },{ cls: 'aristocrat', weight: 5 }],
   },
@@ -46,7 +46,7 @@ const ERA_DATA = {
     eventSignature: 'Smoke fills the sky. The machines are hungry and so is war.',
     locationPool: [{ region: 'British Isles', city: 'Manchester', country: 'England', weight: 14 },{ region: 'American Northeast', city: 'New York', country: 'United States', weight: 13 },{ region: 'German Lands', city: 'Berlin', country: 'German Empire', weight: 12 },{ region: 'French Republic', city: 'Paris', country: 'France', weight: 11 },{ region: 'Russian Empire', city: 'Moscow', country: 'Russian Empire', weight: 10 },{ region: 'Japan', city: 'Tokyo', country: 'Meiji Japan', weight: 8 }],
     firstNamePool: { male: [{ name: 'John', weight: 6 },{ name: 'William', weight: 5 },{ name: 'Charles', weight: 4 },{ name: 'George', weight: 4 },{ name: 'James', weight: 4 },{ name: 'Karl', weight: 3 },{ name: 'Friedrich', weight: 3 }], female: [{ name: 'Mary', weight: 5 },{ name: 'Elizabeth', weight: 4 },{ name: 'Anna', weight: 4 },{ name: 'Margaret', weight: 4 },{ name: 'Emma', weight: 4 },{ name: 'Marie', weight: 3 }] },
-    lastNamePool: [{ name: 'Smith', weight: 5 },{ name: 'Müller', weight: 4 },{ name: 'Dubois', weight: 3 },{ name: 'Ivanov', weight: 3 },{ name: 'Tanaka', weight: 3 },{ name: '', weight: 5 }],
+    lastNamePool: [{ name: 'Smith', weight: 5 },{ name: 'MÃ¼ller', weight: 4 },{ name: 'Dubois', weight: 3 },{ name: 'Ivanov', weight: 3 },{ name: 'Tanaka', weight: 3 },{ name: '', weight: 5 }],
     bodyConditions: [{ condition: 'robust', weight: 18 },{ condition: 'healthy', weight: 55 },{ condition: 'sickly', weight: 20 },{ condition: 'disabled', weight: 7 }],
     socialClasses: [{ cls: 'factory worker', weight: 25 },{ cls: 'laborer', weight: 18 },{ cls: 'clerk', weight: 14 },{ cls: 'artisan', weight: 12 },{ cls: 'merchant', weight: 10 },{ cls: 'industrialist', weight: 3 },{ cls: 'aristocrat', weight: 3 }],
   },
@@ -64,7 +64,7 @@ const ERA_DATA = {
     eventSignature: 'The climate is shifting. The algorithms decide. You adapt or break.',
     locationPool: [{ region: 'American Southwest', city: 'Phoenix', country: 'United States', weight: 10 },{ region: 'East Asia', city: 'Seoul', country: 'South Korea', weight: 10 },{ region: 'South Asia', city: 'Bangalore', country: 'India', weight: 10 },{ region: 'Western Europe', city: 'Amsterdam', country: 'Netherlands', weight: 9 },{ region: 'East Africa', city: 'Nairobi', country: 'Kenya', weight: 8 },{ region: 'East Asia', city: 'Shanghai', country: 'China', weight: 10 }],
     firstNamePool: { male: [{ name: 'Kai', weight: 4 },{ name: 'Marcus', weight: 3 },{ name: 'Raj', weight: 4 },{ name: 'Dmitri', weight: 3 },{ name: 'Sven', weight: 3 },{ name: 'Yusuf', weight: 3 }], female: [{ name: 'Aisha', weight: 4 },{ name: 'Lin', weight: 4 },{ name: 'Zara', weight: 3 },{ name: 'Emma', weight: 3 },{ name: 'Yuki', weight: 3 },{ name: 'Fatima', weight: 3 }] },
-    lastNamePool: [{ name: '', weight: 5 },{ name: 'Chen', weight: 4 },{ name: 'Okonkwo', weight: 3 },{ name: 'Müller', weight: 3 },{ name: 'Singh', weight: 3 },{ name: 'Yamamoto', weight: 3 }],
+    lastNamePool: [{ name: '', weight: 5 },{ name: 'Chen', weight: 4 },{ name: 'Okonkwo', weight: 3 },{ name: 'MÃ¼ller', weight: 3 },{ name: 'Singh', weight: 3 },{ name: 'Yamamoto', weight: 3 }],
     bodyConditions: [{ condition: 'robust', weight: 12 },{ condition: 'healthy', weight: 50 },{ condition: 'sickly', weight: 28 },{ condition: 'disabled', weight: 10 }],
     socialClasses: [{ cls: 'gig worker', weight: 20 },{ cls: 'service worker', weight: 18 },{ cls: 'clerk', weight: 15 },{ cls: 'technician', weight: 14 },{ cls: 'engineer', weight: 10 },{ cls: 'executive', weight: 5 }],
   },
@@ -73,7 +73,7 @@ const ERA_DATA = {
     eventSignature: 'Death is optional now. But meaning is not.',
     locationPool: [{ region: 'Orbital', city: 'Haven-1', country: 'Luna Colony', weight: 12 },{ region: 'North America', city: 'Atlantis City', country: 'Atlantic Federation', weight: 11 },{ region: 'East Asia', city: 'Neo Tokyo', country: 'Eastern Coalition', weight: 10 },{ region: 'Mars', city: 'Olympus', country: 'Mars Republic', weight: 10 },{ region: 'Europe', city: 'New Paris', country: 'Atlantic Federation', weight: 9 },{ region: 'Space', city: 'Station Kronos', country: 'Deep Space Authority', weight: 7 }],
     firstNamePool: { male: [{ name: 'Kai', weight: 5 },{ name: 'Zephyr', weight: 4 },{ name: 'Nova', weight: 4 },{ name: 'Orion', weight: 4 },{ name: 'Atlas', weight: 3 },{ name: 'Luna', weight: 3 }], female: [{ name: 'Aria', weight: 5 },{ name: 'Stella', weight: 4 },{ name: 'Nova', weight: 4 },{ name: 'Luna', weight: 4 },{ name: 'Athena', weight: 3 },{ name: 'Vega', weight: 3 }] },
-    lastNamePool: [{ name: '', weight: 6 },{ name: 'of the Void', weight: 3 },{ name: 'of the Belt', weight: 3 },{ name: 'Chen', weight: 4 },{ name: 'Okonkwo', weight: 3 },{ name: 'Müller', weight: 3 }],
+    lastNamePool: [{ name: '', weight: 6 },{ name: 'of the Void', weight: 3 },{ name: 'of the Belt', weight: 3 },{ name: 'Chen', weight: 4 },{ name: 'Okonkwo', weight: 3 },{ name: 'MÃ¼ller', weight: 3 }],
     bodyConditions: [{ condition: 'enhanced', weight: 20 },{ condition: 'robust', weight: 25 },{ condition: 'healthy', weight: 45 },{ condition: 'sickly', weight: 10 }],
     socialClasses: [{ cls: 'colonist', weight: 18 },{ cls: 'crew', weight: 15 },{ cls: 'engineer', weight: 14 },{ cls: 'scientist', weight: 12 },{ cls: 'administrator', weight: 8 },{ cls: 'director', weight: 5 }],
   },
@@ -123,7 +123,7 @@ const CHAIN_COLORS = {
 };
 
 const FRAGMENT_TYPE_ICONS = {
-  tone: '♪', fear: '⚠', love: '♥', location: '◎', name: '◈', object: '◆',
+  tone: 'â™ª', fear: 'âš ', love: 'â™¥', location: 'â—Ž', name: 'â—ˆ', object: 'â—†',
 };
 
 const CRITICAL_INTENSITY = 0.7;
@@ -139,7 +139,7 @@ const EVENT_POOLS = {
     { id: 'ph_04', triggerProbability: 0.06, phases: ['ADOLESCENT','YOUNG_ADULT'], eras: ['PREHISTORIC'], category: 'mystery', weight: 2, title: 'The cave paintings', description: 'Deep in the rock someone has drawn animals that don\'t exist anymore. You touch the ochre and feel something shift.', cascadeTags: ['wonder','awe'] },
     { id: 'ph_05', triggerProbability: 0.07, phases: ['YOUNG_ADULT','MIDDLE_AGE','SENIOR'], eras: ['PREHISTORIC'], category: 'relationship', weight: 3, title: 'A bond forged in the hunt', description: 'You and another move together without speaking. After, you share the meat and don\'t look away.', cascadeTags: ['connection','tenderness'] },
     { id: 'ph_07', triggerProbability: 0.09, phases: ['MIDDLE_AGE','SENIOR','ANCIENT'], eras: ['PREHISTORIC'], category: 'circumstance', weight: 3, title: 'The elders\' fire', description: 'You sit with the ones who remember the last cold season. They speak in fragments. You try to hold it all.', cascadeTags: ['anchor','resignation'] },
-    { id: 'ph_15', triggerProbability: 0.08, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['PREHISTORIC'], category: 'relationship', weight: 3, title: 'The chosen one', description: 'They look at you across the fire and you know. Not words — something older. You move closer.', cascadeTags: ['connection','awakening'] },
+    { id: 'ph_15', triggerProbability: 0.08, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['PREHISTORIC'], category: 'relationship', weight: 3, title: 'The chosen one', description: 'They look at you across the fire and you know. Not words â ” something older. You move closer.', cascadeTags: ['connection','awakening'] },
   ],
   ANCIENT: [
     { id: 'an_01', triggerProbability: 0.12, phases: ['CHILD','ADOLESCENT'], eras: ['ANCIENT'], category: 'body', weight: 4, title: 'The childhood illness', description: 'It moves through the house like a tide. You are small and the tide doesn\'t stop.', cascadeTags: ['grief','numbness'] },
@@ -250,7 +250,7 @@ const CRISIS_CHOICES = {
   },
 };
 
-// ─── State ──────────────────────────────────────────────────────────────────────
+// â” â” â”  State â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 let state = {
   soul: null,
@@ -269,7 +269,7 @@ let state = {
   narrationEnabled: true,
 };
 
-// ─── State Initialization ─────────────────────────────────────────────────────
+// â” â” â”  State Initialization â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 export function createSoulState(id) {
   return {
@@ -308,7 +308,7 @@ export function createLifeState() {
   };
 }
 
-// ─── Game Loop ─────────────────────────────────────────────────────────────────
+// â” â” â”  Game Loop â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 export function gameTick() {
   if (!state.isRunning || state.isPaused || !state.life || !state.life.isAlive) {
@@ -337,7 +337,7 @@ export function gameTick() {
   }
 }
 
-// ─── Risk Appetite ─────────────────────────────────────────────────────────────
+// â” â” â”  Risk Appetite â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 export function adjustRiskAppetite(delta) {
   const levels = ['MINIMAL', 'LOW', 'MODERATE', 'HIGH', 'EXTREME'];
@@ -357,7 +357,7 @@ export function getRiskLabel(riskAppetite) {
   return level.label;
 }
 
-// ─── Speed Control ─────────────────────────────────────────────────────────────
+// â” â” â”  Speed Control â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 export function setSpeed(speed) {
   state.speed = Math.max(0.25, Math.min(8, speed));
@@ -368,7 +368,7 @@ export function getSpeed() {
   return state.speed;
 }
 
-// ─── Era System ────────────────────────────────────────────────────────────────
+// â” â” â”  Era System â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 export function getEraForSoul(soulState) {
   const fragmentCount = soulState.fragments ? soulState.fragments.length : 0;
@@ -446,7 +446,7 @@ function buildEraWeightsInternal(fragmentCount) {
   return weights;
 }
 
-// ─── Roll Utilities ────────────────────────────────────────────────────────────
+// â” â” â”  Roll Utilities â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 export function rollDice(sides = 6, count = 1) {
   let total = 0;
@@ -472,7 +472,7 @@ export function shuffleArray(arr) {
   return result;
 }
 
-// ─── Life Phase System ─────────────────────────────────────────────────────────
+// â” â” â”  Life Phase System â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 export function getLifePhase(age) {
   for (const [name, range] of Object.entries(LIFE_PHASES)) {
@@ -496,14 +496,14 @@ export function isPhaseEnd(age, phase) {
   return age >= range.max;
 }
 
-// ─── Mortality ─────────────────────────────────────────────────────────────────
+// â” â” â”  Mortality â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 function getMortalityRate(age) {
   const bucket = MORTALITY_CURVE.find(b => age >= b.minAge && age <= b.maxAge);
   return bucket ? bucket.rate : 80.0;
 }
 
-// ─── Module Init ───────────────────────────────────────────────────────────────
+// â” â” â”  Module Init â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 export function init() {
   state.soul = createSoulState();
@@ -518,7 +518,7 @@ export function update() {
   gameTick();
 }
 
-// ─── Exports ───────────────────────────────────────────────────────────────────
+// â” â” â”  Exports â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 export { ERA_ORDER, ERA_DATA, LIFE_PHASES, PHASE_COLORS, RISK_LEVELS, MORTALITY_CURVE, CHAIN_COLORS, FRAGMENT_TYPE_ICONS, CRITICAL_INTENSITY, DEFAULT_CHOICE_TIMEOUT, SPEED_MAP, ERAS, EVENT_POOLS, DEATH_EVENTS, CRISIS_CHOICES };
 export { state };

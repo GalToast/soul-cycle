@@ -1,5 +1,5 @@
 /**
- * SOUL-CYCLE — UI Module
+ * SOUL-CYCLE â ” UI Module
  *
  * DOM manipulation, canvas rendering, modals, toasts, tutorial, and overlays.
  * All functions expect the following DOM element IDs to exist in index.html:
@@ -28,8 +28,8 @@
  * Era voice presets and skip/cancel logic per spec.
  */
 
-import { state } from './main.js';
-import { generateSoulAboutPanel } from './world.js';
+import { state, getSoulCompletionStatus } from './main.js';
+import { generateSoulAboutPanel, ACHIEVEMENT_DEFS, getAchievementStats } from './world.js';
 
 export const isNarrationEnabled = () => state.narrationEnabled;
 
@@ -69,7 +69,7 @@ async function _playTTSText(text, era, eventId) {
     }
     await _generateViaAPI(text, voice, eventId, apiKey);
   } catch (e) {
-    // Silent fallback — don't block gameplay
+    // Silent fallback â ” don't block gameplay
   }
 }
 
@@ -121,7 +121,7 @@ async function _generateViaAPI(text, voice, eventId, apiKey) {
 
 async function _generateViaCLI(text, voice, eventId) {
   // No local mmx CLI relay available from browser context
-  // Silent fallback — TTS will only work if API key is stored in sessionStorage
+  // Silent fallback â ” TTS will only work if API key is stored in sessionStorage
 }
 
 export const skipNarration = () => {
@@ -548,7 +548,15 @@ export const initToastModalDismiss = () => {
 };
 
 export const advanceCurrentEvent = () => {
-  document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+  if (_activeTypewriter) {
+    _activeTypewriter.skipped = true;
+    if (_activeTypewriter.cleanup) _activeTypewriter.cleanup();
+    return;
+  }
+  if (_advancingEvent) return;
+  _advancingEvent = true;
+  document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true }));
+  setTimeout(() => { _advancingEvent = false; }, 0);
 };
 
 export const goBackInHistory = () => {
@@ -625,6 +633,65 @@ export const showLongTermConsequenceToast = (text, duration = 5000) => {
   }, duration);
 };
 
+export const renderGoalTracker = (soul) => {
+  if (!soul) return null;
+  const status = getSoulCompletionStatus(soul);
+  if (status.complete && !soul.soulComplete) return null;
+
+  const section = document.createElement('div');
+  section.className = 'goal-tracker';
+
+  const req = { minFragmentTypes: 6, crisesNeeded: 50, erasNeeded: 7, anchorsNeeded: 5 };
+  const fragmentLabel = `${status.fragmentTypes}/${req.minFragmentTypes}`;
+  const crisesLabel = `${status.crises}/${req.crisesNeeded}`;
+  const erasLabel = `${status.eras}/${req.erasNeeded}`;
+  const anchorsLabel = `${status.anchors}/${req.anchorsNeeded}`;
+  const fragmentDone = status.fragmentTypes >= req.minFragmentTypes;
+  const crisesDone = status.crises >= req.crisesNeeded;
+  const erasDone = status.eras >= req.erasNeeded;
+  const anchorsDone = status.anchors >= req.anchorsNeeded;
+
+  const missingEmotionalTypes = Object.entries(status.fragmentTypeDetails || {})
+    .filter(([_, hasIt]) => !hasIt)
+    .map(([type]) => type);
+  const missingEmotionalHint = missingEmotionalTypes.length > 0
+    ? ` â ” Need: ${missingEmotionalTypes.slice(0, 3).join(', ')}${missingEmotionalTypes.length > 3 ? 'â ¦' : ''}`
+    : '';
+  const crisesMissing = req.crisesNeeded - status.crises;
+  const crisesMissingHint = crisesMissing > 0 ? ` â ” ${crisesMissing} more crises` : '';
+  const erasMissing = req.erasNeeded - status.eras;
+  const erasMissingHint = erasMissing > 0 ? ` â ” ${erasMissing} more eras` : '';
+  const anchorsMissing = req.anchorsNeeded - status.anchors;
+  const anchorsMissingHint = anchorsMissing > 0 ? ` â ” ${anchorsMissing} more anchors` : '';
+
+  section.innerHTML = `
+    <div class="goal-tracker-header">Journey Progress</div>
+    <div class="goal-tracker-items">
+      <div class="goal-item${fragmentDone ? ' done' : ''}" title="Collect at least 1 of each: grief, love, dread, wonder, rage, grace">
+        <span class="goal-label">Fragments</span>
+        <span class="goal-value">${fragmentLabel}${!fragmentDone ? missingEmotionalHint : ''}</span>
+        <span class="goal-check">${fragmentDone ? 'â—‰' : 'â—‹'}</span>
+      </div>
+      <div class="goal-item${crisesDone ? ' done' : ''}" title="Survive 50 crises">
+        <span class="goal-label">Crises</span>
+        <span class="goal-value">${crisesLabel}${!crisesDone ? crisesMissingHint : ''}</span>
+        <span class="goal-check">${crisesDone ? 'â—‰' : 'â—‹'}</span>
+      </div>
+      <div class="goal-item${erasDone ? ' done' : ''}" title="Live in all 7 eras">
+        <span class="goal-label">Eras</span>
+        <span class="goal-value">${erasLabel}${!erasDone ? erasMissingHint : ''}</span>
+        <span class="goal-check">${erasDone ? 'â—‰' : 'â—‹'}</span>
+      </div>
+      <div class="goal-item${anchorsDone ? ' done' : ''}" title="Form 5 anchors">
+        <span class="goal-label">Anchors</span>
+        <span class="goal-value">${anchorsLabel}${!anchorsDone ? anchorsMissingHint : ''}</span>
+        <span class="goal-check">${anchorsDone ? 'â—‰' : 'â—‹'}</span>
+      </div>
+    </div>
+  `;
+  return section;
+};
+
 export const showSoulBrowser = () => {
   const container = document.getElementById('soul-browser-content');
   if (!container) return;
@@ -640,8 +707,9 @@ export const showSoulBrowser = () => {
   const lives = state.soul && state.soul.livesLived !== undefined ? state.soul.livesLived : 0;
   const fragCount = state.soul && state.soul.fragments ? state.soul.fragments.length : 0;
   const anchorCount = state.soul && state.soul.anchors ? state.soul.anchors.length : 0;
+  const isComplete = state.soul && state.soul.soulComplete;
   header.innerHTML = `
-    <h2>Soul Analysis</h2>
+    <h2>Soul Analysis${isComplete ? ' <span class="soul-complete-badge">COMPLETE</span>' : ''}</h2>
     <div class="soul-stats">
       <span>Lives: ${lives}</span>
       <span>Fragments: ${fragCount}</span>
@@ -670,6 +738,9 @@ export const showSoulBrowser = () => {
 
   const grid = renderSoulAnalysisGrid(soul);
   container.appendChild(grid);
+
+  const goalTracker = renderGoalTracker(state.soul);
+  if (goalTracker) container.appendChild(goalTracker);
 
   const fingerprintEl = renderSoulFingerprint(soul);
   if (fingerprintEl) container.appendChild(fingerprintEl);
@@ -707,13 +778,13 @@ export const renderAchievements = (st) => {
   const meta = st.metaStats || {};
   const achievements = [];
 
-  if ((meta.totalDeaths || 0) >= 1) achievements.push({ id: 'first_death', label: 'First Death', icon: '☠' });
-  if ((meta.violentDeaths || 0) >= 1) achievements.push({ id: 'violent_end', label: 'Violent End', icon: '⚔' });
-  if ((meta.peacefulDeaths || 0) >= 1) achievements.push({ id: 'peaceful_passage', label: 'Peaceful Passage', icon: '✧' });
-  if ((meta.lovesLost || 0) >= 1) achievements.push({ id: 'love_lost', label: 'Love Lost', icon: '♥' });
-  if ((meta.childrenBorn || 0) >= 1) achievements.push({ id: 'life_given', label: 'Life Given', icon: '✿' });
-  if ((st.anchors?.length || 0) >= 1) achievements.push({ id: 'first_anchor', label: 'First Anchor', icon: '⚓' });
-  if ((st.fragments?.length || 0) >= 10) achievements.push({ id: 'collector', label: 'Fragment Collector', icon: '◆' });
+  if ((meta.totalDeaths || 0) >= 1) achievements.push({ id: 'first_death', label: 'First Death', icon: 'â˜ ' });
+  if ((meta.violentDeaths || 0) >= 1) achievements.push({ id: 'violent_end', label: 'Violent End', icon: 'âš”' });
+  if ((meta.peacefulDeaths || 0) >= 1) achievements.push({ id: 'peaceful_passage', label: 'Peaceful Passage', icon: 'âœ§' });
+  if ((meta.lovesLost || 0) >= 1) achievements.push({ id: 'love_lost', label: 'Love Lost', icon: 'â™¥' });
+  if ((meta.childrenBorn || 0) >= 1) achievements.push({ id: 'life_given', label: 'Life Given', icon: 'âœ¿' });
+  if ((st.anchors?.length || 0) >= 1) achievements.push({ id: 'first_anchor', label: 'First Anchor', icon: 'âš“' });
+  if ((st.fragments?.length || 0) >= 10) achievements.push({ id: 'collector', label: 'Fragment Collector', icon: 'â—†' });
 
   section.innerHTML = `<h3>Achievements</h3><div class="achievements-grid">${achievements.map(a =>
     `<div class="achievement-badge" title="${a.label}">${a.icon}<span>${a.label}</span></div>`
@@ -721,6 +792,214 @@ export const renderAchievements = (st) => {
 
   return section;
 };
+
+export const showAchievementModal = (soulState) => {
+  const existing = document.getElementById('achievement-modal');
+  if (existing) existing.remove();
+  buildAchievementModal(soulState);
+};
+
+function buildAchievementModal(soulState) {
+  const modal = document.createElement('div');
+  modal.id = 'achievement-modal';
+  modal.className = 'modal-overlay';
+
+  const content = document.createElement('div');
+  content.className = 'modal-content achievement-modal-content';
+
+  const total = Object.keys(ACHIEVEMENT_DEFS).length;
+  const unlocked = soulState.achievementsUnlocked?.length || 0;
+  const { byCategory } = getAchievementStats(soulState);
+
+  const CATEGORY_LABELS = {
+    lifespan: 'Lifespan',
+    fragment: 'Fragment Collector',
+    anchor: 'Echo Anchors',
+    era: 'Temporal Wanderer',
+    crisis: 'Crisis Survival',
+    chain: 'Chain Weaving',
+    speedrunner: 'Speedrunner',
+    peaceful: 'Manner of Death',
+    special: 'Special',
+  };
+
+  const categories = Object.entries(ACHIEVEMENT_DEFS).reduce((acc, [id, def]) => {
+    if (!acc[def.category]) acc[def.category] = [];
+    acc[def.category].push({ id, ...def });
+    return acc;
+  }, {});
+
+  let earnedMap = {};
+  try {
+    earnedMap = (soulState.achievementsUnlocked || []).reduce((m, id) => { m[id] = true; return m; }, {});
+  } catch {}
+
+  const tierColor = { bronze: '#cd7f32', silver: '#c0c0c0', gold: '#ffd700', platinum: '#e5e4e2' };
+
+  let earnedIds = new Set(soulState.achievementsUnlocked || []);
+  const earnedList = [...earnedIds].map(id => {
+    const def = ACHIEVEMENT_DEFS[id];
+    if (!def) return null;
+    const earnedEntry = (soulState.achievementNotifications || []).find(n => n.id === id);
+    return {
+      id,
+      name: def.name,
+      icon: def.icon,
+      tier: def.tier,
+      category: def.category,
+      earnedAt: earnedEntry?.timestamp ? new Date(earnedEntry.timestamp).toLocaleDateString() : null,
+    };
+  }).filter(Boolean).sort((a, b) => (b.earnedAt || 0) - (a.earnedAt || 0));
+
+  const recentEarned = earnedList.slice(0, 3);
+  const allAchievementsHtml = Object.entries(categories).map(([cat, defs]) => `
+    <div class="ach-category-group">
+      <h4 class="ach-category-title">${CATEGORY_LABELS[cat] || cat}</h4>
+      <div class="ach-category-list">
+        ${defs.map(def => {
+          const isEarned = earnedMap[def.id];
+          const earnedEntry = earnedList.find(e => e.id === def.id);
+          const hint = getAchievementHint(def.id, soulState);
+          return `
+            <div class="ach-item ${isEarned ? 'earned' : 'locked'}">
+              <span class="ach-icon" style="${isEarned ? `color: ${tierColor[def.tier] || '#fff'}` : ''}">${isEarned ? def.icon : '?'}</span>
+              <div class="ach-info">
+                <span class="ach-name">${isEarned ? def.name : '???'}</span>
+                <span class="ach-desc">${isEarned ? def.description : (hint || 'Locked')}</span>
+                ${earnedEntry?.earnedAt ? `<span class="ach-earned-date">Earned: ${earnedEntry.earnedAt}</span>` : ''}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  content.innerHTML = `
+    <div class="ach-modal-header">
+      <h2>Achievements</h2>
+      <span class="ach-counter">${unlocked}/${total}</span>
+      <button class="btn-close-ach" data-close-ach>&#x2715;</button>
+    </div>
+    ${recentEarned.length > 0 ? `
+      <div class="ach-recent">
+        <h4>Recently Earned</h4>
+        <div class="ach-recent-list">
+          ${recentEarned.map(a => `
+            <div class="ach-recent-item">
+              <span class="ach-icon" style="color: ${tierColor[a.tier] || '#fff'}">${a.icon}</span>
+              <span class="ach-name">${a.name}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+    <div class="ach-all-list">${allAchievementsHtml}</div>
+  `;
+
+  modal.appendChild(content);
+  document.body.appendChild(modal);
+
+  requestAnimationFrame(() => modal.classList.add('visible'));
+
+  modal.querySelector('[data-close-ach]').addEventListener('click', () => {
+    modal.classList.remove('visible');
+    setTimeout(() => modal.remove(), 300);
+  });
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.classList.remove('visible');
+      setTimeout(() => modal.remove(), 300);
+    }
+  });
+};
+
+function getAchievementHint(achievementId, soulState) {
+  const hints = {
+    centurian: () => {
+      const age = soulState.currentAge || 0;
+      if (age >= 70) return 'Almost there!';
+      if (age >= 50) return `${80 - age} years to go`;
+      return null;
+    },
+    methuselah: () => {
+      const age = soulState.currentAge || 0;
+      if (age >= 90) return 'So close to 100!';
+      if (age >= 80) return `${100 - age} years to go`;
+      return null;
+    },
+    ancient_of_days: () => {
+      const age = soulState.currentAge || 0;
+      if (age >= 100) return `${110 - age} years to go`;
+      return null;
+    },
+    fragment_awakening: () => {
+      const count = soulState.fragments?.length || 0;
+      if (count >= 1) return 'Collected!';
+      return null;
+    },
+    memory_keeper: () => {
+      const count = soulState.fragments?.length || 0;
+      if (count >= 5) return `${count}/10 fragments`;
+      return null;
+    },
+    fragment_collector: () => {
+      const count = soulState.fragments?.length || 0;
+      if (count >= 10) return `${count}/25 fragments`;
+      return null;
+    },
+    archive_of_lives: () => {
+      const count = soulState.fragments?.length || 0;
+      if (count >= 30) return `${count}/50 fragments`;
+      return null;
+    },
+    anchor_born: () => {
+      if ((soulState.anchors?.length || 0) >= 1) return 'Formed!';
+      return null;
+    },
+    trinity_of_echoes: () => {
+      const count = soulState.anchors?.length || 0;
+      if (count >= 2) return `${count}/3 anchors`;
+      return null;
+    },
+    constellation_of_echoes: () => {
+      const count = soulState.anchors?.length || 0;
+      if (count >= 3) return `${count}/5 anchors`;
+      return null;
+    },
+    era_hopper: () => {
+      const count = soulState.unlockedEras?.length || 0;
+      if (count >= 2) return `${count}/4 eras unlocked`;
+      return null;
+    },
+    era_walker: () => {
+      const count = soulState.unlockedEras?.length || 0;
+      if (count >= 5) return `${count}/7 eras unlocked`;
+      return null;
+    },
+    storm_survivor: () => {
+      const count = soulState.metaStats?.crisesSurvived || 0;
+      if (count >= 3) return `${count}/5 crises survived`;
+      return null;
+    },
+    crisis_forger: () => {
+      const count = soulState.metaStats?.crisesSurvived || 0;
+      if (count >= 7) return `${count}/10 crises survived`;
+      return null;
+    },
+    unbreakable: () => {
+      const count = soulState.metaStats?.crisesSurvived || 0;
+      if (count >= 15) return `${count}/25 crises survived`;
+      return null;
+    },
+    gentle_release: () => soulState.metaStats?.peacefulDeaths >= 1 ? 'Died peacefully!' : null,
+    violent_passage: () => soulState.metaStats?.violentDeaths >= 1 ? 'Died violently!' : null,
+  };
+
+  const hintFn = hints[achievementId];
+  return hintFn ? hintFn() : null;
+}
 
 export const openLifeDetailModal = (life) => {
   const existing = document.getElementById('life-detail-modal');
@@ -780,13 +1059,78 @@ export const showLimbo = (limboState) => {
     canvas = document.createElement('canvas');
     canvas.id = 'limbo-canvas';
     canvas.width = 400;
-    canvas.height = 200;
+    canvas.height = 300;
     canvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;';
     container.appendChild(canvas);
   }
 
   const limboDiv = document.createElement('div');
   limboDiv.className = 'limbo-container';
+
+  const fragCount = limboState.fragments?.length || 0;
+  const anchorCount = limboState.anchors?.length || 0;
+  const totalWeight = fragCount + anchorCount * 2;
+  const weightLabel = totalWeight <= 3 ? 'light' : totalWeight <= 8 ? 'heavier' : 'heavy';
+
+  const chainTypes = ['GRIEF', 'LOVE', 'DREAD', 'WONDER', 'RAGE', 'GRACE'];
+  const dominantChain = limboState.dominantChain || (limboState.fragments?.length > 0
+    ? chainTypes.find(c => limboState.fragments.some(f => f.cascadeTags?.includes(c))) || null
+    : null);
+
+  const chainLabels = { GRIEF: 'grief', LOVE: 'love', DREAD: 'dread', WONDER: 'wonder', RAGE: 'rage', GRACE: 'grace' };
+
+  let reflectionHTML = '';
+  if (fragCount > 0 || anchorCount > 0) {
+    const dominantLabel = dominantChain ? chainLabels[dominantChain] : 'something unnamed';
+    reflectionHTML = `
+      <div class="limbo-reflection">
+        <p class="reflection-fragments">Your soul carries ${fragCount} fragment${fragCount !== 1 ? 's' : ''} and ${anchorCount} anchor${anchorCount !== 1 ? 's' : ''}. The weight of them is ${weightLabel}.</p>
+        ${dominantChain ? `<p class="reflection-dominant">The dominant thread of your existence: <em>${dominantLabel}</em>.</p>` : ''}
+      </div>
+    `;
+  }
+
+  const previousEra = limboState.previousEra || limboState.era || null;
+  const nextEra = limboState.nextEra || (limboState.unlockedEras?.length > 1
+    ? limboState.unlockedEras.find(e => e !== previousEra) || 'INDUSTRIAL'
+    : 'INDUSTRIAL');
+
+  let eraReflectionHTML = '';
+  if (previousEra && previousEra !== nextEra) {
+    const prevLabel = previousEra.replace('_', ' ');
+    const nextLabel = nextEra.replace('_', ' ');
+    eraReflectionHTML = `<p class="limbo-era-reflection">You leave <strong>${prevLabel}</strong> behind. <strong>${nextLabel}</strong> waits, if you're ready.</p>`;
+  } else if (nextEra) {
+    const nextLabel = nextEra.replace('_', ' ');
+    eraReflectionHTML = `<p class="limbo-era-reflection"><strong>${nextLabel}</strong> waits, when you are ready.</p>`;
+  }
+
+  const orientationChoices = [
+    { id: 'light', text: 'Carry your anchors lightly', hint: 'Release your grip on what you have gathered.' },
+    { id: 'gather', text: 'Embrace what you have gathered', hint: 'Let every fragment and anchor define you.' },
+  ];
+  const chosenOrientation = orientationChoices[Math.floor(Math.random() * orientationChoices.length)];
+
+  const showMemoryPreview = limboState.previousLife && limboState.previousLife.events?.length > 0 && Math.random() < 0.3;
+  let memoryPreviewHTML = '';
+  if (showMemoryPreview) {
+    const definingEvent = limboState.previousLife.events[limboState.previousLife.events.length - 1];
+    const eventText = definingEvent?.title || definingEvent?.description || 'A defining moment';
+    memoryPreviewHTML = `<div class="limbo-memory-preview"><em>"${eventText}"</em></div>`;
+  }
+
+  const limboStartTime = Date.now();
+  const formatWaitingTime = (era) => {
+    if (era === 'FAR_FUTURE') return 'Moments feel like centuries here.';
+    if (era === 'NEAR_FUTURE') return 'Time is strange in these years.';
+    if (era === 'INDUSTRIAL') return 'The clock on the wall ticks slow.';
+    if (era === 'MODERN') return 'Time slips by unnoticed.';
+    if (era === 'EARLY_MODERN') return 'An hour feels like a day.';
+    if (era === 'MEDIEVAL') return 'The bells have not rung in what feels like ages.';
+    if (era === 'ANCIENT') return 'A breath. A pause. Then silence.';
+    return 'Time moves differently here.';
+  };
+
   limboDiv.innerHTML = `
     <h2>The In-Between</h2>
     <p class="limbo-description">${limboState.message || 'You exist between lives.'}</p>
@@ -796,6 +1140,15 @@ export const showLimbo = (limboState) => {
         <ul>${(limboState.fragments || []).map(f => `<li class="fragment-${f.type}">${f.value}</li>`).join('') || '<li>None yet</li>'}</ul>
       </div>
       ${(limboState.anchors || []).length > 0 ? `<div class="limbo-anchors"><h3>Anchors</h3><ul>${limboState.anchors.map(a => `<li class="anchor-item">${a.value}</li>`).join('')}</ul></div>` : ''}
+    </div>
+    ${reflectionHTML}
+    ${eraReflectionHTML}
+    ${memoryPreviewHTML}
+    <p class="limbo-time-hint">${formatWaitingTime(limboState.era || 'ANCIENT')}</p>
+    <div class="limbo-orientation">
+      <p class="orientation-label">Before you pass through again:</p>
+      <button class="btn-orientation" data-orientation="${chosenOrientation.id}">${chosenOrientation.text}</button>
+      <span class="orientation-hint">${chosenOrientation.hint}</span>
     </div>
     <button class="btn-reincarnate" data-action="reincarnate">Reincarnate</button>
   `;
@@ -814,18 +1167,86 @@ export const showLimbo = (limboState) => {
     drawLimboParticlesSwirl(ctx, canvas.width, canvas.height, time);
     requestAnimationFrame(animate);
   };
-
   requestAnimationFrame(animate);
 
   const stopAnim = () => { animating = false; };
   container._limboStopAnim = stopAnim;
 };
 
-export const showDeathOverlay = (deathData) => {
+export const showFragments = (newFragments) => {
+  if (!newFragments || newFragments.length === 0) return;
+  const container = document.getElementById('fragment-display');
+  if (!container) return;
+  newFragments.forEach((frag, i) => {
+    const el = document.createElement('div');
+    el.className = 'fragment-pop';
+    el.textContent = `+${frag.value}`;
+    el.style.left = `${20 + i * 30}px`;
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 2000);
+  });
+};
+
+export const drawCurve = (mode = 1) => {
+  const canvas = document.getElementById('curve-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (mode === 0) return;
+  const w = canvas.width, h = canvas.height;
+  ctx.strokeStyle = '#44aaff';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, h);
+  ctx.bezierCurveTo(w * 0.25, h * 0.7, w * 0.75, h * 0.3, w, 0);
+  ctx.stroke();
+};
+
+export const updateUI = () => {
+  const connectionEl = document.getElementById('connection-display');
+  const vitalityEl = document.getElementById('vitality-display');
+  const momentumEl = document.getElementById('momentum-display');
+  const ageEl = document.getElementById('age-display');
+  const eraEl = document.getElementById('era-display');
+  if (connectionEl) connectionEl.textContent = state.connection;
+  if (vitalityEl) vitalityEl.textContent = state.vitality;
+  if (momentumEl) momentumEl.textContent = state.momentum;
+  if (ageEl) ageEl.textContent = state.currentAge;
+  if (eraEl) eraEl.textContent = state.currentLife?.era || 'ANCIENT';
+  const fragBadge = document.getElementById('frag-badge');
+  if (fragBadge) {
+    const count = state.soul?.fragments?.length || 0;
+    fragBadge.textContent = `${count} fragment${count !== 1 ? 's' : ''}`;
+  }
+};
+
+export const resizeCanvas = () => {
+  const canvas = document.getElementById('curve-canvas');
+  if (!canvas) return;
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+};
+
+export const showDeathOverlay = (deathData, newAchievements = []) => {
   const container = document.getElementById('death-overlay-content');
   if (!container) return;
 
   container.innerHTML = '';
+
+  const tierColor = { bronze: '#cd7f32', silver: '#c0c0c0', gold: '#ffd700', platinum: '#e5e4e2' };
+  const achievementsHtml = newAchievements.length > 0 ? `
+    <div class="death-achievements">
+      <h4>Achievements Unlocked!</h4>
+      <div class="death-achievement-list">
+        ${newAchievements.map(a => `
+          <div class="death-achievement-item">
+            <span class="death-ach-icon" style="color: ${tierColor[a.tier] || '#fff'}">${a.icon || 'â˜…'}</span>
+            <span class="death-ach-name">${a.name || a.label || 'Achievement'}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  ` : '';
 
   const deathDiv = document.createElement('div');
   deathDiv.className = 'death-overlay-container';
@@ -837,6 +1258,7 @@ export const showDeathOverlay = (deathData) => {
       <span>Era: ${deathData.era || 'Unknown'}</span>
     </div>
     ${deathData.fragmentGained ? `<div class="fragment-gained">Fragment gained: "${deathData.fragmentGained}"</div>` : ''}
+    ${achievementsHtml}
     <button class="btn-continue" data-action="continue">Continue</button>
   `;
 
@@ -861,15 +1283,15 @@ export const showSettingsPanel = () => {
       </label>
       <label class="setting-item">
         <input type="checkbox" id="setting-sound-enabled" checked />
-        <span>Sound</span>
+        <span>Sound <span class="setting-desc">â ” UI clicks & alerts</span></span>
       </label>
       <label class="setting-item">
         <input type="checkbox" id="setting-music-enabled" checked />
-        <span>Music</span>
+        <span>Music <span class="setting-desc">â ” era ambience tracks</span></span>
       </label>
       <label class="setting-item">
         <input type="checkbox" id="setting-narration-enabled" checked />
-        <span>Narration</span>
+        <span>Narration <span class="setting-desc">â ” AI voice reading events</span></span>
       </label>
     </div>
     <div class="settings-group">
@@ -1012,12 +1434,13 @@ export const renderLifePhaseBar = (st) => {
   container.innerHTML = '';
   const bar = document.createElement('div');
   bar.className = `life-phase-display phase-${currentPhase.toLowerCase()}`;
+  bar.setAttribute('aria-label', `Current life phase: ${currentPhase.replace('_', ' ')}`);
   bar.innerHTML = `
     <span class="phase-label">${currentPhase.replace('_', ' ')}</span>
-    <div class="phase-progress">
-      ${phases.map(p => `<div class="phase-segment ${p.name === currentPhase ? 'active' : ''}" data-phase="${p.name}"></div>`).join('')}
+    <div class="phase-progress" role="list" aria-label="Life phases">
+      ${phases.map(p => `<div class="phase-segment ${p.name === currentPhase ? 'active' : ''}" data-phase="${p.name}" role="listitem" aria-label="${p.name === currentPhase ? 'Current phase: ' : ''}${p.name.replace('_', ' ')}"></div>`).join('')}
     </div>
-    <span class="age-display">Age ${currentAge}</span>
+    <span class="age-display" aria-label="Current age">Age ${currentAge}</span>
   `;
   container.appendChild(bar);
 };
@@ -1031,9 +1454,11 @@ export const updateResourceDisplay = (st) => {
   const xp = st.xp || 0;
 
   container.innerHTML = `
-    <span class="resource souls" title="Souls">☰ ${souls}</span>
-    <span class="resource faith" title="Faith">✧ ${faith}</span>
-    <span class="resource xp" title="Experience">◆ ${xp}</span>
+    <div class="resource-dots">
+      <span class="resource-dot" data-tooltip="Souls: lives collected" role="status" aria-label="Souls: ${souls} collected">â˜° ${souls}</span>
+      <span class="resource-dot" data-tooltip="Faith: spiritual resonance" role="status" aria-label="Faith: ${faith}">âœ§ ${faith}</span>
+      <span class="resource-dot" data-tooltip="XP: experience earned" role="status" aria-label="Experience: ${xp}">â—† ${xp}</span>
+    </div>
   `;
 };
 
@@ -1056,6 +1481,9 @@ export const createChoiceButton = (choice, index) => {
   const button = document.createElement('button');
   button.className = `choice-button choice-${index + 1}`;
   button.dataset.choiceIndex = index;
+  button.setAttribute('tabindex', '0');
+  button.setAttribute('role', 'button');
+  button.setAttribute('aria-label', `${String.fromCharCode(65 + index)}: ${choice.text || choice.description || 'Choose'}${choice.risk ? ', risk: ' + choice.risk : ''}`);
 
   button.innerHTML = `
     <span class="choice-label">${String.fromCharCode(65 + index)}</span>
@@ -1336,19 +1764,31 @@ export const drawLimboParticles = (ctx, width, height, time) => {
   }
 };
 
-let tutorialStep = 0;
+let _tutorialStep = 0;
+let _tutorialDismissed = false;
 const TUTORIAL_STEPS = [
-  { target: '#life-phase-bar', text: 'This shows your current life phase and age.', position: 'bottom' },
-  { target: '#resource-display', text: 'Resources: Souls, Faith, and XP.', position: 'bottom' },
-  { target: '#game-canvas', text: 'This curve shows your mortality risk over lifetime.', position: 'top' },
-  { target: '#event-panel', text: 'Events will appear here with choices.', position: 'right' },
+  { text: 'Connection (Con) â ” your emotional resilience. Affects how you handle loss.', position: 'bottom' },
+  { text: 'Vitality (Vit) â ” your physical resilience. Affects crisis survival.', position: 'bottom' },
+  { text: 'Momentum (Mom) â ” your drive. Affects how fast you accumulate progress.', position: 'bottom' },
+  { text: 'The J-curve shows your mortality risk. Click the risk dial to change how dangerous your life is.', position: 'top' },
+  { text: 'When a crisis fires, you have seconds to choose. Your choice affects the outcome.', position: 'right' },
+  { text: 'Fragments are memories that persist across lives. They influence future events.', position: 'right' },
+  { text: 'Anchors form when a fragment recurs â ” they become core threads of your soul.', position: 'right' },
+  { text: 'Press NEW LIFE to begin.', position: 'bottom' },
 ];
 
 export const showTutorialStep = (step) => {
-  const tip = document.getElementById('tutorial-tip');
-  if (!tip) return;
+  _tutorialDismissed = false;
+  let tip = document.getElementById('tutorial-tip');
+  if (!tip) {
+    tip = document.createElement('div');
+    tip.id = 'tutorial-tip';
+    tip.className = 'tutorial-tip';
+    document.body.appendChild(tip);
+  }
 
   const stepData = TUTORIAL_STEPS[step] || TUTORIAL_STEPS[0];
+  _tutorialStep = step;
 
   tip.innerHTML = `
     <div class="tutorial-content">
@@ -1372,26 +1812,75 @@ export const showTutorialStep = (step) => {
   } else if (stepData.position === 'right') {
     arrow.style.cssText = 'left: -10px; top: 50%; transform: translateY(-50%) rotate(135deg);';
   }
+
+  tip.querySelector('[data-tutorial-prev]')?.addEventListener('click', prevTutorialStep);
+  tip.querySelector('[data-tutorial-next]')?.addEventListener('click', nextTutorialStep);
+  tip.querySelector('[data-tutorial-done]')?.addEventListener('click', closeTutorial);
+
+  const dismissHandler = (e) => {
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      closeTutorial();
+      document.removeEventListener('keydown', dismissHandler);
+    }
+  };
+  document.addEventListener('keydown', dismissHandler);
 };
 
 export const nextTutorialStep = () => {
-  if (tutorialStep < TUTORIAL_STEPS.length - 1) {
-    tutorialStep++;
-    showTutorialStep(tutorialStep);
+  if (_tutorialStep < TUTORIAL_STEPS.length - 1) {
+    _tutorialStep++;
+    showTutorialStep(_tutorialStep);
+  } else {
+    closeTutorial();
   }
 };
 
 export const prevTutorialStep = () => {
-  if (tutorialStep > 0) {
-    tutorialStep--;
-    showTutorialStep(tutorialStep);
+  if (_tutorialStep > 0) {
+    _tutorialStep--;
+    showTutorialStep(_tutorialStep);
   }
 };
 
 export const closeTutorial = () => {
   const tip = document.getElementById('tutorial-tip');
   if (tip) tip.classList.add('hidden');
-  tutorialStep = 0;
+  _tutorialStep = 0;
+  _tutorialDismissed = true;
+  try { localStorage.setItem('soulcycle_seen_tutorial', '1'); } catch {}
+};
+
+export const showContextualTip = (tipType) => {
+  const tipId = `contextual-tip-${tipType}`;
+  const existing = document.getElementById(tipId);
+  if (existing) return;
+
+  const tips = {
+    crisis: 'Press A/B/C or click to choose. ESC auto-selects C (Watch).',
+    whisper: 'Y/N to respond to your soul\'s fragments.',
+    death: 'Your fragments are extracted and accumulate.',
+    resources: 'Connection â ” emotional resilience. Vitality â ” physical resilience. Momentum â ” drive.',
+  };
+
+  const text = tips[tipType];
+  if (!text) return;
+
+  const tip = document.createElement('div');
+  tip.id = tipId;
+  tip.className = 'tutorial-tip contextual-tip';
+  tip.innerHTML = `<div class="tutorial-content"><p class="tutorial-text">${text}</p></div>`;
+  document.body.appendChild(tip);
+  requestAnimationFrame(() => tip.classList.add('visible'));
+
+  setTimeout(() => {
+    tip.classList.remove('visible');
+    setTimeout(() => tip.remove(), 300);
+  }, 5000);
+};
+
+export const hasSeenTutorial = () => {
+  try { return localStorage.getItem('soulcycle_seen_tutorial') === '1'; } catch { return false; }
 };
 
 export const showEraTip = (era) => {
@@ -1462,10 +1951,10 @@ export const showHowToPlayCarousel = () => {
   });
 
   container.querySelector('[data-close-carousel]').addEventListener('click', () => {
-    hideOverlay('overlay-tutorial');
+    hideOverlay('how-to-play-overlay');
   });
 
-  showOverlay('overlay-tutorial');
+  showOverlay('how-to-play-overlay');
 };
 
 export const showArrow = (targetId, text) => {
@@ -1611,7 +2100,8 @@ export const createFragmentTooltip = (fragment) => {
     <div class="tooltip-type">${fragment.type}</div>
     <div class="tooltip-value">${fragment.value}</div>
     <div class="tooltip-strength">Strength: ${Math.round(fragment.strength * 100)}%</div>
-    ${fragment.isAnchor ? '<div class="tooltip-anchor">ANCHOR</div>' : ''}
+    <div class="tooltip-desc">Fragments are memories that persist across lives. They influence future events.</div>
+    ${fragment.isAnchor ? '<div class="tooltip-anchor">ANCHOR â ” a core thread of your soul</div>' : ''}
     <div class="tooltip-origin">From: ${fragment.origin?.lifeId || 'Unknown life'}</div>
   `;
   return tooltip;
@@ -1665,7 +2155,7 @@ export const showEraTransition = (fromEra, toEra, callback) => {
   container.innerHTML = `
     <div class="era-transition">
       <div class="era-from">${fromEra?.replace('_', ' ') || 'Unknown'}</div>
-      <div class="era-arrow">→</div>
+      <div class="era-arrow">â†’</div>
       <div class="era-to">${toEra?.replace('_', ' ') || 'Unknown'}</div>
     </div>
     <p class="transition-message">A new era awaits...</p>
@@ -1986,6 +2476,7 @@ export const createMuseumModal = (soulState, allLives = []) => {
         <span>${soulState.livesLived || 0} Lives</span>
         <span>${soulState.fragments?.length || 0} Fragments</span>
         <span>${soulState.anchors?.length || 0} Anchors</span>
+        ${soulState.soulComplete ? '<span class="museum-complete-badge">COMPLETE SOUL</span>' : ''}
       </div>
       <button class="btn-close-museum" data-close-museum>Close</button>
     </div>
@@ -1997,6 +2488,7 @@ export const createMuseumModal = (soulState, allLives = []) => {
       <button class="museum-tab" data-tab="achievements">Achievements</button>
       <button class="museum-tab" data-tab="stats">Era Statistics</button>
       <button class="museum-tab" data-tab="statues">Memorials</button>
+      ${soulState.soulComplete ? '<button class="museum-tab" data-tab="complete">Complete Soul</button>' : ''}
     </div>
     <div class="museum-body">
       <div class="museum-panel active" id="museum-panel-gallery">
@@ -2019,6 +2511,9 @@ export const createMuseumModal = (soulState, allLives = []) => {
       </div>
       <div class="museum-panel" id="museum-panel-statues">
         ${renderEraStatues(lives, chainTypes)}
+      </div>
+      <div class="museum-panel" id="museum-panel-complete">
+        ${renderCompleteSoulPanel(soulState, lives)}
       </div>
     </div>
   `;
@@ -2151,19 +2646,19 @@ function computeAchievements(soulState) {
   const locked = [];
 
   const allAchievements = [
-    { id: 'first_death', label: 'First Death', icon: '☠', condition: (m) => (m.totalDeaths || 0) >= 1 },
-    { id: 'violent_end', label: 'Violent End', icon: '⚔', condition: (m) => (m.violentDeaths || 0) >= 1 },
-    { id: 'peaceful_passage', label: 'Peaceful Passage', icon: '✧', condition: (m) => (m.peacefulDeaths || 0) >= 1 },
-    { id: 'love_lost', label: 'Love Lost', icon: '♥', condition: (m) => (m.lovesLost || 0) >= 1 },
-    { id: 'life_given', label: 'Life Given', icon: '✿', condition: (m) => (m.childrenBorn || 0) >= 1 },
-    { id: 'first_anchor', label: 'First Anchor', icon: '⚓', condition: (s) => (s.anchors?.length || 0) >= 1 },
-    { id: 'collector', label: 'Fragment Collector', icon: '◆', condition: (s) => (s.fragments?.length || 0) >= 10 },
-    { id: 'veteran', label: 'Soul Veteran', icon: 'Ψ', condition: (s) => (s.livesLived || 0) >= 5 },
-    { id: 'ancient_soul', label: 'Ancient Soul', icon: '∞', condition: (s) => (s.livesLived || 0) >= 20 },
-    { id: 'multi_era', label: 'Time Traveler', icon: '☆', condition: (s) => (s.unlockedEras?.length || 0) >= 4 },
-    { id: 'all_eras', label: 'All Eras', icon: '★★★', condition: (s) => (s.unlockedEras?.length || 0) >= 7 },
-    { id: 'anchor_master', label: 'Anchor Master', icon: '⚓', condition: (s) => (s.anchors?.length || 0) >= 3 },
-    { id: 'fragment_hoarder', label: 'Fragment Hoarder', icon: '◆', condition: (s) => (s.fragments?.length || 0) >= 50 },
+    { id: 'first_death', label: 'First Death', icon: 'â˜ ', condition: (m) => (m.totalDeaths || 0) >= 1 },
+    { id: 'violent_end', label: 'Violent End', icon: 'âš”', condition: (m) => (m.violentDeaths || 0) >= 1 },
+    { id: 'peaceful_passage', label: 'Peaceful Passage', icon: 'âœ§', condition: (m) => (m.peacefulDeaths || 0) >= 1 },
+    { id: 'love_lost', label: 'Love Lost', icon: 'â™¥', condition: (m) => (m.lovesLost || 0) >= 1 },
+    { id: 'life_given', label: 'Life Given', icon: 'âœ¿', condition: (m) => (m.childrenBorn || 0) >= 1 },
+    { id: 'first_anchor', label: 'First Anchor', icon: 'âš“', condition: (s) => (s.anchors?.length || 0) >= 1 },
+    { id: 'collector', label: 'Fragment Collector', icon: 'â—†', condition: (s) => (s.fragments?.length || 0) >= 10 },
+    { id: 'veteran', label: 'Soul Veteran', icon: 'Î¨', condition: (s) => (s.livesLived || 0) >= 5 },
+    { id: 'ancient_soul', label: 'Ancient Soul', icon: 'âˆž', condition: (s) => (s.livesLived || 0) >= 20 },
+    { id: 'multi_era', label: 'Time Traveler', icon: 'â˜†', condition: (s) => (s.unlockedEras?.length || 0) >= 4 },
+    { id: 'all_eras', label: 'All Eras', icon: 'â˜…â˜…â˜…', condition: (s) => (s.unlockedEras?.length || 0) >= 7 },
+    { id: 'anchor_master', label: 'Anchor Master', icon: 'âš“', condition: (s) => (s.anchors?.length || 0) >= 3 },
+    { id: 'fragment_hoarder', label: 'Fragment Hoarder', icon: 'â—†', condition: (s) => (s.fragments?.length || 0) >= 50 },
   ];
 
   for (const ach of allAchievements) {
@@ -2278,7 +2773,7 @@ function renderFragmentCollection(soulState, typeOrder, lives) {
           <div class="fragment-value">"${frag.value}"</div>
           <div class="fragment-strength">Strength: ${Math.round(frag.strength * 100)}%</div>
           <div class="fragment-origin">From: ${lifeMap[frag.origin?.lifeId] || frag.origin?.lifeId || 'Unknown Life'}</div>
-          ${frag.isAnchor ? '<div class="fragment-anchor-badge">★ ANCHOR</div>' : ''}
+          ${frag.isAnchor ? '<div class="fragment-anchor-badge">â˜… ANCHOR</div>' : ''}
         </div>
       `).join('')}
     </div>
@@ -2299,9 +2794,9 @@ function renderChainExhibition(chainRecaps) {
       ${chainRecaps.map((recap, idx) => `
         <div class="chain-recap-card">
           <div class="chain-recap-header" style="color:${chainColor(recap.type)}">
-            ${recap.type} CHAIN — ${recap.label || ''}
+            ${recap.type} CHAIN â ” ${recap.label || ''}
           </div>
-          <div class="chain-recap-life">${recap.lifeName || 'Unknown Life'} · ${(recap.era || '').replace('_', ' ')}</div>
+          <div class="chain-recap-life">${recap.lifeName || 'Unknown Life'} Â· ${(recap.era || '').replace('_', ' ')}</div>
           <div class="chain-recap-events">
             ${(recap.events || []).map((e, i) => `
               <div class="chain-recap-event" style="border-left: 2px solid ${chainColor(recap.type)}">
@@ -2375,16 +2870,57 @@ function renderEraStatistics(eraStats) {
   `;
 }
 
+function renderCompleteSoulPanel(soulState, lives) {
+  const isEnlightenment = soulState.enlightenmentAchieved;
+  const journeyText = isEnlightenment
+    ? 'You achieved enlightenment â ” 100+ lives lived without grasping to any anchor. The self was a mask you wore through every era. Now the mask is off.'
+    : 'You have woven all six fragment types across seven eras, survived 50 crises, and formed five anchors. The thread is complete. Every life was a stitch in a pattern you are only now beginning to see.';
+
+  return `
+    <div class="complete-soul-panel">
+      <div class="complete-soul-header">
+        <div class="complete-soul-icon">${isEnlightenment ? 'â˜¯' : 'â—ˆ'}</div>
+        <div class="complete-soul-title">${isEnlightenment ? 'ENLIGHTENMENT' : 'SOUL COMPLETE'}</div>
+        <div class="complete-soul-subtitle">${soulState.livesLived} lives lived across the ages</div>
+      </div>
+      <div class="complete-soul-journey">
+        <p>${journeyText}</p>
+      </div>
+      <div class="complete-soul-metrics">
+        <div class="complete-metric">
+          <span class="metric-value">${soulState.fragments?.length || 0}</span>
+          <span class="metric-label">Fragments Collected</span>
+        </div>
+        <div class="complete-metric">
+          <span class="metric-value">${soulState.erasVisited?.length || 0}/7</span>
+          <span class="metric-label">Eras Explored</span>
+        </div>
+        <div class="complete-metric">
+          <span class="metric-value">${soulState.metaStats?.crisesSurvived || 0}</span>
+          <span class="metric-label">Crises Survived</span>
+        </div>
+        <div class="complete-metric">
+          <span class="metric-value">${soulState.anchors?.length || 0}</span>
+          <span class="metric-label">Anchors Formed</span>
+        </div>
+      </div>
+      <div class="complete-soul-cta">
+        <p>Continue your journey in <strong>free play</strong> â ” every new life is yours to explore, with achievements as your guide.</p>
+      </div>
+    </div>
+  `;
+}
+
 function renderEraStatues(lives, chainTypes) {
   const eraLabels = { ANCIENT: 'Ancient', MEDIEVAL: 'Medieval', EARLY_MODERN: 'Early Modern', INDUSTRIAL: 'Industrial', MODERN: 'Modern', NEAR_FUTURE: 'Near Future', FAR_FUTURE: 'Far Future' };
   const eraSculpture = {
-    ANCIENT: { icon: '⚰', theme: 'Loss & The Gods', desc: 'Fragments of devotion and sacrifice' },
-    MEDIEVAL: { icon: '⛪', theme: 'Faith & Plague', desc: 'The weight of belief and mortality' },
-    EARLY_MODERN: { icon: '⚙', theme: 'Reason & Revolution', desc: 'Old worlds unmaking themselves' },
-    INDUSTRIAL: { icon: '⚠', theme: 'Machine & Struggle', desc: 'The factory whistle and the trench' },
-    MODERN: { icon: '☢', theme: 'Connection & Isolation', desc: 'Screens between hearts' },
-    NEAR_FUTURE: { icon: '☁', theme: 'Algorithm & Climate', desc: 'The data cloud and the rising sea' },
-    FAR_FUTURE: { icon: '∞', theme: 'Upload & Meaning', desc: 'Death is optional. Purpose is not.' },
+    ANCIENT: { icon: 'âš°', theme: 'Loss & The Gods', desc: 'Fragments of devotion and sacrifice' },
+    MEDIEVAL: { icon: 'â›ª', theme: 'Faith & Plague', desc: 'The weight of belief and mortality' },
+    EARLY_MODERN: { icon: 'âš™', theme: 'Reason & Revolution', desc: 'Old worlds unmaking themselves' },
+    INDUSTRIAL: { icon: 'âš ', theme: 'Machine & Struggle', desc: 'The factory whistle and the trench' },
+    MODERN: { icon: 'â˜¢', theme: 'Connection & Isolation', desc: 'Screens between hearts' },
+    NEAR_FUTURE: { icon: 'â˜', theme: 'Algorithm & Climate', desc: 'The data cloud and the rising sea' },
+    FAR_FUTURE: { icon: 'âˆž', theme: 'Upload & Meaning', desc: 'Death is optional. Purpose is not.' },
   };
 
   return `
@@ -2461,7 +2997,7 @@ function openLifeDetailView(life, allLives = [], chainTypes) {
             <div class="fragment-card small">
               <div class="fragment-type-badge">${f.type}</div>
               <div class="fragment-value">"${f.value}"</div>
-              ${f.isAnchor ? '<div class="fragment-anchor-badge">★</div>' : ''}
+              ${f.isAnchor ? '<div class="fragment-anchor-badge">â˜…</div>' : ''}
             </div>
           `).join('')}
         </div>
@@ -2471,7 +3007,7 @@ function openLifeDetailView(life, allLives = [], chainTypes) {
       <div class="life-chain-section">
         <h3>Chain Recap</h3>
         <div class="chain-recap-display" style="border-left: 3px solid ${chainColor(life.chainRecap.type)}">
-          <div class="chain-recap-title">${life.chainRecap.type} CHAIN — ${life.chainRecap.label || ''}</div>
+          <div class="chain-recap-title">${life.chainRecap.type} CHAIN â ” ${life.chainRecap.label || ''}</div>
           ${(life.chainRecap.events || []).map(e => `<div class="chain-event-line">${e.title || 'Event'}</div>`).join('')}
         </div>
       </div>
@@ -2497,12 +3033,13 @@ function openLifeDetailView(life, allLives = [], chainTypes) {
   });
 }
 
-/* ══════════════════════════════════════════
-   ANIMATION FUNCTIONS — Soul Cycle
-══════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   ANIMATION FUNCTIONS â ” Soul Cycle
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 /* 1. Event Text Typewriter */
 let _activeTypewriter = null;
+let _advancingEvent = false;
 export const typewriterEffect = (element, text, speed = 40, onComplete, eventObj = null) => {
   if (!element || !text) return;
 
@@ -2727,12 +3264,22 @@ export const animateAchievementUnlock = (achievement) => {
   badge.className = 'achievement-unlock';
   badge.innerHTML = `
     <div class="shimmer-effect"></div>
-    <div class="badge-icon">${achievement.icon || '★'}</div>
+    <div class="badge-icon">${achievement.icon || 'â˜…'}</div>
     <div class="badge-label">${achievement.label}</div>
   `;
   document.body.appendChild(badge);
 
   setTimeout(() => badge.remove(), 2500);
+};
+
+/* 8b. Achievement Notifications - staggered display for multiple achievements */
+export const showAchievementNotifications = (achievements) => {
+  if (!achievements || achievements.length === 0) return;
+  achievements.forEach((achievement, index) => {
+    setTimeout(() => {
+      animateAchievementUnlock(achievement);
+    }, index * 1200);
+  });
 };
 
 /* 9. Era Transition Dissolve */
@@ -2747,11 +3294,35 @@ export const animateEraDissolve = (era, onComplete) => {
   }, 2000);
 };
 
-/* 10. Limbo Particle Swirl - Enhanced spiral pattern */
+/* 10. Limbo Particle Swirl - Enhanced spiral pattern with soul thread */
 export const drawLimboParticlesSwirl = (ctx, width, height, time) => {
   const particleCount = 40;
   const centerX = width / 2;
   const centerY = height / 2;
+
+  const threadLength = 120;
+  const threadTargetY = height + 30;
+
+  ctx.beginPath();
+  ctx.moveTo(centerX, centerY);
+  ctx.lineTo(centerX, threadTargetY);
+  ctx.strokeStyle = 'rgba(212, 175, 55, 0.15)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  for (let i = 0; i < threadLength; i++) {
+    const t = i / threadLength;
+    const wobbleX = Math.sin(i * 0.3 + time * 0.002) * (4 + t * 6);
+    const x = centerX + wobbleX;
+    const y = centerY + t * (height * 0.7);
+    const alpha = 0.4 * (1 - t * 0.5);
+    const size = 2.5 - t * 1.5;
+
+    ctx.beginPath();
+    ctx.arc(x, y, Math.max(0.5, size), 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(212, 175, 55, ${alpha})`;
+    ctx.fill();
+  }
 
   for (let i = 0; i < particleCount; i++) {
     const seed = i * 137.5;
@@ -2763,13 +3334,13 @@ export const drawLimboParticlesSwirl = (ctx, width, height, time) => {
     const alpha = 0.3 + Math.sin(seed * 2 + time * 0.003) * 0.2;
 
     ctx.beginPath();
-    ctx.arc(x, y, size, 0, 2 * Math.PI);
+    ctx.arc(x, y, size, 0, Math.PI * 2);
     ctx.fillStyle = `rgba(155, 89, 182, ${alpha})`;
     ctx.fill();
 
     if (i % 3 === 0) {
       ctx.beginPath();
-      ctx.arc(x + Math.cos(spiralAngle + Math.PI) * 5, y + Math.sin(spiralAngle + Math.PI) * 5, size * 0.6, 0, 2 * Math.PI);
+      ctx.arc(x + Math.cos(spiralAngle + Math.PI) * 5, y + Math.sin(spiralAngle + Math.PI) * 5, size * 0.6, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(212, 175, 55, ${alpha * 0.6})`;
       ctx.fill();
     }

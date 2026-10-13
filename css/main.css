@@ -23,6 +23,12 @@
     --transition-med: 300ms ease;
 }
 
+@keyframes resourcePopFade {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    30% { opacity: 1; transform: translateY(-8px) scale(1.1); }
+    100% { opacity: 0; transform: translateY(-20px) scale(0.8); }
+}
+
 * {
     margin: 0;
     padding: 0;

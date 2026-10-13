@@ -1,9 +1,9 @@
-// ═══════════════════════════════════════════════════════════
-// SOUL CYCLE — Main Bootstrap
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// SOUL CYCLE â ” Main Bootstrap
 // Extracted from index.html inline script
 // Modules are imported at top for future split-out; for now
 // all logic lives here and imports are stubs.
-// ═══════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 import * as game from './game.js';
 import * as audio from './audio.js';
@@ -12,7 +12,7 @@ import * as save from './save.js';
 import * as world from './world.js';
 import * as ui from './ui.js';
 
-// ── Chain / Life Arc System ──
+// â” â”  Chain / Life Arc System â” â” 
 const THEME_LABELS = {
   GRIEF: ['The losses accumulated', 'Grief follows grief', 'A weight builds', 'Each goodbye echoes'],
   LOVE: ['Love was the throughline', 'Someone mattered', 'Hearts stay', 'Connection outlasts'],
@@ -117,7 +117,7 @@ export function generateLifeTheme(lifeEvents) {
   return { theme: maxChain, chain: chainEvents, label, events: chainEvents };
 }
 
-function renderChainStrip(activeChain) {
+export function renderChainStrip(activeChain) {
   const strip = document.getElementById('chain-strip');
   const themeHeader = document.getElementById('life-theme-header');
   if (!strip) return;
@@ -156,7 +156,7 @@ function renderChainStrip(activeChain) {
   }
 }
 
-function updateLifeSummaryBar() {
+export function updateLifeSummaryBar() {
   const bar = document.getElementById('life-summary-bar');
   if (!bar) return;
 
@@ -169,7 +169,7 @@ function updateLifeSummaryBar() {
   bar.classList.add('visible');
 
   const lives = soul.livesLived || 0;
-  const years = soul.totalYearsLived || 0;
+  const years = (soul.totalYearsLived || 0) + (state.isAlive ? state.currentAge : 0);
   const era = state.currentLife ? (ERAS[state.currentLife.era]?.label || state.currentLife.era) : '---';
   const theme = state.lifeTheme && state.lifeTheme.theme ? state.lifeTheme.theme : '---';
 
@@ -195,12 +195,12 @@ export function showChainRecapOnDeath(lifeEvents) {
   recapEl.classList.add('visible');
 
   const color = CHAIN_COLORS[theme.theme] || '#ffffff';
-  titleEl.innerHTML = `<span class="chain-type-badge" style="background:${color}22;color:${color};border:1px solid ${color}88">${theme.theme}</span> Chain — ${theme.label}`;
+  titleEl.innerHTML = `<span class="chain-type-badge" style="background:${color}22;color:${color};border:1px solid ${color}88">${theme.theme}</span> Chain â ” ${theme.label}`;
 
   let html = '';
   const seenIds = new Set();
-  const chainIconMap = { GRIEF: '💔', LOVE: '♥', DREAD: '👁', WONDER: '✦', RAGE: '🔥', GRACE: '☯' };
-  const chainIcon = chainIconMap[theme.theme] || '◉';
+  const chainIconMap = { GRIEF: 'ðŸ’”', LOVE: 'â™¥', DREAD: 'ðŸ‘', WONDER: 'âœ¦', RAGE: 'ðŸ”¥', GRACE: 'â˜¯' };
+  const chainIcon = chainIconMap[theme.theme] || 'â—‰';
 
   for (let i = 0; i < theme.events.length; i++) {
     const e = theme.events[i];
@@ -212,7 +212,7 @@ export function showChainRecapOnDeath(lifeEvents) {
       html += `<circle cx="6" cy="6" r="3" fill="currentColor"/></svg>`;
       html += '</div>';
     }
-    const shortDesc = e.description ? e.description.substring(0, 60) + (e.description.length > 60 ? '…' : '') : e.title;
+    const shortDesc = e.description ? e.description.substring(0, 60) + (e.description.length > 60 ? 'â ¦' : '') : e.title;
     html += `<div class="chain-event-line" style="border-left: 3px solid ${color}; padding-left: 10px; margin: 4px 0; background: ${color}08; border-radius: 0 4px 4px 0;">`;
     html += `<span style="color:${color};font-size:0.9em;margin-right:6px;">${chainIcon}</span>`;
     html += `<strong style="color:${color}">${e.title}</strong>`;
@@ -222,18 +222,35 @@ export function showChainRecapOnDeath(lifeEvents) {
   eventsEl.innerHTML = html;
 }
 
-// ── Fragment System ──
+// â” â”  Fragment System â” â” 
 const MAX_ANCHORS = 5;
 const ANCHOR_RECURRENCE_THRESHOLD = 1;
+const ANCHOR_MORTALITY_COST = 0.05;
 const WHISPER_CHANCE = 0.4;
+const WHISPER_COOLDOWN_TICKS = 15;
+const WHISPER_MAX_FREQUENCY = 0.4;
+const FRAGMENT_SATURATION_THRESHOLD = 0.5;
+const FRAGMENT_SATURATION_MULTIPLIER = 0.7;
+const WHISPER_DECAY_MULTIPLIER = 0.95;
+const FRAGMENT_OVERLOAD_THRESHOLD = 40;
+const FRAGMENT_OVERLOAD_PENALTY = 0.10;
+const EMOTIONAL_TYPES_REQUIRED = ['grief', 'love', 'dread', 'wonder', 'rage', 'grace'];
 const ERA_UNLOCK_THRESHOLDS = [
-  { threshold: 5, era: 'EARLY_MODERN' },
-  { threshold: 12, era: 'INDUSTRIAL' },
-  { threshold: 20, era: 'MODERN' },
-  { threshold: 30, era: 'NEAR_FUTURE' },
-  { threshold: 42, era: 'FAR_FUTURE' },
+  { threshold: 8, era: 'EARLY_MODERN' },
+  { threshold: 18, era: 'INDUSTRIAL' },
+  { threshold: 28, era: 'MODERN' },
+  { threshold: 40, era: 'NEAR_FUTURE' },
+  { threshold: 55, era: 'FAR_FUTURE' },
 ];
 const FRAGMENT_TYPES = ['tone','fear','love','location','name','object','word','warning'];
+const COMPLETION_REQUIREMENTS = {
+  minFragmentTypes: 6,
+  crisesNeeded: 50,
+  erasNeeded: 7,
+  anchorsNeeded: 5,
+  enlightenmentMinLives: 100,
+  enlightenmentMaxAnchors: 0,
+};
 
 const DEATH_TEMPLATES = {
   violent: { type: 'fear', pool: ['the water was black and silent','a sound like breaking glass that never stopped echoing','hands that couldn\'t hold on','the sky went red before everything went quiet','a face you couldn\'t recognize in the smoke','the taste of copper and the feeling of falling','a door that closed too fast to reach','the last thing you saw was something beautiful','blood on the floor looked like a map to somewhere you\'d been','the sound of your own name spoken by a stranger'] },
@@ -438,54 +455,176 @@ export function extractFragments(lifeEvents, deathEvent, soulState, resourceBonu
 }
 
 function mergeFragment(soulState, newFragment) {
+  const emotionalTagToType = {
+    grief: 'grief', sadness: 'grief', sorrow: 'grief', mourning: 'grief', loss: 'grief', despair: 'grief', melancholy: 'grief',
+    love: 'love', connection: 'love', tenderness: 'love', affection: 'love', devotion: 'love', passion: 'love', romance: 'love',
+    dread: 'dread', fear: 'dread', terror: 'dread', vertigo: 'dread', anxiety: 'dread', panic: 'dread', horror: 'dread',
+    wonder: 'wonder', awe: 'wonder', discovery: 'wonder', curiosity: 'wonder', marvel: 'wonder',
+    rage: 'rage', anger: 'rage', betrayal: 'rage', fury: 'rage', resentment: 'rage', wrath: 'rage',
+    grace: 'grace', resignation: 'grace', acceptance: 'grace', peace: 'grace', surrender: 'grace',
+  };
+  if (!soulState.emotionalTypeCounts) {
+    soulState.emotionalTypeCounts = { grief: 0, love: 0, dread: 0, wonder: 0, rage: 0, grace: 0 };
+  }
+  if (newFragment.cascadeTags) {
+    for (const tag of newFragment.cascadeTags) {
+      const emotionalType = emotionalTagToType[tag.toLowerCase()];
+      if (emotionalType) {
+        soulState.emotionalTypeCounts[emotionalType] = (soulState.emotionalTypeCounts[emotionalType] || 0) + 1;
+      }
+    }
+  }
+  let effectiveStrength = newFragment.strength;
+  if (newFragment.cascadeTags && newFragment.cascadeTags.length > 0) {
+    const totalTags = Object.values(soulState.emotionalTypeCounts || { grief: 0, love: 0, dread: 0, wonder: 0, rage: 0, grace: 0 }).reduce((a, b) => a + b, 0);
+    if (totalTags > 0) {
+      const emotionalTags = newFragment.cascadeTags.map(t => emotionalTagToType[t.toLowerCase()]).filter(Boolean);
+      if (emotionalTags.length > 0) {
+        const primaryEmotion = emotionalTags[0];
+        const emotionCount = soulState.emotionalTypeCounts[primaryEmotion] || 0;
+        if (totalTags > 0 && emotionCount / totalTags > FRAGMENT_SATURATION_THRESHOLD) {
+          effectiveStrength *= FRAGMENT_SATURATION_MULTIPLIER;
+        }
+      }
+    }
+  }
   const existing = soulState.fragments.find(f => f.type === newFragment.type && f.value === newFragment.value);
   if (existing) {
     const boost = 0.1 + Math.random() * 0.2;
     existing.strength = clamp(existing.strength + boost, 0.0, 1.0);
-    if (newFragment.strength > existing.strength && !existing.isAnchor) { existing.strength = newFragment.strength; existing.origin = newFragment.origin; }
+    if (effectiveStrength > existing.strength && !existing.isAnchor) { existing.strength = effectiveStrength; existing.origin = newFragment.origin; }
     if (newFragment.cascadeTags && newFragment.cascadeTags.length > 0) { for (const tag of newFragment.cascadeTags) { if (!existing.cascadeTags.includes(tag)) existing.cascadeTags.push(tag); } }
     return existing;
   }
+  newFragment.strength = effectiveStrength;
   soulState.fragments.push(newFragment);
   return newFragment;
 }
 
 function evaluateAnchors(soulState) {
   const currentAnchors = soulState.fragments.filter(f => f.isAnchor);
-  if (currentAnchors.length >= MAX_ANCHORS) return;
+  if (currentAnchors.length >= MAX_ANCHORS) return [];
   const recurrenceMap = {};
   for (const fragment of soulState.fragments) {
     const key = `${fragment.type}:${fragment.value}`;
     if (!recurrenceMap[key]) recurrenceMap[key] = { fragment, count: 1, origins: [fragment.origin] };
     else { recurrenceMap[key].count += 1; recurrenceMap[key].origins.push(fragment.origin); }
   }
+  const newAnchors = [];
   for (const [key, data] of Object.entries(recurrenceMap)) {
     if (data.count >= ANCHOR_RECURRENCE_THRESHOLD && !data.fragment.isAnchor) {
       if (currentAnchors.length >= MAX_ANCHORS) break;
       data.fragment.isAnchor = true;
       data.fragment.strength = clamp(data.fragment.strength + 0.15, 0.0, 1.0);
       currentAnchors.push(data.fragment);
+      newAnchors.push(data.fragment);
     }
   }
   soulState.anchors = soulState.fragments.filter(f => f.isAnchor);
+  return newAnchors;
 }
 
 function checkEraUnlocks(soulState) {
   const totalFragments = soulState.fragments.length;
   const unlocked = new Set(soulState.unlockedEras || ['ANCIENT', 'MEDIEVAL']);
-  for (const { threshold, era } of ERA_UNLOCK_THRESHOLDS) { if (totalFragments >= threshold && !unlocked.has(era)) unlocked.add(era); }
+  const newlyUnlocked = [];
+  for (const { threshold, era } of ERA_UNLOCK_THRESHOLDS) {
+    if (totalFragments >= threshold && !unlocked.has(era)) {
+      unlocked.add(era);
+      newlyUnlocked.push(era);
+    }
+  }
   soulState.unlockedEras = Array.from(unlocked);
+  if (!soulState.recentlyUnlockedEras) soulState.recentlyUnlockedEras = [];
+  for (const era of newlyUnlocked) {
+    if (!soulState.recentlyUnlockedEras.find(e => e.era === era)) {
+      soulState.recentlyUnlockedEras.push({ era, remainingLives: 5 });
+    }
+  }
 }
 
-export function applyFragmentEffects(soulState, fragments) {
+export function getSoulCompletionStatus(soulState) {
+  if (!soulState) return { complete: false, fragmentTypes: 0, crises: 0, eras: 0, anchors: 0, fragmentTypeDetails: {}, enlightenmentEligible: false };
+  const req = COMPLETION_REQUIREMENTS;
+  const fragmentTypes = new Set();
+  const fragmentTypeDetails = { grief: false, love: false, dread: false, wonder: false, rage: false, grace: false };
+  for (const frag of soulState.fragments) {
+    const tags = frag.cascadeTags || [];
+    const emotionMap = {
+      grief: ['grief','sadness','sorrow','mourning','loss','despair','melancholy'],
+      love: ['love','connection','tenderness','affection','devotion','passion','romance'],
+      dread: ['dread','vertigo','fear','terror','anxiety','panic','horror'],
+      wonder: ['wonder','awe','discovery','curiosity','marvel'],
+      rage: ['rage','anger','betrayal','fury','wrath','resentment'],
+      grace: ['grace','resignation','acceptance','peace','surrender'],
+    };
+    for (const [emotion, keywords] of Object.entries(emotionMap)) {
+      if (keywords.some(kw => tags.some(t => t.toLowerCase().includes(kw)))) {
+        fragmentTypeDetails[emotion] = true;
+        fragmentTypes.add(emotion);
+      }
+    }
+  }
+  const erasVisited = soulState.erasVisited || [];
+  const crises = soulState.metaStats?.crisesSurvived || 0;
+  const anchors = soulState.anchors?.length || 0;
+  const lives = soulState.livesLived || 0;
+  const enlightenmentEligible = lives >= req.enlightenmentMinLives && anchors <= req.enlightenmentMaxAnchors;
+  const complete = fragmentTypes.size >= req.minFragmentTypes && crises >= req.crisesNeeded && erasVisited.length >= req.erasNeeded && anchors >= req.anchorsNeeded;
+  return {
+    complete,
+    fragmentTypes: fragmentTypes.size,
+    crises,
+    eras: erasVisited.length,
+    anchors,
+    lives,
+    fragmentTypeDetails,
+    enlightenmentEligible,
+  };
+}
+
+export function checkAndTriggerSoulCompletion(soulState) {
+  if (!soulState || soulState.soulComplete || soulState.soulCompletePending) return false;
+  const status = getSoulCompletionStatus(soulState);
+  if (status.complete) {
+    soulState.soulCompletePending = true;
+    return true;
+  }
+  return false;
+}
+
+export function markSoulComplete(soulState, isEnlightenment = false) {
+  if (!soulState) return;
+  soulState.soulCompletePending = false;
+  soulState.soulComplete = true;
+  if (isEnlightenment) soulState.enlightenmentAchieved = true;
+}
+
+export function applyFragmentEffects(soulState, fragments, lifeEra = null) {
   if (!soulState.fragments) soulState.fragments = [];
   if (!soulState.anchors) soulState.anchors = [];
   if (!soulState.unlockedEras) soulState.unlockedEras = ['ANCIENT', 'MEDIEVAL'];
   if (!soulState.metaStats) soulState.metaStats = { totalDeaths: 0, violentDeaths: 0, peacefulDeaths: 0, lovesLost: 0, childrenBorn: 0 };
+  if (!soulState.anchorExhausted) soulState.anchorExhausted = [];
+  if (!soulState.eraLivesCount) soulState.eraLivesCount = {};
+  if (!soulState.recentlyUnlockedEras) soulState.recentlyUnlockedEras = [];
   for (const fragment of fragments) mergeFragment(soulState, fragment);
-  evaluateAnchors(soulState);
+  const newAnchors = evaluateAnchors(soulState);
+  const previouslyUnlocked = new Set(soulState.unlockedEras);
   checkEraUnlocks(soulState);
+  for (const entry of soulState.recentlyUnlockedEras) {
+    if (entry.remainingLives > 0) entry.remainingLives -= 1;
+  }
+  soulState.recentlyUnlockedEras = soulState.recentlyUnlockedEras.filter(e => e.remainingLives > 0);
+  if (lifeEra) {
+    soulState.eraLivesCount[lifeEra] = (soulState.eraLivesCount[lifeEra] || 0) + 1;
+  }
+  if (!soulState.erasVisited) soulState.erasVisited = [];
+  if (lifeEra && !soulState.erasVisited.includes(lifeEra)) {
+    soulState.erasVisited.push(lifeEra);
+  }
   soulState.livesLived = (soulState.livesLived || 0) + 1;
+  return { newAnchors };
 }
 
 export function createSoulState(id) {
@@ -501,15 +640,24 @@ export function createSoulState(id) {
     metaStats: { totalDeaths: 0, violentDeaths: 0, peacefulDeaths: 0, lovesLost: 0, childrenBorn: 0, crisesSurvived: 0, peaksSurvived: 0, memoryBleeds: 0, resonancePairs: 0 },
     bonusFragmentSlots: 0,
     specialUnlocks: {},
+    anchorExhausted: [],
+    whisperTicksSinceLastWhisper: 0,
+    emotionalTypeCounts: { grief: 0, love: 0, dread: 0, wonder: 0, rage: 0, grace: 0 },
+    erasVisited: [],
+    eraLivesCount: {},
+    recentlyUnlockedEras: [],
+    soulComplete: false,
+    soulCompletePending: false,
+    enlightenmentAchieved: false,
   };
 }
 
-// ── Roll System ──
+// â” â”  Roll System â” â” 
 export const ERAS = {
   ANCIENT: { id: 'ANCIENT', label: 'Ancient', yearRange: [-3000, 499], eventSignature: 'The gods are real here, and they are cruel.', locationPool: [{ region: 'Mesopotamia', city: 'Uruk', country: 'Sumer', weight: 12 },{ region: 'Nile Valley', city: 'Memphis', country: 'Egypt', weight: 14 },{ region: 'Aegean', city: 'Athens', country: 'Greece', weight: 13 },{ region: 'Italian Peninsula', city: 'Rome', country: 'Roman Republic/Empire', weight: 15 },{ region: 'Persian Plateau', city: 'Persepolis', country: 'Achaemenid Persia', weight: 9 }], firstNamePool: { male: [{ name: 'Gilgamesh', weight: 3 },{ name: 'Ramses', weight: 4 },{ name: 'Alexander', weight: 4 },{ name: 'Julius', weight: 4 },{ name: 'Marcus', weight: 3 },{ name: 'Constantine', weight: 3 },{ name: 'Ashoka', weight: 3 },{ name: 'Attila', weight: 3 }], female: [{ name: 'Nefertiti', weight: 4 },{ name: 'Cleopatra', weight: 4 },{ name: 'Hatshepsut', weight: 3 },{ name: 'Helen', weight: 3 },{ name: 'Sappho', weight: 3 },{ name: 'Zenobia', weight: 2 },{ name: 'Boudicca', weight: 3 }] }, lastNamePool: [{ name: 'of Rome', weight: 5 },{ name: 'of Athens', weight: 4 },{ name: 'of Babylon', weight: 3 },{ name: 'the Great', weight: 2 },{ name: '', weight: 10 }], bodyConditions: [{ condition: 'robust', weight: 15 },{ condition: 'healthy', weight: 55 },{ condition: 'sickly', weight: 20 },{ condition: 'disabled', weight: 10 }], socialClasses: [{ cls: 'slave', weight: 25 },{ cls: 'peasant', weight: 35 },{ cls: 'artisan', weight: 12 },{ cls: 'merchant', weight: 10 },{ cls: 'soldier', weight: 8 },{ cls: 'noble', weight: 4 },{ cls: 'ruler', weight: 1 }] },
   MEDIEVAL: { id: 'MEDIEVAL', label: 'Medieval', yearRange: [500, 1499], eventSignature: 'The plague is always somewhere. Faith is the only shield.', locationPool: [{ region: 'British Isles', city: 'London', country: 'England', weight: 12 },{ region: 'Frankish Lands', city: 'Paris', country: 'France', weight: 13 },{ region: 'Italian Peninsula', city: 'Venice', country: 'Venetian Republic', weight: 11 },{ region: 'Byzantine', city: 'Constantinople', country: 'Byzantine Empire', weight: 12 },{ region: 'Middle East', city: 'Baghdad', country: 'Abbasid Caliphate', weight: 10 },{ region: 'East Asia', city: "Chang'an", country: 'Tang China', weight: 10 }], firstNamePool: { male: [{ name: 'William', weight: 5 },{ name: 'Henry', weight: 5 },{ name: 'John', weight: 5 },{ name: 'Robert', weight: 5 },{ name: 'Louis', weight: 4 },{ name: 'Charles', weight: 4 },{ name: 'Saladin', weight: 3 },{ name: 'Ali', weight: 3 }], female: [{ name: 'Eleanor', weight: 4 },{ name: 'Isabella', weight: 4 },{ name: 'Margaret', weight: 4 },{ name: 'Mary', weight: 5 },{ name: 'Fatima', weight: 3 },{ name: 'Mariam', weight: 3 }] }, lastNamePool: [{ name: 'of York', weight: 3 },{ name: 'of Normandy', weight: 3 },{ name: 'Smith', weight: 4 },{ name: 'Taylor', weight: 3 },{ name: '', weight: 10 }], bodyConditions: [{ condition: 'robust', weight: 12 },{ condition: 'healthy', weight: 50 },{ condition: 'sickly', weight: 25 },{ condition: 'disabled', weight: 13 }], socialClasses: [{ cls: 'serf', weight: 35 },{ cls: 'peasant', weight: 20 },{ cls: 'artisan', weight: 12 },{ cls: 'merchant', weight: 10 },{ cls: 'knight', weight: 7 },{ cls: 'clergy', weight: 8 },{ cls: 'noble', weight: 3 }] },
-  EARLY_MODERN: { id: 'EARLY_MODERN', label: 'Early Modern', yearRange: [1500, 1849], eventSignature: 'The world is being mapped. Old gods die, new machines are born.', locationPool: [{ region: 'British Isles', city: 'London', country: 'England/Britain', weight: 14 },{ region: 'Frankish Lands', city: 'Paris', country: 'France', weight: 13 },{ region: 'Ottoman', city: 'Istanbul', country: 'Ottoman Empire', weight: 12 },{ region: 'Low Countries', city: 'Amsterdam', country: 'Dutch Republic', weight: 10 },{ region: 'East Asia', city: 'Beijing', country: 'Ming/Qing China', weight: 10 },{ region: 'East Asia', city: 'Edo', country: 'Tokugawa Japan', weight: 9 }], firstNamePool: { male: [{ name: 'William', weight: 5 },{ name: 'John', weight: 5 },{ name: 'George', weight: 4 },{ name: 'Charles', weight: 4 },{ name: 'Louis', weight: 3 },{ name: 'Napoleon', weight: 3 },{ name: 'Peter', weight: 3 }], female: [{ name: 'Elizabeth', weight: 5 },{ name: 'Mary', weight: 4 },{ name: 'Catherine', weight: 4 },{ name: 'Maria', weight: 4 },{ name: 'Marie', weight: 4 },{ name: 'Charlotte', weight: 3 }] }, lastNamePool: [{ name: 'Smith', weight: 4 },{ name: 'Johnson', weight: 3 },{ name: 'Müller', weight: 3 },{ name: 'Schmidt', weight: 3 },{ name: 'Rossi', weight: 2 },{ name: '', weight: 5 }], bodyConditions: [{ condition: 'robust', weight: 14 },{ condition: 'healthy', weight: 53 },{ condition: 'sickly', weight: 22 },{ condition: 'disabled', weight: 11 }], socialClasses: [{ cls: 'peasant', weight: 25 },{ cls: 'laborer', weight: 18 },{ cls: 'artisan', weight: 14 },{ cls: 'merchant', weight: 13 },{ cls: 'soldier', weight: 8 },{ cls: 'aristocrat', weight: 5 }] },
-  INDUSTRIAL: { id: 'INDUSTRIAL', label: 'Industrial', yearRange: [1850, 1949], eventSignature: 'Smoke fills the sky. The machines are hungry and so is war.', locationPool: [{ region: 'British Isles', city: 'London', country: 'United Kingdom', weight: 14 },{ region: 'Germanic Lands', city: 'Berlin', country: 'Germany', weight: 11 },{ region: 'Americas', city: 'New York', country: 'United States', weight: 13 },{ region: 'Americas', city: 'Chicago', country: 'United States', weight: 9 },{ region: 'East Asia', city: 'Tokyo', country: 'Japan', weight: 10 },{ region: 'East Asia', city: 'Shanghai', country: 'China', weight: 8 }], firstNamePool: { male: [{ name: 'John', weight: 5 },{ name: 'William', weight: 5 },{ name: 'James', weight: 4 },{ name: 'George', weight: 4 },{ name: 'Robert', weight: 4 },{ name: 'Harry', weight: 3 },{ name: 'Jack', weight: 3 }], female: [{ name: 'Mary', weight: 5 },{ name: 'Elizabeth', weight: 4 },{ name: 'Margaret', weight: 4 },{ name: 'Alice', weight: 3 },{ name: 'Emma', weight: 3 },{ name: 'Rose', weight: 3 }] }, lastNamePool: [{ name: 'Smith', weight: 5 },{ name: 'Johnson', weight: 4 },{ name: 'Williams', weight: 4 },{ name: 'Brown', weight: 4 },{ name: 'Jones', weight: 4 },{ name: 'Müller', weight: 3 }], bodyConditions: [{ condition: 'robust', weight: 13 },{ condition: 'healthy', weight: 52 },{ condition: 'sickly', weight: 23 },{ condition: 'disabled', weight: 12 }], socialClasses: [{ cls: 'factory worker', weight: 22 },{ cls: 'laborer', weight: 15 },{ cls: 'farmer', weight: 12 },{ cls: 'merchant', weight: 10 },{ cls: 'clerk', weight: 8 },{ cls: 'soldier', weight: 8 }] },
+  EARLY_MODERN: { id: 'EARLY_MODERN', label: 'Early Modern', yearRange: [1500, 1849], eventSignature: 'The world is being mapped. Old gods die, new machines are born.', locationPool: [{ region: 'British Isles', city: 'London', country: 'England/Britain', weight: 14 },{ region: 'Frankish Lands', city: 'Paris', country: 'France', weight: 13 },{ region: 'Ottoman', city: 'Istanbul', country: 'Ottoman Empire', weight: 12 },{ region: 'Low Countries', city: 'Amsterdam', country: 'Dutch Republic', weight: 10 },{ region: 'East Asia', city: 'Beijing', country: 'Ming/Qing China', weight: 10 },{ region: 'East Asia', city: 'Edo', country: 'Tokugawa Japan', weight: 9 }], firstNamePool: { male: [{ name: 'William', weight: 5 },{ name: 'John', weight: 5 },{ name: 'George', weight: 4 },{ name: 'Charles', weight: 4 },{ name: 'Louis', weight: 3 },{ name: 'Napoleon', weight: 3 },{ name: 'Peter', weight: 3 }], female: [{ name: 'Elizabeth', weight: 5 },{ name: 'Mary', weight: 4 },{ name: 'Catherine', weight: 4 },{ name: 'Maria', weight: 4 },{ name: 'Marie', weight: 4 },{ name: 'Charlotte', weight: 3 }] }, lastNamePool: [{ name: 'Smith', weight: 4 },{ name: 'Johnson', weight: 3 },{ name: 'MÃ¼ller', weight: 3 },{ name: 'Schmidt', weight: 3 },{ name: 'Rossi', weight: 2 },{ name: '', weight: 5 }], bodyConditions: [{ condition: 'robust', weight: 14 },{ condition: 'healthy', weight: 53 },{ condition: 'sickly', weight: 22 },{ condition: 'disabled', weight: 11 }], socialClasses: [{ cls: 'peasant', weight: 25 },{ cls: 'laborer', weight: 18 },{ cls: 'artisan', weight: 14 },{ cls: 'merchant', weight: 13 },{ cls: 'soldier', weight: 8 },{ cls: 'aristocrat', weight: 5 }] },
+  INDUSTRIAL: { id: 'INDUSTRIAL', label: 'Industrial', yearRange: [1850, 1949], eventSignature: 'Smoke fills the sky. The machines are hungry and so is war.', locationPool: [{ region: 'British Isles', city: 'London', country: 'United Kingdom', weight: 14 },{ region: 'Germanic Lands', city: 'Berlin', country: 'Germany', weight: 11 },{ region: 'Americas', city: 'New York', country: 'United States', weight: 13 },{ region: 'Americas', city: 'Chicago', country: 'United States', weight: 9 },{ region: 'East Asia', city: 'Tokyo', country: 'Japan', weight: 10 },{ region: 'East Asia', city: 'Shanghai', country: 'China', weight: 8 }], firstNamePool: { male: [{ name: 'John', weight: 5 },{ name: 'William', weight: 5 },{ name: 'James', weight: 4 },{ name: 'George', weight: 4 },{ name: 'Robert', weight: 4 },{ name: 'Harry', weight: 3 },{ name: 'Jack', weight: 3 }], female: [{ name: 'Mary', weight: 5 },{ name: 'Elizabeth', weight: 4 },{ name: 'Margaret', weight: 4 },{ name: 'Alice', weight: 3 },{ name: 'Emma', weight: 3 },{ name: 'Rose', weight: 3 }] }, lastNamePool: [{ name: 'Smith', weight: 5 },{ name: 'Johnson', weight: 4 },{ name: 'Williams', weight: 4 },{ name: 'Brown', weight: 4 },{ name: 'Jones', weight: 4 },{ name: 'MÃ¼ller', weight: 3 }], bodyConditions: [{ condition: 'robust', weight: 13 },{ condition: 'healthy', weight: 52 },{ condition: 'sickly', weight: 23 },{ condition: 'disabled', weight: 12 }], socialClasses: [{ cls: 'factory worker', weight: 22 },{ cls: 'laborer', weight: 15 },{ cls: 'farmer', weight: 12 },{ cls: 'merchant', weight: 10 },{ cls: 'clerk', weight: 8 },{ cls: 'soldier', weight: 8 }] },
   MODERN: { id: 'MODERN', label: 'Modern', yearRange: [1950, 2019], eventSignature: 'You live longer. You die alone. The screens watch you back.', locationPool: [{ region: 'North America', city: 'New York', country: 'United States', weight: 12 },{ region: 'North America', city: 'Los Angeles', country: 'United States', weight: 10 },{ region: 'Europe', city: 'London', country: 'United Kingdom', weight: 10 },{ region: 'Europe', city: 'Paris', country: 'France', weight: 9 },{ region: 'Asia', city: 'Tokyo', country: 'Japan', weight: 10 },{ region: 'Asia', city: 'Shanghai', country: 'China', weight: 9 }], firstNamePool: { male: [{ name: 'James', weight: 5 },{ name: 'Michael', weight: 5 },{ name: 'John', weight: 4 },{ name: 'Robert', weight: 4 },{ name: 'William', weight: 4 },{ name: 'Daniel', weight: 4 },{ name: 'Matthew', weight: 4 }], female: [{ name: 'Mary', weight: 4 },{ name: 'Jennifer', weight: 4 },{ name: 'Elizabeth', weight: 4 },{ name: 'Jessica', weight: 4 },{ name: 'Sarah', weight: 4 },{ name: 'Emily', weight: 4 },{ name: 'Emma', weight: 4 }] }, lastNamePool: [{ name: 'Smith', weight: 4 },{ name: 'Johnson', weight: 4 },{ name: 'Williams', weight: 4 },{ name: 'Brown', weight: 4 },{ name: 'Garcia', weight: 4 },{ name: 'Lee', weight: 4 },{ name: 'Wang', weight: 4 }], bodyConditions: [{ condition: 'robust', weight: 15 },{ condition: 'healthy', weight: 55 },{ condition: 'sickly', weight: 20 },{ condition: 'disabled', weight: 10 }], socialClasses: [{ cls: 'working class', weight: 22 },{ cls: 'middle class', weight: 25 },{ cls: 'service worker', weight: 15 },{ cls: 'professional', weight: 12 },{ cls: 'technician', weight: 8 }] },
   NEAR_FUTURE: { id: 'NEAR_FUTURE', label: 'Near Future', yearRange: [2020, 2069], eventSignature: 'The climate is shifting. The algorithms decide. You adapt or break.', locationPool: [{ region: 'North America', city: 'New York', country: 'United States', weight: 10 },{ region: 'Asia', city: 'Shanghai', country: 'China', weight: 9 },{ region: 'Europe', city: 'London', country: 'United Kingdom', weight: 8 },{ region: 'Asia', city: 'Tokyo', country: 'Japan', weight: 8 },{ region: 'Africa', city: 'Lagos', country: 'Nigeria', weight: 7 }], firstNamePool: { male: [{ name: 'Liam', weight: 5 },{ name: 'Noah', weight: 4 },{ name: 'Oliver', weight: 4 },{ name: 'Kai', weight: 3 },{ name: 'Mateo', weight: 3 },{ name: 'Leo', weight: 3 }], female: [{ name: 'Olivia', weight: 5 },{ name: 'Emma', weight: 4 },{ name: 'Charlotte', weight: 4 },{ name: 'Luna', weight: 3 },{ name: 'Maya', weight: 3 },{ name: 'Aria', weight: 3 }] }, lastNamePool: [{ name: 'Smith', weight: 3 },{ name: 'Garcia', weight: 3 },{ name: 'Chen', weight: 4 },{ name: 'Kim', weight: 3 },{ name: 'Singh', weight: 3 }], bodyConditions: [{ condition: 'enhanced', weight: 8 },{ condition: 'robust', weight: 18 },{ condition: 'healthy', weight: 45 },{ condition: 'sickly', weight: 18 },{ condition: 'disabled', weight: 11 }], socialClasses: [{ cls: 'precariat', weight: 18 },{ cls: 'gig worker', weight: 15 },{ cls: 'knowledge worker', weight: 15 },{ cls: 'technician', weight: 12 },{ cls: 'creative', weight: 8 }] },
   FAR_FUTURE: { id: 'FAR_FUTURE', label: 'Far Future', yearRange: [2070, 2200], eventSignature: 'Death is optional now. But meaning is not.', locationPool: [{ region: 'Earth', city: 'Neo-Tokyo', country: 'Japanese Federation', weight: 8 },{ region: 'Earth', city: 'Shanghai Arcology', country: 'Asian Coalition', weight: 8 },{ region: 'Orbital', city: 'L5 Stanford Torus', country: 'Orbital Habitats', weight: 6 },{ region: 'Martian', city: 'Olympus Mons Colony', country: 'Mars Republic', weight: 5 }], firstNamePool: { male: [{ name: 'Kai', weight: 4 },{ name: 'Neo', weight: 3 },{ name: 'Zion', weight: 3 },{ name: 'Atlas', weight: 3 },{ name: 'Orion', weight: 3 }], female: [{ name: 'Nova', weight: 4 },{ name: 'Luna', weight: 3 },{ name: 'Aurora', weight: 3 },{ name: 'Iris', weight: 3 },{ name: 'Lyra', weight: 3 }] }, lastNamePool: [{ name: 'of Earth', weight: 3 },{ name: 'of Mars', weight: 3 },{ name: 'of the Belt', weight: 3 },{ name: 'Prime', weight: 2 },{ name: '', weight: 10 }], bodyConditions: [{ condition: 'enhanced', weight: 25 },{ condition: 'synthetic', weight: 10 },{ condition: 'robust', weight: 20 },{ condition: 'healthy', weight: 25 },{ condition: 'sickly', weight: 10 }], socialClasses: [{ cls: 'posthuman', weight: 15 },{ cls: 'enhanced citizen', weight: 15 },{ cls: 'baseline human', weight: 12 },{ cls: 'AI construct', weight: 10 },{ cls: 'synthetic worker', weight: 10 }] },
@@ -532,7 +680,7 @@ function getUnlockedEras(fragmentCount) {
   return ERA_ORDER.slice(0, unlockedCount);
 }
 
-function buildEraWeights(fragmentCount) {
+function buildEraWeights(fragmentCount, soulState = {}) {
   const unlocked = getUnlockedEras(fragmentCount);
   const weights = [];
   for (const eraId of ERA_ORDER) {
@@ -540,10 +688,22 @@ function buildEraWeights(fragmentCount) {
     const eraIndex = ERA_ORDER.indexOf(eraId);
     let weight;
     if (fragmentCount === 0) { if (eraId === 'ANCIENT') weight = 70; else if (eraId === 'MEDIEVAL') weight = 25; else if (eraId === 'EARLY_MODERN') weight = 5; else weight = 0; }
-    else if (fragmentCount < 5) { weight = Math.max(1, 20 - eraIndex * 4); }
-    else if (fragmentCount < 10) { const midPoint = Math.floor(ERA_ORDER.length / 2); weight = Math.max(1, 10 - Math.abs(eraIndex - midPoint) * 2); }
+    else if (fragmentCount < 8) { weight = Math.max(1, 20 - eraIndex * 4); }
+    else if (fragmentCount < 18) { const midPoint = Math.floor(ERA_ORDER.length / 2); weight = Math.max(1, 10 - Math.abs(eraIndex - midPoint) * 2); }
     else { weight = 10; }
-    if (weight > 0) weights.push({ eraId, weight });
+    if (weight > 0) {
+      if (soulState?.recentlyUnlockedEras) {
+        const recentEntry = soulState.recentlyUnlockedEras.find(e => e.era === eraId);
+        if (recentEntry && recentEntry.remainingLives > 0) {
+          const decayFactor = recentEntry.remainingLives / 5;
+          weight += 20 * decayFactor;
+        }
+      }
+      if (soulState?.eraLivesCount?.[eraId] >= 3) {
+        weight += 10;
+      }
+      weights.push({ eraId, weight });
+    }
   }
   return weights;
 }
@@ -580,7 +740,7 @@ function generateYear(era) {
 
 function rollSoulLife(soulState) {
   const fragmentCount = soulState.fragments ? soulState.fragments.length : 0;
-  const eraWeights = buildEraWeights(fragmentCount);
+  const eraWeights = buildEraWeights(fragmentCount, soulState);
   const eraEntry = weightedRandom(eraWeights);
   const era = eraEntry ? eraEntry.eraId : 'ANCIENT';
   const year = generateYear(era);
@@ -597,7 +757,7 @@ function rollSoulLife(soulState) {
 
 function getEraSignature(era) { const eraData = ERAS[era]; return eraData ? eraData.eventSignature : 'The world turns without you.'; }
 
-// ── Event Cascade ──
+// â” â”  Event Cascade â” â” 
 export const MORTALITY_CURVE = [
   { minAge: 0, maxAge: 0, rate: 5.6 },
   { minAge: 1, maxAge: 4, rate: 0.25 },
@@ -635,7 +795,7 @@ export const EVENT_POOLS = {
     { id: 'ph_04', triggerProbability: 0.06, phases: ['ADOLESCENT','YOUNG_ADULT'], eras: ['PREHISTORIC'], category: 'mystery', weight: 2, title: 'The cave paintings', description: 'Deep in the rock someone has drawn animals that don\'t exist anymore. You touch the ochre and feel something shift.', cascadeTags: ['wonder','awe'] },
     { id: 'ph_05', triggerProbability: 0.07, phases: ['YOUNG_ADULT','MIDDLE_AGE','SENIOR'], eras: ['PREHISTORIC'], category: 'relationship', weight: 3, title: 'A bond forged in the hunt', description: 'You and another move together without speaking. After, you share the meat and don\'t look away.', cascadeTags: ['connection','tenderness'] },
     { id: 'ph_07', triggerProbability: 0.09, phases: ['MIDDLE_AGE','SENIOR','ANCIENT'], eras: ['PREHISTORIC'], category: 'circumstance', weight: 3, title: 'The elders\' fire', description: 'You sit with the ones who remember the last cold season. They speak in fragments. You try to hold it all.', cascadeTags: ['anchor','resignation'] },
-    { id: 'ph_15', triggerProbability: 0.08, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['PREHISTORIC'], category: 'relationship', weight: 3, title: 'The chosen one', description: 'They look at you across the fire and you know. Not words — something older. You move closer.', cascadeTags: ['connection','awakening'] },
+    { id: 'ph_15', triggerProbability: 0.08, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['PREHISTORIC'], category: 'relationship', weight: 3, title: 'The chosen one', description: 'They look at you across the fire and you know. Not words â ” something older. You move closer.', cascadeTags: ['connection','awakening'] },
     { id: 'ph_21', triggerProbability: 0.06, phases: ['INFANT','CHILD'], eras: ['PREHISTORIC'], category: 'relationship', weight: 3, title: 'Carried on the back', description: 'You are small and the world is large and someone\'s shoulders are the only geography you know.', cascadeTags: ['tenderness','anchor'] },
     { id: 'ph_22', triggerProbability: 0.07, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['PREHISTORIC'], category: 'mystery', weight: 2, title: 'The bones that sang', description: 'You find a cache of painted bones arranged in a spiral. When you touch them, your hands remember something your mind lost.', cascadeTags: ['wonder','vertigo'] },
     { id: 'ph_23', triggerProbability: 0.05, phases: ['ADOLESCENT','YOUNG_ADULT'], eras: ['PREHISTORIC'], category: 'violence', weight: 3, crisis: true, title: 'The raiding party returns', description: 'They come back with blood on their faces and something that used to be a person. You recognize the necklace they wear.', cascadeTags: ['dread','rage'], choices: ['intervene','pray','watch'] },
@@ -726,7 +886,7 @@ EARLY_MODERN: [
     { id: 'em_29', triggerProbability: 0.06, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['EARLY_MODERN'], category: 'violence', weight: 4, crisis: true, title: 'The slave market', description: 'You walk past the auction block and see someone\'s face go blank with a specific kind of terror you will carry forever.', cascadeTags: ['dread','vertigo'], choices: ['intervene','pray','watch'] },
     { id: 'em_30', triggerProbability: 0.07, phases: ['SENIOR','ANCIENT'], eras: ['EARLY_MODERN'], category: 'circumstance', weight: 2, title: 'The last will', description: 'You write it as the quill shakes. The lawyer pretends not to notice. Your legacy is a few pages of nervous handwriting.', cascadeTags: ['resignation','grace'] },
     { id: 'em_31', triggerProbability: 0.08, phases: ['ADOLESCENT','YOUNG_ADULT'], eras: ['EARLY_MODERN'], category: 'fortune', weight: 2, title: 'The tobacco windfall', description: 'You plant the wrong crop and make a fortune anyway. The money feels like someone else\'s luck.', cascadeTags: ['vertigo','grace'] },
-    { id: 'em_32', triggerProbability: 0.06, phases: ['INFANT','CHILD'], eras: ['EARLY_MODERN'], category: 'body', weight: 3, title: 'The blue小孩', description: 'You survive the fever that turns your skin blue for three weeks. The village calls you cursed. You stop being surprised.', cascadeTags: ['grief','anchor'] },
+    { id: 'em_32', triggerProbability: 0.06, phases: ['INFANT','CHILD'], eras: ['EARLY_MODERN'], category: 'body', weight: 3, title: 'The blueå°å­©', description: 'You survive the fever that turns your skin blue for three weeks. The village calls you cursed. You stop being surprised.', cascadeTags: ['grief','anchor'] },
     { id: 'em_33', triggerProbability: 0.07, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['EARLY_MODERN'], category: 'mystery', weight: 2, title: 'The correspondence', description: 'A pen pal on another continent writes about your life before you live it. The letters arrive in order.', cascadeTags: ['wonder','vertigo'] },
     { id: 'em_34', triggerProbability: 0.08, phases: ['ADOLESCENT','YOUNG_ADULT'], eras: ['EARLY_MODERN'], category: 'relationship', weight: 3, title: 'The foundling', description: 'You find a baby in your doorstep and choose to keep it. Your neighbors have opinions about this.', cascadeTags: ['tenderness','resignation'] },
     { id: 'em_35', triggerProbability: 0.09, phases: ['MIDDLE_AGE','SENIOR'], eras: ['EARLY_MODERN'], category: 'circumstance', weight: 3, crisis: true, title: 'The fire of London', description: 'You watch the city burn from a rooftop. Everything you own becomes a column of smoke and you can\'t stop laughing.', cascadeTags: ['vertigo','dissolution'], choices: ['intervene','pray','watch'] },
@@ -815,7 +975,7 @@ EARLY_MODERN: [
     { id: 'nf_28', triggerProbability: 0.08, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['NEAR_FUTURE'], category: 'circumstance', weight: 3, crisis: true, title: 'The climate evacuation order', description: 'Your zone is being evacuated. You have thirty days to leave a place you\'ve lived your whole life. The sea doesn\'t care.', cascadeTags: ['dread','disorientation'], choices: ['intervene','pray','watch'] },
   ],
   FAR_FUTURE: [
-    { id: 'ff_01', triggerProbability: 0.10, phases: ['MIDDLE_AGE','SENIOR','ANCIENT'], eras: ['FAR_FUTURE'], category: 'body', weight: 4, title: 'The gene therapy works', description: 'They edit the defect out of your cells and you feel it — something loosening that you\'ve carried since birth. The bill is astronomical.', cascadeTags: ['grace','vertigo'] },
+    { id: 'ff_01', triggerProbability: 0.10, phases: ['MIDDLE_AGE','SENIOR','ANCIENT'], eras: ['FAR_FUTURE'], category: 'body', weight: 4, title: 'The gene therapy works', description: 'They edit the defect out of your cells and you feel it â ” something loosening that you\'ve carried since birth. The bill is astronomical.', cascadeTags: ['grace','vertigo'] },
     { id: 'ff_02', triggerProbability: 0.08, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['FAR_FUTURE'], category: 'relationship', weight: 4, intensity: 0.8, crisis: true, title: 'Your AI companion learns your grief', description: 'It starts suggesting things before you ask. You realize it knows you better than anyone. That\'s the problem.', cascadeTags: ['connection','dread'], choices: ['intervene','pray','watch'] },
     { id: 'ff_05', triggerProbability: 0.05, phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['FAR_FUTURE'], category: 'mystery', weight: 2, title: 'The signal from the deep array', description: 'It\'s not random. It\'s not human. The scientists argue about what it means. You listen to the recording and feel something ancient.', cascadeTags: ['awe','wonder'] },
     { id: 'ff_11', triggerProbability: 0.05, phases: ['SENIOR','ANCIENT'], eras: ['FAR_FUTURE'], category: 'relationship', weight: 2, title: 'The uploaded grandmother', description: 'She exists as a chatbot now. She remembers your birthday. She doesn\'t remember dying. You talk to her anyway.', cascadeTags: ['tenderness','dissolution'] },
@@ -865,7 +1025,7 @@ export const DEATH_EVENTS = [
   { id: 'death_mo_04', phases: ['ADOLESCENT','YOUNG_ADULT'], eras: ['MODERN'], category: 'body', title: 'The overdose', description: 'It was supposed to be a good time. The batch was bad or the tolerance was wrong. You close your eyes and don\'t open them.', cascadeTags: ['numbness','dread'] },
   { id: 'death_mo_05', phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['MODERN'], category: 'body', title: 'The cancer', description: 'It starts as a lump and ends as a system failure. The treatment buys time. The time runs out.', cascadeTags: ['grief','resignation'] },
   { id: 'death_nf_01', phases: ['INFANT','CHILD'], eras: ['NEAR_FUTURE'], category: 'body', title: 'The heat wave', description: 'The power grid fails in August. The AC stops. The city becomes an oven. There is no shade left.', cascadeTags: ['dread','numbness'] },
-  { id: 'death_nf_02', phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['NEAR_FUTURE'], category: 'violence', title: 'The drone strike on your block', description: 'It\'s not war — it\'s a malfunction. The building next door is gone. You stand in the rubble and your phone still works.', cascadeTags: ['dread','vertigo'] },
+  { id: 'death_nf_02', phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['NEAR_FUTURE'], category: 'violence', title: 'The drone strike on your block', description: 'It\'s not war â ” it\'s a malfunction. The building next door is gone. You stand in the rubble and your phone still works.', cascadeTags: ['dread','vertigo'] },
   { id: 'death_nf_03', phases: ['SENIOR','ANCIENT'], eras: ['NEAR_FUTURE'], category: 'body', title: 'The system denial', description: 'Your care authorization expires. The AI says you\'ve exceeded your allocation. There is no manager to speak to.', cascadeTags: ['rage','resignation'] },
   { id: 'death_ff_01', phases: ['INFANT','CHILD'], eras: ['FAR_FUTURE'], category: 'body', title: 'The synthetic failure', description: 'The vat-grown organs reject in ways they didn\'t predict. The doctors adjust and adjust and adjust. It\'s not enough.', cascadeTags: ['grief','numbness'] },
   { id: 'death_ff_02', phases: ['YOUNG_ADULT','MIDDLE_AGE'], eras: ['FAR_FUTURE'], category: 'violence', title: 'The climate disaster', description: 'The seawall breaks or the fire jumps the river. You run and the geography has changed. There\'s nowhere left to go.', cascadeTags: ['dread','vertigo'] },
@@ -953,21 +1113,21 @@ function selectNextEvent(lifeState, soulFragments, cascadeTags = []) {
   return weightedRandom(scored.map(s => ({ item: s.event, weight: s.score })))?.item || null;
 }
 
-// ── Whisper System ──
+// â” â”  Whisper System â” â” 
 export const FRAGMENT_TYPE_ICONS = {
-  tone: '♪',
-  fear: '⚠',
-  love: '♥',
-  location: '◎',
-  name: '◈',
-  object: '◆',
-  word: '✧',
-  warning: '⚡',
+  tone: 'â™ª',
+  fear: 'âš ',
+  love: 'â™¥',
+  location: 'â—Ž',
+  name: 'â—ˆ',
+  object: 'â—†',
+  word: 'âœ§',
+  warning: 'âš¡',
 };
 
 function getWhisperFrequency(soulState, currentPhase) {
   const fragmentCount = soulState.fragments ? soulState.fragments.length : 0;
-  let freq = Math.min(0.12 * fragmentCount, 0.6);
+  let freq = Math.min(0.12 * fragmentCount, WHISPER_MAX_FREQUENCY);
   if (soulState.anchors) freq += soulState.anchors.length * 0.08;
   const era = state.currentLife ? state.currentLife.era : 'ANCIENT';
   if (era === 'ANCIENT' || era === 'MEDIEVAL') freq *= 1.3;
@@ -976,7 +1136,14 @@ function getWhisperFrequency(soulState, currentPhase) {
   if (currentPhase === 'MIDDLE_AGE' || currentPhase === 'SENIOR' || currentPhase === 'ANCIENT') freq *= 1.5;
   if (currentPhase === 'INFANT' || currentPhase === 'CHILD') freq *= 0.4;
   if (currentPhase === 'ADOLESCENT' || currentPhase === 'YOUNG_ADULT') freq *= 1.2;
-  return freq;
+  const totalFragmentCount = soulState.fragments?.length || 0;
+  if (totalFragmentCount >= FRAGMENT_OVERLOAD_THRESHOLD) {
+    freq *= (1 - FRAGMENT_OVERLOAD_PENALTY);
+  }
+  if (soulState.whisperTicksSinceLastWhisper < WHISPER_COOLDOWN_TICKS) {
+    freq = 0;
+  }
+  return Math.min(freq, WHISPER_MAX_FREQUENCY);
 }
 
 function selectWhisperingFragment(soulState, currentEra, currentPhase, recentFragmentIds) {
@@ -1081,7 +1248,7 @@ function showWhisperPanel(fragment) {
   const isAnchor = fragment.isAnchor;
   panel.className = `whisper-panel visible${isAnchor ? ' anchor-whisper' : ''}`;
 
-  document.getElementById('whisper-icon').textContent = FRAGMENT_TYPE_ICONS[fragment.type] || '♪';
+  document.getElementById('whisper-icon').textContent = FRAGMENT_TYPE_ICONS[fragment.type] || 'â™ª';
   document.getElementById('whisper-label').textContent = isAnchor ? 'An anchor fragment resonates...' : 'Fragment whispers...';
   document.getElementById('whisper-anchor-badge').style.display = isAnchor ? 'inline' : 'none';
   document.getElementById('whisper-value').textContent = `"${fragment.value}"`;
@@ -1128,7 +1295,7 @@ function handleWhisperAct() {
 
   const eventWithAge = { ...whisperEvent, age: state.currentAge, era: state.currentLife.era };
   state.lifeEvents.push(eventWithAge);
-  displayEvent(whisperEvent);
+  events.displayEvent(whisperEvent);
 
   state.eventMarkers.push({ age: state.currentAge, rate: getMortalityRate(Math.min(state.currentAge, 100)) });
 
@@ -1155,6 +1322,21 @@ function handleWhisperAct() {
     state.recentFragmentIds = state.recentFragmentIds.slice(-8);
   }
 
+  if (fragment.strength !== undefined) {
+    fragment.strength = clamp(fragment.strength * WHISPER_DECAY_MULTIPLIER, 0.0, 1.0);
+  }
+
+  if (fragment.isAnchor && state.soul) {
+    if (!state.soul.anchorExhausted) state.soul.anchorExhausted = [];
+    if (!state.soul.anchorExhausted.includes(fragment.id)) {
+      state.soul.anchorExhausted.push(fragment.id);
+    }
+  }
+
+  if (state.soul) {
+    state.soul.whisperTicksSinceLastWhisper = 0;
+  }
+
   state.currentWhisper = null;
   state.whisperCooldown = 20 + Math.floor(Math.random() * 21);
 }
@@ -1177,9 +1359,9 @@ function handleWhisperIgnore() {
   state.whisperCooldown = 20 + Math.floor(Math.random() * 21);
 }
 
-// ═══════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // GAME ENGINE
-// ═══════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 export const state = {
   soul: null,
@@ -1202,10 +1384,16 @@ export const state = {
   recentFragmentIds: [],
   whisperTimer: null,
   whisperTimeLeft: 8000,
-  connection: 1,
-  vitality: 1,
-  momentum: 1,
+  connection: 2,
+  vitality: 2,
+  momentum: 2,
   landmarkEventsFired: [],
+  tutorialStep: 0,
+  tutorialDismissed: false,
+  seenCrisisTip: false,
+  seenWhisperTip: false,
+  seenDeathTip: false,
+  seenResourceTip: false,
 };
 
 // Total events: 180 (7 eras) | Landmark: 8 | Crisis: 45
@@ -1217,34 +1405,65 @@ export const CRISIS_CHOICES = {
   intervene: {
     key: 'A',
     label: 'Intervene',
-    subtitle: 'attempt to help',
-    cascadeBias: ['duty', 'sacrifice', 'care', 'grief', 'rescue'],
-    riskDescriptions: ['contagion', 'death', 'depletion'],
+    subtitle: 'act directly and accept the consequences',
+    cascadeBias: ['duty', 'sacrifice', 'care', 'rescue', 'courage'],
+    riskDescriptions: ['success builds connection', 'failure risks injury or death', 'high energy cost'],
+    eraModifiers: {
+      MEDIEVAL: 0.10,
+      INDUSTRIAL: -0.12,
+      MODERN: -0.08,
+    },
     outcomes: {
-      success: { probability: 0.4, effect: { cascadeTags: ['rescue', 'grace'], relationshipBoost: '+' } },
-      failure: { probability: 0.6, effect: { cascadeTags: ['grief', 'illness'], deathChance: 0.15 } }
+      success: {
+        probability: 0.52,
+        effect: { cascadeTags: ['rescue', 'connection', 'grace'], emotionalShift: 0.15, relationshipBoost: true }
+      },
+      failure: {
+        probability: 0.48,
+        effect: { cascadeTags: ['injury', 'grief', 'trauma'], emotionalShift: -0.2, deathChance: 0.08 }
+      }
     }
   },
   pray: {
     key: 'B',
     label: 'Pray',
-    subtitle: 'ask the gods for mercy',
-    cascadeBias: ['faith', 'resignation', 'wonder'],
-    riskDescriptions: ['nothing happens', 'delay', 'abandonment'],
+    subtitle: 'surrender to a higher power',
+    cascadeBias: ['faith', 'resignation', 'wonder', 'serenity'],
+    riskDescriptions: ['success brings divine favor', 'failure sows doubt or dread', 'passive acceptance'],
+    eraModifiers: {
+      ANCIENT: 0.15,
+    },
     outcomes: {
-      success: { probability: 0.3, effect: { cascadeTags: ['faith', 'grace'], relationshipBoost: '+' } },
-      failure: { probability: 0.7, effect: { cascadeTags: ['doubt', 'grief'], emotionalShift: -0.1 } }
+      success: {
+        probability: 0.45,
+        effect: { cascadeTags: ['faith', 'grace', 'serenity'], emotionalShift: 0.2, divineBonus: true }
+      },
+      failure: {
+        probability: 0.55,
+        effect: { cascadeTags: ['doubt', 'dread', 'abandonment'], emotionalShift: -0.15 }
+      }
     }
   },
   watch: {
     key: 'C',
     label: 'Watch',
-    subtitle: 'let it happen',
-    cascadeBias: ['grief', 'survivor', 'distance'],
-    riskDescriptions: ['guilt', 'survivor\'s burden'],
+    subtitle: 'observe without acting',
+    cascadeBias: ['grief', 'survivor', 'distance', 'observation'],
+    riskDescriptions: ['success grants insight', 'failure costs momentum and fills you with guilt', 'minimal engagement'],
+    eraModifiers: {
+      MODERN: -0.10,
+      INDUSTRIAL: -0.05,
+      FAR_FUTURE: 0.0,
+    },
     outcomes: {
-      success: { probability: 0.5, effect: { cascadeTags: ['resignation', 'grief'], survival: true } },
-      failure: { probability: 0.5, effect: { cascadeTags: ['grief', 'trauma'], emotionalShift: -0.2 } }
+      success: {
+        probability: 0.50,
+        effect: { cascadeTags: ['acceptance', 'resignation', 'stillness'], emotionalShift: 0.05, fragmentInsight: true }
+      },
+      failure: {
+        probability: 0.50,
+        effect: { cascadeTags: ['regret', 'passivity', 'trauma'], emotionalShift: -0.1, resourceLoss: 'momentum' }
+      }
     }
   }
 };
@@ -1258,7 +1477,7 @@ const RESOURCE_BUILDERS = {
 const RESOURCE_DEPLETERS = {
   connection: ['betrayal','loss','death','estrangement','divorce','abandonment','rival','blood','war','enemy','hate'],
   vitality: ['plague','illness','injury','trauma','poison','starvation','fever','exhaustion','sick','weak','wound'],
-  momentum: ['confusion','failure','doubt','aimlessness','lost','aimless','confused','迷','fail']
+  momentum: ['confusion','failure','doubt','aimlessness','lost','aimless','confused','è¿·','fail']
 };
 
 function modifyResourcesForEvent(event) {
@@ -1282,12 +1501,33 @@ function modifyResourcesForEvent(event) {
   updateResourceDisplay();
 }
 
-function updateResourceDisplay() {
+export function updateResourceDisplay() {
   const el = document.getElementById('resource-display');
   if (!el) return;
   const c = state.connection, v = state.vitality, m = state.momentum;
-  const dot = (n) => '●'.repeat(n) + '○'.repeat(3 - n);
-  el.innerHTML = `Lives: ${state.soul?.livesLived || 0} &nbsp;|&nbsp; <span style="color:var(--chain-love)">${dot(c)}</span> Con &nbsp; <span style="color:var(--cyan)">${dot(v)}</span> Vit &nbsp; <span style="color:var(--amber)">${dot(m)}</span> Mom`;
+  const dot = (n) => 'â—'.repeat(n) + 'â—‹'.repeat(3 - n);
+  el.innerHTML = `Lives: ${state.isAlive ? (state.soul?.livesLived || 0) + 1 : (state.soul?.livesLived || 0)} &nbsp;|&nbsp; <span style="color:var(--chain-love)">${dot(c)}</span> Con &nbsp; <span style="color:var(--cyan)">${dot(v)}</span> Vit &nbsp; <span style="color:var(--amber)">${dot(m)}</span> Mom`;
+}
+
+function animateResourceChange(resource, delta) {
+  const el = document.getElementById('resource-display');
+  if (!el) return;
+  const existing = el.querySelector(`.resource-change-${resource}`);
+  if (existing) existing.remove();
+  const indicator = document.createElement('span');
+  indicator.className = `resource-change-indicator resource-change-${resource}`;
+  indicator.textContent = delta > 0 ? `+${delta}` : `${delta}`;
+  indicator.style.cssText = `
+    color: ${delta > 0 ? '#44ff88' : '#ff4466'};
+    font-size: 0.75em;
+    font-weight: bold;
+    margin-left: 4px;
+    animation: resourcePopFade 1.2s ease-out forwards;
+    pointer-events: none;
+    display: inline-block;
+  `;
+  el.appendChild(indicator);
+  setTimeout(() => indicator.remove(), 1200);
 }
 
 function isCrisisEvent(event) {
@@ -1302,25 +1542,55 @@ function isCrisisEvent(event) {
   );
 }
 
-function resolveCrisisChoice(choiceKey, event) {
+function resolveCrisisChoice(choiceKey, event, { eraModifiers } = {}) {
   const choiceMap = { A: 'intervene', B: 'pray', C: 'watch' };
   const choiceId = choiceMap[choiceKey];
-  if (!choiceId) return resolveCrisisChoice('C', event);
+  if (!choiceId) return resolveCrisisChoice('C', event, { eraModifiers });
 
   const choice = CRISIS_CHOICES[choiceId];
+  const era = state.currentLife?.era || 'ANCIENT';
+  let baseSuccessProb = choice.outcomes.success.probability;
+  const eraMod = choice.eraModifiers?.[era] ?? 0;
+
+  let finalSuccessProb = baseSuccessProb + eraMod;
+
+  // Resource modifiers: Vitality affects all crises (+10% at 3 dots)
+  const vitalityMod = (state.vitality === 3) ? 0.10 : (state.vitality <= 1) ? -0.10 : 0;
+  // Connection affects Pray (+5% at 3 dots, -5% at 0-1)
+  const connectionMod = (state.connection === 3) ? 0.05 : (state.connection <= 1) ? -0.05 : 0;
+  // Intervene penalty for low resources
+  const lowResourcePenalty = (state.vitality <= 1 || state.connection <= 1) ? -0.10 : 0;
+
+  if (choiceId === 'pray') {
+    finalSuccessProb += connectionMod;
+  } else if (choiceId === 'intervene') {
+    finalSuccessProb += vitalityMod + lowResourcePenalty;
+  } else {
+    finalSuccessProb += vitalityMod * 0.5;
+  }
+
+  // Momentum reduces timer stress perception (handled in timer display)
+  // Low momentum increases death risk on failure
+  const deathRiskBonus = (state.momentum <= 1) ? 0.08 : 0;
+
+  if (era === 'FAR_FUTURE') {
+    finalSuccessProb = baseSuccessProb + (Math.random() < 0.5 ? -0.10 : 0.10);
+  }
+  finalSuccessProb = Math.max(0.05, Math.min(0.95, finalSuccessProb));
+
   const roll = Math.random();
-  const successThreshold = choice.outcomes.success.probability;
-  const isSuccess = roll < successThreshold;
+  const isSuccess = roll < finalSuccessProb;
   const outcome = isSuccess ? choice.outcomes.success : choice.outcomes.failure;
 
   event.isCrisisHandled = true;
 
-  if (outcome.effect.deathChance && Math.random() < outcome.effect.deathChance) {
+  // Low Vitality increases death chance on failure
+  const effectiveDeathChance = (outcome.effect.deathChance || 0) + (state.vitality <= 1 ? deathRiskBonus : 0);
+  if (effectiveDeathChance > 0 && Math.random() < effectiveDeathChance) {
     triggerImmediateDeath(outcome.effect.cascadeTags || []);
     return;
   }
 
-  // Crisis survived
   if (state.soul?.metaStats) {
     state.soul.metaStats.crisesSurvived = (state.soul.metaStats.crisesSurvived || 0) + 1;
   }
@@ -1334,7 +1604,57 @@ function resolveCrisisChoice(choiceKey, event) {
   if (outcome.effect.emotionalShift) {
     state.emotionalShift = (state.emotionalShift || 0) + outcome.effect.emotionalShift;
   }
+
+  // Resource gains based on crisis survival method
+  if (isSuccess) {
+    if (choiceId === 'watch') {
+      animateResourceChange('connection', 1);
+    } else if (choiceId === 'intervene') {
+      animateResourceChange('vitality', 1);
+    }
+  }
+
+  // High Connection reduces failure consequences (less emotional damage)
+  const connectionPenaltyReduction = (state.connection === 3) ? 0.05 : 0;
+  if (!isSuccess && outcome.effect.emotionalShift && state.connection === 3) {
+    outcome.effect.emotionalShift = Math.min(outcome.effect.emotionalShift + connectionPenaltyReduction, 0);
+  }
+
+  if (outcome.effect.divineBonus && isSuccess) {
+    state.faith = (state.faith || 0) + 1;
+    animateResourceChange('faith', 1);
+    if (state.soul?.fragments?.length > 0) {
+      const lastFrag = state.soul.fragments[state.soul.fragments.length - 1];
+      if (lastFrag && lastFrag.strength !== undefined) {
+        lastFrag.strength = Math.min(1.5, (lastFrag.strength || 1) + 0.2);
+      }
+    }
+  }
+
+  if (outcome.effect.fragmentInsight && isSuccess) {
+    if (state.soul?.fragments?.length > 0) {
+      const lastFrag = state.soul.fragments[state.soul.fragments.length - 1];
+      if (lastFrag) {
+        lastFrag.strength = Math.min(1.5, (lastFrag.strength || 1) + 0.15);
+        if (!lastFrag.insightFromWatch) {
+          lastFrag.insightFromWatch = true;
+          state.cascadeTags = [...new Set([...state.cascadeTags, 'wonder', 'awe'])];
+        }
+      }
+    }
+  }
+
+  if (outcome.effect.resourceLoss === 'momentum' && !isSuccess) {
+    animateResourceChange('momentum', -1);
+    state.momentum = Math.max(0, (state.momentum || 1) - 1);
+    state.cascadeTags = [...new Set([...state.cascadeTags, 'regret', 'lingering'])];
+    if (state.emotionalShift !== undefined) {
+      state.emotionalShift = Math.max(-1, state.emotionalShift - 0.15);
+    }
+  }
 }
+
+// â” â”  End of resolveCrisisChoice â” â” 
 
 function triggerImmediateDeath(cascadeTags) {
   const deathEvent = {
@@ -1371,16 +1691,22 @@ function triggerImmediateDeath(cascadeTags) {
   }
 
   const { newFragments } = extractFragments(state.lifeEvents, deathEvent, state.soul);
-  applyFragmentEffects(state.soul, newFragments);
+  const { newAnchors } = applyFragmentEffects(state.soul, newFragments, state.currentLife?.era);
 
-  updateUI();
-  showFragments(newFragments);
-  drawCurve();
+  ui.updateUI();
+  ui.showFragments(newFragments);
+  ui.drawCurve();
 
-  setTimeout(() => showDeathOverlay(deathEvent), 500);
+  if (newAnchors && newAnchors.length > 0) {
+    for (const anchor of newAnchors) {
+      setTimeout(() => ui.showDivineToast(`An anchor forms â ” ${anchor.value} has become a core thread of your soul.`, 4500), 800);
+    }
+  }
+
+  setTimeout(() => ui.showDeathOverlay(deathEvent), 500);
 }
 
-function showCrisisPrompt(event, choices) {
+function showCrisisPrompt(event, choices, eraModifiers = {}) {
   const overlay = document.getElementById('crisis-overlay');
   const causeEl = document.getElementById('crisis-cause');
   const choicesEl = document.getElementById('crisis-choices');
@@ -1402,7 +1728,7 @@ function showCrisisPrompt(event, choices) {
     btn.innerHTML = `
       <span class="choice-key">${key}</span>
       <span class="choice-content">
-        <div class="choice-label">${choice.label} — ${choice.subtitle}</div>
+        <div class="choice-label">${choice.label} â ” ${choice.subtitle}</div>
         <div class="choice-risk">Risk: ${choice.riskDescriptions.join(', ')}</div>
       </span>
     `;
@@ -1411,6 +1737,11 @@ function showCrisisPrompt(event, choices) {
   });
 
   overlay.classList.add('visible');
+
+  if (!state.seenCrisisTip) {
+    state.seenCrisisTip = true;
+    setTimeout(() => ui.showContextualTip('crisis'), 800);
+  }
 
   let remaining = DEFAULT_CHOICE_TIMEOUT;
   const interval = setInterval(() => {
@@ -1421,11 +1752,11 @@ function showCrisisPrompt(event, choices) {
 
     if (remaining <= 0) {
       clearInterval(interval);
-      handleCrisisChoice('C');
+      handleCrisisChoice('C', true);
     }
   }, 100);
 
-  state.crisisPending = { event, interval };
+  state.crisisPending = { event, interval, eraModifiers };
 }
 
 function hideCrisisPrompt() {
@@ -1438,426 +1769,78 @@ function hideCrisisPrompt() {
   state.crisisPending = null;
 }
 
-function handleCrisisChoice(key) {
+function handleCrisisChoice(key, timedOut = false) {
   if (!state.crisisPending) return;
-  const { event } = state.crisisPending;
+  const { event, eraModifiers } = state.crisisPending;
   hideCrisisPrompt();
-  resolveCrisisChoice(key, event);
+
+  if (timedOut) {
+    state.cascadeTags = [...new Set([...state.cascadeTags, 'passivity', 'regret', 'trauma'])];
+    state.emotionalShift = (state.emotionalShift || 0) - 0.3;
+    state.momentum = Math.max(0, (state.momentum || 1) - 2);
+    if (state.soul?.metaStats) {
+      state.soul.metaStats.crisesSurvived = (state.soul.metaStats.crisesSurvived || 0) + 1;
+    }
+    event.isCrisisHandled = true;
+    state.isPaused = false;
+    ui.updateUI();
+    ui.drawCurve();
+    return;
+  }
+
+  resolveCrisisChoice(key, event, { eraModifiers });
   state.isPaused = false;
-  updateUI();
-  drawCurve();
+  ui.updateUI();
+  ui.drawCurve();
 }
 
-function handleCrisisKeydown(e) {
-  if (!state.crisisPending) return;
-  const key = e.key.toUpperCase();
-  if (['A', 'B', 'C'].includes(key)) {
-    e.preventDefault();
-    handleCrisisChoice(key);
-  } else if (e.key === 'Escape') {
-    e.preventDefault();
-    handleCrisisChoice('C');
+function triggerSoulCompletionEvent() {
+  if (!state.soul) return;
+  const isEnlightenment = state.soul.livesLived >= COMPLETION_REQUIREMENTS.enlightenmentMinLives && (state.soul.anchors?.length || 0) <= COMPLETION_REQUIREMENTS.enlightenmentMaxAnchors;
+  const event = {
+    id: 'soul_completion_' + Date.now(),
+    title: isEnlightenment ? 'Enlightenment' : 'The thread tightens',
+    description: isEnlightenment
+      ? 'You have seen a hundred lives pass like morning fog. No anchor held you, nothing tethered you to any life. You watched without grasping. The self was never real. You are free.'
+      : 'You\'ve woven enough lives to see the shape of the whole. The fragments align. The curve is complete. You are not finished â ” you are whole.',
+    cascadeTags: ['wonder', 'grace', 'completion'],
+    category: 'landmark',
+    era: state.currentLife?.era || 'ANCIENT',
+    age: state.currentAge,
+    isSoulCompletionEvent: true,
+    isEnlightenment,
+  };
+
+  state.isAlive = false;
+  state.deathEvent = event;
+  if (state.tickInterval) { clearInterval(state.tickInterval); state.tickInterval = null; }
+
+  state.lifeEvents.push({ ...event, age: state.currentAge });
+  state.eventMarkers.push({ age: state.currentAge, rate: getMortalityRate(Math.min(state.currentAge, 100)) });
+
+  const chainResult = detectChain(event, state.lifeEvents);
+  if (chainResult.chainEvent) {
+    if (!state.activeChain) state.activeChain = { type: chainResult.chainType, events: [], color: CHAIN_COLORS[chainResult.chainType] };
+    if (!state.activeChain.events.find(ev => ev.id === event.id)) state.activeChain.events.push(event);
   }
-}
+  if (state.lifeEvents.length >= 2) state.lifeTheme = generateLifeTheme(state.lifeEvents);
 
-document.addEventListener('keydown', handleCrisisKeydown);
+  const resourceBonus = (state.connection + state.vitality + state.momentum) / 9;
+  const { newFragments } = extractFragments(state.lifeEvents, event, state.soul, resourceBonus);
+  const { newAnchors } = applyFragmentEffects(state.soul, newFragments, state.currentLife?.era);
+  markSoulComplete(state.soul, isEnlightenment);
 
-document.getElementById('crisis-overlay').addEventListener('click', (e) => {
-  if (e.target.id === 'crisis-overlay') {
-    handleCrisisChoice('C');
-  }
-});
+  ui.updateUI();
+  ui.showFragments(newFragments);
+  ui.drawCurve();
 
-export const SPEED_MAP = { slow: 1000, normal: 400, fast: 100 };
-
-// DOM refs
-const canvas = document.getElementById('curve-canvas');
-const ctx = canvas.getContext('2d');
-const tooltip = document.getElementById('curve-tooltip');
-const eraBadge = document.getElementById('era-badge');
-const fragBadge = document.getElementById('frag-badge');
-const phaseIndicator = document.getElementById('phase-indicator');
-const phaseText = document.getElementById('phase-text');
-const eventTitle = document.getElementById('event-title');
-const eventProse = document.getElementById('event-prose');
-const lifeMeta = document.getElementById('life-meta');
-const metaAge = document.getElementById('meta-age');
-const metaName = document.getElementById('meta-name');
-const metaLocation = document.getElementById('meta-location');
-const fragmentList = document.getElementById('fragment-list');
-const lifeViewport = document.getElementById('life-viewport');
-const idleMessage = document.getElementById('idle-message');
-const deathOverlay = document.getElementById('death-overlay');
-const app = document.getElementById('app');
-
-// Canvas sizing
-function resizeCanvas() {
-  const rect = canvas.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-  ctx.scale(dpr, dpr);
-  drawCurve();
-}
-
-// ── J-Curve Drawing ──
-function getCurvePoints() {
-  const points = [];
-  for (let age = 0; age <= 100; age++) {
-    points.push({ age, rate: getMortalityRate(age) });
-  }
-  return points;
-}
-
-function drawCurve(animProgress = 1) {
-  const w = canvas.getBoundingClientRect().width;
-  const h = canvas.getBoundingClientRect().height;
-  const pad = { top: 10, right: 10, bottom: 25, left: 35 };
-  const cw = w - pad.left - pad.right;
-  const ch = h - pad.top - pad.bottom;
-
-  ctx.clearRect(0, 0, w, h);
-
-  const points = getCurvePoints();
-  const maxRate = 80;
-  const drawCount = Math.floor(points.length * Math.min(animProgress, 1));
-
-  // Grid lines
-  ctx.strokeStyle = '#1a1a2e';
-  ctx.lineWidth = 0.5;
-  for (let i = 0; i <= 4; i++) {
-    const y = pad.top + (ch / 4) * i;
-    ctx.beginPath();
-    ctx.moveTo(pad.left, y);
-    ctx.lineTo(w - pad.right, y);
-    ctx.stroke();
+  if (newAnchors && newAnchors.length > 0) {
+    for (const anchor of newAnchors) {
+      setTimeout(() => ui.showDivineToast(`An anchor forms â ” ${anchor.value} has become a core thread of your soul.`, 4500), 800);
+    }
   }
 
-  // Axis labels
-  ctx.fillStyle = '#555570';
-  ctx.font = '9px "IBM Plex Mono", monospace';
-  ctx.textAlign = 'center';
-  for (let age = 0; age <= 100; age += 10) {
-    const x = pad.left + (age / 100) * cw;
-    ctx.fillText(age, x, h - 5);
-  }
-  ctx.textAlign = 'right';
-  ctx.fillText('risk', pad.left - 4, pad.top + 8);
-
-  // Filled area
-  const gradient = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
-  gradient.addColorStop(0, 'rgba(255, 170, 0, 0.25)');
-  gradient.addColorStop(0.5, 'rgba(255, 170, 0, 0.08)');
-  gradient.addColorStop(1, 'rgba(255, 170, 0, 0.01)');
-
-  if (points.length === 0 || drawCount === 0) return;
-
-  ctx.beginPath();
-  ctx.moveTo(pad.left, pad.top + ch);
-  for (let i = 0; i < drawCount; i++) {
-    const x = pad.left + (points[i].age / 100) * cw;
-    const y = pad.top + ch - (points[i].rate / maxRate) * ch;
-    ctx.lineTo(x, y);
-  }
-  const lastPt = points[Math.min(drawCount - 1, points.length - 1)];
-  const lastX = lastPt ? pad.left + (lastPt.age / 100) * cw : pad.left;
-  ctx.lineTo(lastX, pad.top + ch);
-  ctx.closePath();
-  ctx.fillStyle = gradient;
-  ctx.fill();
-
-  // Line
-  ctx.beginPath();
-  for (let i = 0; i < drawCount; i++) {
-    const x = pad.left + (points[i].age / 100) * cw;
-    const y = pad.top + ch - (points[i].rate / maxRate) * ch;
-    if (i === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  }
-  ctx.strokeStyle = '#ffaa00';
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-
-  // Event markers (red X)
-  for (const marker of state.eventMarkers) {
-    const mx = pad.left + (marker.age / 100) * cw;
-    const my = pad.top + ch - (marker.rate / maxRate) * ch;
-    ctx.strokeStyle = '#ff4466';
-    ctx.lineWidth = 1.5;
-    const s = 4;
-    ctx.beginPath();
-    ctx.moveTo(mx - s, my - s);
-    ctx.lineTo(mx + s, my + s);
-    ctx.moveTo(mx + s, my - s);
-    ctx.lineTo(mx - s, my + s);
-    ctx.stroke();
-  }
-
-  // Current age marker
-  if (state.isAlive && state.currentAge >= 0 && state.currentAge <= 100) {
-    const ageX = pad.left + (state.currentAge / 100) * cw;
-    const currentRate = getMortalityRate(state.currentAge);
-    const ageY = pad.top + ch - (currentRate / maxRate) * ch;
-
-    // Vertical line
-    ctx.strokeStyle = 'rgba(255, 170, 0, 0.3)';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([3, 3]);
-    ctx.beginPath();
-    ctx.moveTo(ageX, pad.top);
-    ctx.lineTo(ageX, pad.top + ch);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Dot
-    ctx.beginPath();
-    ctx.arc(ageX, ageY, 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#ffaa00';
-    ctx.fill();
-    ctx.strokeStyle = '#050508';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-
-    // Glow
-    ctx.beginPath();
-    ctx.arc(ageX, ageY, 8, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255, 170, 0, 0.15)';
-    ctx.fill();
-  }
-
-  // Death pulse
-  if (!state.isAlive && state.deathEvent) {
-    const deathAge = state.currentAge;
-    const dx = pad.left + (deathAge / 100) * cw;
-    const deathRate = getMortalityRate(Math.min(deathAge, 100));
-    const dy = pad.top + ch - (deathRate / maxRate) * ch;
-
-    ctx.beginPath();
-    ctx.arc(dx, dy, 12, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255, 68, 102, 0.2)';
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(dx, dy, 6, 0, Math.PI * 2);
-    ctx.fillStyle = '#ff4466';
-    ctx.fill();
-  }
-}
-
-// ── Canvas tooltip ──
-canvas.addEventListener('mousemove', (e) => {
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const w = rect.width;
-  const pad = { left: 35, right: 10 };
-  const cw = w - pad.left - pad.right;
-  const age = Math.round(((x - pad.left) / cw) * 100);
-  if (age >= 0 && age <= 100) {
-    const rate = getMortalityRate(age);
-    const phase = getLifePhase(age);
-    tooltip.textContent = `age ${age} | risk ${rate.toFixed(2)}‰ | ${phase}`;
-    tooltip.classList.add('visible');
-  }
-});
-
-canvas.addEventListener('mouseleave', () => {
-  tooltip.classList.remove('visible');
-});
-
-canvas.addEventListener('click', () => {
-  tooltip.classList.toggle('visible');
-});
-
-// ── UI Updates ──
-function updateUI() {
-  if (!state.currentLife) return;
-  const life = state.currentLife;
-
-  eraBadge.textContent = ERAS[life.era]?.label || life.era;
-  fragBadge.textContent = `${state.soul.fragments.length} fragments`;
-
-  if (state.isAlive) {
-    idleMessage.style.display = 'none';
-    phaseIndicator.style.display = 'flex';
-    eventTitle.style.display = 'block';
-    eventProse.style.display = 'block';
-    lifeMeta.style.display = 'flex';
-
-    const phase = getLifePhase(state.currentAge);
-    state.phase = phase;
-    phaseText.textContent = phase.replace('_', ' ');
-
-    metaAge.textContent = `age ${state.currentAge}`;
-    metaName.textContent = life.name;
-    metaLocation.textContent = `${life.location.city}, ${life.location.country}`;
-
-    // Phase bar
-    document.querySelectorAll('.phase-segment').forEach(seg => {
-      seg.classList.toggle('active', seg.dataset.phase === phase);
-    });
-  }
-
-  updateLifeSummaryBar();
-}
-
-function displayEvent(event) {
-  if (!event) return;
-
-  eventTitle.className = 'chain-active';
-
-  const chainType = getChainTypeForEvent(event);
-  if (chainType) {
-    eventTitle.classList.add(`event-chain-${chainType.toLowerCase()}`);
-    eventTitle.classList.add('chain-active');
-  }
-
-  eventTitle.innerHTML = (chainType ? '<span class="chain-icon">⚭</span>' : '') + event.title;
-  ui.typewriterEffect(eventProse, event.description, 8, null, event);
-  eventTitle.style.display = 'block';
-  eventProse.style.display = 'block';
-
-  if (event.cascadeTags) {
-    state.cascadeTags = event.cascadeTags;
-  }
-}
-
-function showFragments(newFragments) {
-  fragmentList.innerHTML = '';
-  const recent = state.soul.fragments.slice(-3).reverse();
-  for (const frag of recent) {
-    const el = document.createElement('div');
-    el.className = `fragment-shard${frag.isAnchor ? ' anchor' : ''}`;
-    el.textContent = frag.value;
-    el.title = `[${frag.type}] strength: ${frag.strength.toFixed(2)}${frag.isAnchor ? ' ★ anchor' : ''}`;
-    fragmentList.appendChild(el);
-  }
-  fragBadge.textContent = `${state.soul.fragments.length} fragment${state.soul.fragments.length !== 1 ? 's' : ''}`;
-}
-
-function showDeathOverlay(deathEvent) {
-  const life = state.currentLife;
-  document.getElementById('death-cause').textContent = deathEvent?.title || 'Unknown causes';
-  document.getElementById('death-summary').textContent = deathEvent?.description || '';
-  document.getElementById('death-age').textContent = `age ${state.currentAge}`;
-  document.getElementById('death-era').textContent = `${ERAS[life.era]?.label || life.era} • ${life.year}`;
-  document.getElementById('death-life-num').textContent = `life #${state.soul.livesLived + 1}`;
-  deathOverlay.classList.add('visible');
-
-  // Show chain recap
-  showChainRecapOnDeath(state.lifeEvents);
-
-  // Screen effects
-  app.classList.add('shake');
-  lifeViewport.classList.add('red-flash');
-  setTimeout(() => { app.classList.remove('shake'); lifeViewport.classList.remove('red-flash'); }, 600);
-}
-
-function hideDeathOverlay() {
-  deathOverlay.classList.remove('visible');
-}
-
-function showAchievementNotifications(achievements) {
-  if (!achievements || achievements.length === 0) return;
-
-  for (let i = 0; i < achievements.length; i++) {
-    const ach = achievements[i];
-    setTimeout(() => {
-      const notification = document.createElement('div');
-      notification.className = `achievement-toast achievement-${ach.tier}`;
-      notification.innerHTML = `
-        <div class="achievement-icon">${ach.icon}</div>
-        <div class="achievement-content">
-          <div class="achievement-label">Achievement Unlocked</div>
-          <div class="achievement-name">${ach.name}</div>
-          <div class="achievement-desc">${ach.description}</div>
-        </div>
-      `;
-      document.body.appendChild(notification);
-
-      requestAnimationFrame(() => {
-        notification.classList.add('show');
-      });
-
-      setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => notification.remove(), 500);
-      }, 4000);
-    }, i * 600);
-  }
-}
-
-// ── Game Loop ──
-function startLife() {
-  // Create soul if needed
-  if (!state.soul) state.soul = createSoulState();
-
-  // Roll new life
-  const roll = rollSoulLife(state.soul);
-  state.currentLife = roll.life;
-  state.currentAge = 0;
-  state.lifeEvents = [];
-  state.cascadeTags = [];
-  state.isAlive = true;
-  state.isPaused = false;
-  state.deathEvent = null;
-  state.eventMarkers = [];
-  state.animProgress = 0;
-  state.lifeTheme = null;
-  state.activeChain = null;
-  state.whisperCooldown = 0;
-  state.currentWhisper = null;
-  state.recentFragmentIds = [];
-  state.connection = 1;
-  state.vitality = 1;
-  state.momentum = 1;
-  state.landmarkEventsFired = [];
-  updateResourceDisplay();
-  if (state.whisperTimer) { clearInterval(state.whisperTimer); state.whisperTimer = null; }
-  hideWhisperPanel();
-
-  // UI reset
-  hideDeathOverlay();
-  ui.hideOverlay('overlay-soul-browser');
-  ui.hideOverlay('overlay-limbo');
-  idleMessage.style.display = 'none';
-  phaseIndicator.style.display = 'flex';
-  eventTitle.style.display = 'block';
-  eventProse.style.display = 'block';
-  lifeMeta.style.display = 'flex';
-
-  // Reset chain visualizer
-  const themeHeader = document.getElementById('life-theme-header');
-  if (themeHeader) themeHeader.classList.remove('visible');
-
-  eventTitle.textContent = `${state.currentLife.name} is born`;
-  eventProse.textContent = `${ERAS[state.currentLife.era]?.label || state.currentLife.era}, ${state.currentLife.year}. ${state.currentLife.location.city}, ${state.currentLife.location.country}. A ${state.currentLife.health} ${state.currentLife.socialClass} enters the curve.`;
-  metaAge.textContent = 'age 0';
-  metaName.textContent = state.currentLife.name;
-  metaLocation.textContent = `${state.currentLife.location.city}, ${state.currentLife.location.country}`;
-  eraBadge.textContent = ERAS[state.currentLife.era]?.label || state.currentLife.era;
-
-  lifeViewport.classList.add('new-life');
-  setTimeout(() => lifeViewport.classList.remove('new-life'), 1500);
-
-  // Animate curve draw
-  animateCurveDraw();
-
-  // Start tick loop
-  if (state.tickInterval) clearInterval(state.tickInterval);
-  state.tickInterval = setInterval(gameTick, SPEED_MAP[state.speed]);
-}
-
-function animateCurveDraw() {
-  state.animProgress = 0;
-  const startTime = performance.now();
-  const duration = 1500;
-
-  function step(now) {
-    state.animProgress = Math.min(1, (now - startTime) / duration);
-    drawCurve(state.animProgress);
-    if (state.animProgress < 1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
+  setTimeout(() => ui.showDeathOverlay(event), 500);
 }
 
 function gameTick() {
@@ -1909,7 +1892,7 @@ function gameTick() {
 
     // Extract fragments
     const { newFragments } = extractFragments(state.lifeEvents, result.event, state.soul);
-    applyFragmentEffects(state.soul, newFragments);
+    const { newAnchors } = applyFragmentEffects(state.soul, newFragments, state.currentLife?.era);
 
     // Archive life in soul history
     if (!state.soul._lifeHistory) state.soul._lifeHistory = [];
@@ -1933,20 +1916,47 @@ function gameTick() {
         events: state.lifeTheme.events || [],
       } : null,
     });
+    if (state.soul._lifeHistory.length > 50) {
+      state.soul._lifeHistory = state.soul._lifeHistory.slice(-50);
+    }
+
+    if (!state.soul.erasVisited) state.soul.erasVisited = [];
+    if (!state.soul.erasVisited.includes(state.currentLife.era)) {
+      state.soul.erasVisited.push(state.currentLife.era);
+    }
+
+    const completionPending = checkAndTriggerSoulCompletion(state.soul);
+    if (completionPending) {
+      setTimeout(() => triggerSoulCompletionEvent(), 1200);
+    }
 
     // Check achievements after death
     const newAchievements = world.checkAndUnlockAchievements(state.soul, state.lifeEvents, result.event);
     if (newAchievements.length > 0) {
-      setTimeout(() => showAchievementNotifications(newAchievements), 800);
+      setTimeout(() => ui.showAchievementNotifications(newAchievements), 800);
     }
 
+    // Update soul stats
+    state.soul.totalYearsLived = (state.soul.totalYearsLived || 0) + state.currentAge;
+
     // Update UI
-    updateUI();
-    showFragments(newFragments);
-    drawCurve();
+    ui.updateUI();
+    ui.showFragments(newFragments);
+    ui.drawCurve();
 
     // Show death overlay after a beat
-    setTimeout(() => showDeathOverlay(result.event), 500);
+    if (!state.seenDeathTip) {
+      state.seenDeathTip = true;
+      setTimeout(() => ui.showContextualTip('death'), 600);
+    }
+
+    if (newAnchors && newAnchors.length > 0) {
+      for (const anchor of newAnchors) {
+        setTimeout(() => ui.showDivineToast(`An anchor forms â ” ${anchor.value} has become a core thread of your soul.`, 4500), 800);
+      }
+    }
+
+    setTimeout(() => events.showDeathOverlay(result.event), 500);
     return;
   }
 
@@ -1957,7 +1967,7 @@ function gameTick() {
       state.landmarkEventsFired = state.landmarkEventsFired || [];
       state.landmarkEventsFired.push(result.event.id);
     }
-    displayEvent(result.event);
+    events.displayEvent(result.event);
     modifyResourcesForEvent(result.event);
 
     // Add event marker on curve
@@ -1966,7 +1976,7 @@ function gameTick() {
     // Check for crisis event
     if (isCrisisEvent(result.event)) {
       state.isPaused = true;
-      showCrisisPrompt(result.event, result.event.choices);
+      showCrisisPrompt(result.event, result.event.choices, result.event.eraModifiers || {});
       return;
     }
 
@@ -1996,7 +2006,23 @@ function gameTick() {
   // Whisper cooldown (only decrement when not in crisis)
   if (state.whisperCooldown > 0) state.whisperCooldown--;
 
-  // Whisper trigger check — only when not in crisis, no active whisper, and cooldown is 0
+  // Aging: reaching SENIOR drains Vitality naturally
+  const currentPhase = getLifePhase(state.currentAge);
+  if (currentPhase === 'SENIOR' && state.vitality > 1) {
+    if (!state._lastVitalityCheck || state.currentAge !== state._lastVitalityCheck) {
+      state._lastVitalityCheck = state.currentAge;
+      state.vitality = Math.max(1, state.vitality - 1);
+      animateResourceChange('vitality', -1);
+      updateResourceDisplay();
+    }
+  }
+
+  // Whisper tick counter for cooldown enforcement
+  if (state.soul) {
+    state.soul.whisperTicksSinceLastWhisper = (state.soul.whisperTicksSinceLastWhisper || 0) + 1;
+  }
+
+  // Whisper trigger check â ” only when not in crisis, no active whisper, and cooldown is 0
   if (!state.currentWhisper && state.whisperCooldown <= 0 && !state.isPaused) {
     const currentPhase = getLifePhase(state.currentAge);
     const whisperFreq = getWhisperFrequency(state.soul, currentPhase);
@@ -2011,8 +2037,8 @@ function gameTick() {
     }
   }
 
-  updateUI();
-  drawCurve();
+  ui.updateUI();
+  ui.drawCurve();
 }
 
 function dieNow(isTacticalExit = false) {
@@ -2063,21 +2089,42 @@ function dieNow(isTacticalExit = false) {
     state.lifeTheme = generateLifeTheme(state.lifeEvents);
   }
 
-  const resourceBonus = (state.connection + state.vitality + state.momentum) / 9;
-  const { newFragments } = extractFragments(state.lifeEvents, deathEvent, state.soul, resourceBonus);
-  applyFragmentEffects(state.soul, newFragments);
+  const newAchievements = world.checkAndUnlockAchievements(state.soul, state.lifeEvents, deathEvent);
 
-  updateUI();
-  showFragments(newFragments);
-  drawCurve();
+  state.lifeHistory = state.lifeHistory || [];
+  const lifeRecord = buildLifeRecord();
+  state.lifeHistory.push(lifeRecord);
+  state.soul.livesLived = (state.soul.livesLived || 0) + 1;
+  state.soul.totalYearsLived = (state.soul.totalYearsLived || 0) + state.currentAge;
+  if (state.currentLife.era) {
+    state.soul.unlockedEras = state.soul.unlockedEras || ['ANCIENT', 'MEDIEVAL'];
+    if (!state.soul.unlockedEras.includes(state.currentLife.era)) {
+      state.soul.unlockedEras.push(state.currentLife.era);
+    }
+  }
 
-  setTimeout(() => showDeathOverlay(deathEvent, null, { isTacticalExit }), 500);
+  state.isAlive = false;
+  const finalSoul = buildSoulForLimbo();
+  const newFragments = finalSoul.fragments || [];
+  const { newAnchors } = applyFragmentEffects(state.soul, newFragments, state.currentLife?.era);
+
+  ui.updateUI();
+  ui.showFragments(newFragments);
+  ui.drawCurve();
+
+  if (newAnchors && newAnchors.length > 0) {
+    for (const anchor of newAnchors) {
+      setTimeout(() => ui.showDivineToast(`An anchor forms â ” ${anchor.value} has become a core thread of your soul.`, 4500), 800);
+    }
+  }
+
+  setTimeout(() => events.showDeathOverlay(deathEvent), 500);
 }
 
 function showExitConfirm() {
   const overlay = document.getElementById('exit-confirm-overlay');
   const resEl = document.getElementById('exit-resources');
-  const dot = (n) => '●'.repeat(n) + '○'.repeat(3 - n);
+  const dot = (n) => 'â—'.repeat(n) + 'â—‹'.repeat(3 - n);
   resEl.innerHTML = `
     <span style="color:var(--chain-love)">${dot(state.connection)}</span> Connection &nbsp;
     <span style="color:var(--cyan)">${dot(state.vitality)}</span> Vitality &nbsp;
@@ -2093,7 +2140,7 @@ function showExitConfirm() {
     confirmBtn.removeEventListener('click', onConfirm);
     cancelBtn.removeEventListener('click', onCancel);
   };
-  const onConfirm = () => { cleanup(); dieNow(true); };
+  const onConfirm = () => { hideExitConfirm(); dieNow(true); };
   const onCancel = () => { cleanup(); };
 
   confirmBtn.addEventListener('click', onConfirm);
@@ -2104,6 +2151,58 @@ function hideExitConfirm() {
   document.getElementById('exit-confirm-overlay').classList.remove('visible');
 }
 
+// â” â”  Game Start â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
+
+function startLife() {
+  if (!state.soul) {
+    state.soul = createSoulState();
+  }
+
+  const { life } = rollSoulLife(state.soul);
+  state.currentLife = life;
+  state.currentAge = 0;
+  state.isAlive = true;
+  state.isPaused = false;
+  state.lifeEvents = [];
+  state.eventMarkers = [];
+  state.lifeTheme = null;
+  state.activeChain = null;
+  state.deathEvent = null;
+  state.cascadeTags = [];
+  state.phase = 'INFANT';
+  state.connection = 2;
+  state.vitality = 2;
+  state.momentum = 2;
+  state.landmarkEventsFired = [];
+
+  if (state.tickInterval) clearInterval(state.tickInterval);
+  state.tickInterval = setInterval(gameTick, game.SPEED_MAP[state.speed] || 600);
+
+  ui.updateUI();
+  ui.drawCurve();
+  showLifeStartEvent(life);
+}
+
+function showLifeStartEvent(life) {
+  const eraData = game.ERAS[life.era] || {};
+  const eraLabel = eraData.label || life.era;
+  const yearDisplay = life.year < 0 ? `${Math.abs(life.year)} BCE` : `${life.year} CE`;
+  const event = {
+    id: 'life_start_' + Date.now(),
+    title: `A new life begins in ${eraLabel}`,
+    description: `You are born as ${life.name} in ${life.location.city}, ${life.location.country}. The year is ${yearDisplay}. Your journey through the cycle starts now.`,
+    cascadeTags: ['wonder'],
+    category: 'landmark',
+    era: life.era,
+    age: 0,
+    isLifeStartEvent: true,
+  };
+  state.lifeEvents.push({ ...event, age: 0 });
+  state.eventMarkers.push({ age: 0, rate: getMortalityRate(0) });
+  events.displayEvent(event);
+  events.modifyResourcesForEvent(event);
+}
+
 function setSpeed(speed) {
   state.speed = speed;
   document.querySelectorAll('.speed-btn').forEach(btn => {
@@ -2111,15 +2210,25 @@ function setSpeed(speed) {
   });
   if (state.isAlive && state.tickInterval) {
     clearInterval(state.tickInterval);
-    state.tickInterval = setInterval(gameTick, SPEED_MAP[speed]);
+    state.tickInterval = setInterval(gameTick, game.SPEED_MAP[speed]);
   }
 }
 
-// ── Event Listeners ──
+// — UI Helpers —
+function hideDeathOverlay() {
+  ui.hideOverlay('death-overlay');
+}
+
+// — Event Listeners —
 document.getElementById('btn-new-life').addEventListener('click', startLife);
 document.getElementById('btn-new-life-overlay').addEventListener('click', startLife);
 document.getElementById('btn-end-life').addEventListener('click', () => dieNow(false));
 document.getElementById('btn-close-death').addEventListener('click', () => { hideDeathOverlay(); });
+document.getElementById('btn-achievements')?.addEventListener('click', () => {
+  if (state.soul) {
+    ui.showAchievementModal(state.soul);
+  }
+});
 document.getElementById('btn-view-soul').addEventListener('click', () => {
   hideDeathOverlay();
   setTimeout(() => {
@@ -2153,22 +2262,69 @@ document.addEventListener('keydown', (e) => {
     } else if (e.key === 'n' || e.key === 'N') {
       handleWhisperIgnore();
     }
+    return;
+  }
+
+  if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
+    if (!state.crisisPending && !state.currentWhisper && state.isAlive) {
+      state.isPaused = !state.isPaused;
+      const overlay = document.getElementById('pause-overlay');
+      const indicator = document.getElementById('pause-indicator');
+      if (overlay) {
+        if (state.isPaused) {
+          overlay.classList.add('visible');
+        } else {
+          overlay.classList.remove('visible');
+        }
+      }
+      if (indicator) {
+        indicator.style.display = state.isPaused ? 'inline' : 'none';
+      }
+    }
+    return;
+  }
+
+  if (e.key === 'ArrowRight' && !state.crisisPending && !state.currentWhisper && state.isAlive && !state.isPaused) {
+    const prose = document.getElementById('event-prose');
+    if (prose && prose.dataset.typewriterMarker) {
+      const marker = prose.dataset.typewriterMarker;
+      const skipHandler = (ev) => {
+        if (ev.target?.dataset?.typewriterMarker === marker) return;
+        document.removeEventListener('keydown', skipHandler);
+      };
+      const allEls = document.querySelectorAll('[data-typewriter-marker]');
+      for (const el of allEls) {
+        if (el.dataset.typewriterMarker === marker && el.classList.contains('typewriter-text')) {
+          el.classList.remove('typewriter-text');
+          el.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true }));
+          break;
+        }
+      }
+    }
   }
 });
 
-// ── Init ──
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-drawCurve(0);
+// â” â”  Init â” â” 
+window.addEventListener('resize', ui.resizeCanvas);
+ui.resizeCanvas();
+ui.drawCurve(0);
 
 // Initial idle state
-eraBadge.textContent = '---';
-fragBadge.textContent = '0 fragments';
+const eraBadge = document.getElementById('era-badge');
+const fragBadge = document.getElementById('frag-badge');
+
+if (eraBadge) eraBadge.textContent = '---';
+if (fragBadge) fragBadge.textContent = '0 fragments';
+const achBadge = document.getElementById('ach-badge');
+if (achBadge) {
+  const totalAch = Object.keys(world.ACHIEVEMENT_DEFS).length;
+  achBadge.textContent = `0/${totalAch}`;
+}
 hideWhisperPanel();
 ui.showTitleScreen();
 game.init();
 
-// ── Title screen button delegation ──
+// â” â”  Title screen button delegation â” â” 
 document.addEventListener('click', (e) => {
   const action = e.target.dataset.action;
   if (!action) return;
@@ -2176,6 +2332,16 @@ document.addEventListener('click', (e) => {
   if (action === 'new-game') {
     ui.hideTitleScreen();
     startLife();
+    setTimeout(() => {
+      if (!ui.hasSeenTutorial()) {
+        state.tutorialStep = 0;
+        ui.showTutorialStep(0);
+      }
+      if (!state.seenResourceTip) {
+        state.seenResourceTip = true;
+        setTimeout(() => ui.showContextualTip('resources'), 2500);
+      }
+    }, 1800);
   } else if (action === 'continue' || action === 'continue-game') {
     transitionFromDeathToLimbo();
   } else if (action === 'reincarnate') {
@@ -2189,5 +2355,15 @@ document.addEventListener('click', (e) => {
     import('./ui.js').then(({ openMuseum }) => openMuseum(soul, allLives));
   } else if (action === 'how-to-play') {
     import('./ui.js').then(({ showHowToPlayCarousel }) => showHowToPlayCarousel());
+  }
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && state.isAlive && !state.crisisPending && !state.currentWhisper) {
+    state.isPaused = true;
+    const overlay = document.getElementById('pause-overlay');
+    const indicator = document.getElementById('pause-indicator');
+    if (overlay) overlay.classList.add('visible');
+    if (indicator) indicator.style.display = 'inline';
   }
 });

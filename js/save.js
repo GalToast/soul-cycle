@@ -1,6 +1,6 @@
-// ═══════════════════════════════════════════════════════════
-// SAVE.JS — Soul Cycle persistence layer
-// ═══════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// SAVE.JS â ” Soul Cycle persistence layer
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 const SAVE_KEYS = {
   SOUL:       'soulcycle_soul',
@@ -11,7 +11,7 @@ const SAVE_KEYS = {
 
 const ERA_ORDER = ['ANCIENT','MEDIEVAL','EARLY_MODERN','INDUSTRIAL','MODERN','NEAR_FUTURE','FAR_FUTURE'];
 
-// ── Low-level storage ──────────────────────────────────────
+// â” â”  Low-level storage â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 function getItem(key) {
   try { return localStorage.getItem(key); } catch { return null; }
 }
@@ -22,7 +22,7 @@ function removeItem(key) {
   try { localStorage.removeItem(key); } catch { /* unavailable */ }
 }
 
-// ── Save / Load — Soul State ───────────────────────────────
+// â” â”  Save / Load â ” Soul State â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 function saveSoulState(soul) {
   if (!soul) return;
   setItem(SAVE_KEYS.SOUL, JSON.stringify(soul));
@@ -34,7 +34,7 @@ function loadSoulState() {
   try { return JSON.parse(raw); } catch { return null; }
 }
 
-// ── Save / Load — In-progress life ────────────────────────
+// â” â”  Save / Load â ” In-progress life â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 // Called on startLife() to enable auto-resume on next load.
 // Called when life ends normally (death) to clear in-progress.
 function saveInProgressLife(stateObj) {
@@ -71,7 +71,7 @@ function clearInProgressLife() {
   removeItem(SAVE_KEYS.INPROGRESS);
 }
 
-// ── Save / Load — Settings ─────────────────────────────────
+// â” â”  Save / Load â ” Settings â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 function saveSettings(settings) {
   setItem(SAVE_KEYS.SETTINGS, JSON.stringify(settings));
 }
@@ -82,7 +82,7 @@ function loadSettings() {
   try { return JSON.parse(raw); } catch { return {}; }
 }
 
-// ── Save on Death ─────────────────────────────────────────
+// â” â”  Save on Death â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 function saveOnDeath(stateObj, deathEvent, newFragments) {
   if (!stateObj || !stateObj.soul) return;
 
@@ -97,8 +97,8 @@ function saveOnDeath(stateObj, deathEvent, newFragments) {
   clearInProgressLife();
 }
 
-// ── Lifetime Records ────────────────────────────────────────
-// Aggregated across all lives — achievements, totals, eras
+// â” â”  Lifetime Records â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
+// Aggregated across all lives â ” achievements, totals, eras
 function getLifetimeRecords(stateObj) {
   const soul = stateObj ? stateObj.soul : loadSoulState();
   if (!soul) {
@@ -169,7 +169,7 @@ function findLongestLifeEntry(soul) {
   return null;
 }
 
-// ── Export / Import ────────────────────────────────────────
+// â” â”  Export / Import â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 function exportSoulToBase64(soul) {
   if (!soul) return '';
   try {
@@ -190,7 +190,7 @@ function importSoulFromBase64(b64) {
   }
 }
 
-// ── Clear All Saves (WIPE SOUL) ─────────────────────────────
+// â” â”  Clear All Saves (WIPE SOUL) â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 function clearAllSaves() {
   removeItem(SAVE_KEYS.SOUL);
   removeItem(SAVE_KEYS.SETTINGS);
@@ -198,7 +198,7 @@ function clearAllSaves() {
   removeItem(SAVE_KEYS.RECORDS);
 }
 
-// ── Check for In-Progress Life (auto-resume) ──────────────
+// â” â”  Check for In-Progress Life (auto-resume) â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 // Returns the saved life state if there is an interrupted life,
 // or null if no resume is available.
 function checkForInProgressLife() {
@@ -216,7 +216,7 @@ function checkForInProgressLife() {
   return null;
 }
 
-// ── Resume helpers ────────────────────────────────────────
+// â” â”  Resume helpers â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 function resumeLife(stateObj, saved) {
   if (!stateObj || !saved) return false;
 
@@ -247,7 +247,7 @@ function resumeLife(stateObj, saved) {
   return true;
 }
 
-// ── Exports ───────────────────────────────────────────────
+// â” â”  Exports â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     SAVE_KEYS,

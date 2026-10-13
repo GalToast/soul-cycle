@@ -1,5 +1,5 @@
 /**
- * SOUL-CYCLE — World Reactivity System
+ * SOUL-CYCLE â ” World Reactivity System
  *
  * Tracks how soul fragments, anchors, and life events create
  * "echoes" and "ripples" in the world, and how the world
@@ -7,7 +7,7 @@
  * resonance pairs, and mortality peaks.
  */
 
-// ─── Data Constants ─────────────────────────────────────────────────────────
+// â” â” â”  Data Constants â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 export const ERA_NARRATIVE_BEATS = {
   ANCIENT: {
@@ -154,7 +154,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'gone_too_soon',
     name: 'Gone Too Soon',
     description: 'Die before age 5',
-    icon: '⚰',
+    icon: 'âš°',
     tier: 'bronze',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'lifespan' && deathEvent && deathEvent.age < 5,
     reward: null,
@@ -164,7 +164,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'centurian',
     name: 'Centurian',
     description: 'Live to age 80 or beyond',
-    icon: '👴',
+    icon: 'ðŸ‘´',
     tier: 'silver',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'lifespan' && deathEvent && deathEvent.age >= 80,
     reward: { type: 'bonus_fragment_slot' },
@@ -174,7 +174,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'methuselah',
     name: 'Methuselah',
     description: 'Live to age 100 or beyond',
-    icon: '🧓',
+    icon: 'ðŸ§“',
     tier: 'gold',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'lifespan' && deathEvent && deathEvent.age >= 100,
     reward: { type: 'bonus_fragment_slot' },
@@ -184,7 +184,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'ancient_of_days',
     name: 'Ancient of Days',
     description: 'Live to age 110 or beyond',
-    icon: '🌳',
+    icon: 'ðŸŒ³',
     tier: 'platinum',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'lifespan' && deathEvent && deathEvent.age >= 110,
     reward: { type: 'unlock_era', era: 'FAR_FUTURE' },
@@ -194,7 +194,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'fragment_awakening',
     name: 'Fragment Awakening',
     description: 'Collect your first fragment',
-    icon: '💎',
+    icon: 'ðŸ’Ž',
     tier: 'bronze',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'fragment' && soul.fragments?.length >= 1,
     reward: null,
@@ -204,7 +204,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'memory_keeper',
     name: 'Memory Keeper',
     description: 'Collect 10 fragments',
-    icon: '📚',
+    icon: 'ðŸ“š',
     tier: 'silver',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'fragment' && soul.fragments?.length >= 10,
     reward: { type: 'bonus_fragment_slot' },
@@ -214,7 +214,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'fragment_collector',
     name: 'Fragment Collector',
     description: 'Collect 25 fragments',
-    icon: '🏛️',
+    icon: 'ðŸ›ï¸',
     tier: 'gold',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'fragment' && soul.fragments?.length >= 25,
     reward: { type: 'bonus_fragment_slot' },
@@ -224,7 +224,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'archive_of_lives',
     name: 'Archive of Lives',
     description: 'Collect 50 fragments',
-    icon: '🗄️',
+    icon: 'ðŸ—„ï¸',
     tier: 'platinum',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'fragment' && soul.fragments?.length >= 50,
     reward: { type: 'unlock_era', era: 'FAR_FUTURE' },
@@ -234,7 +234,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'anchor_born',
     name: 'Anchor Born',
     description: 'Form your first anchor',
-    icon: '⚓',
+    icon: 'âš“',
     tier: 'bronze',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'anchor' && soul.anchors?.length >= 1,
     reward: null,
@@ -244,7 +244,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'trinity_of_echoes',
     name: 'Trinity of Echoes',
     description: 'Form 3 anchors',
-    icon: '🔱',
+    icon: 'ðŸ”±',
     tier: 'silver',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'anchor' && soul.anchors?.length >= 3,
     reward: { type: 'bonus_fragment_slot' },
@@ -254,7 +254,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'constellation_of_echoes',
     name: 'Constellation of Echoes',
     description: 'Form 5 anchors',
-    icon: '✨',
+    icon: 'âœ¨',
     tier: 'gold',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'anchor' && soul.anchors?.length >= 5,
     reward: { type: 'special_anchor_type' },
@@ -264,7 +264,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'era_hopper',
     name: 'Era Hopper',
     description: 'Live in 4 different eras',
-    icon: '🗺️',
+    icon: 'ðŸ—ºï¸',
     tier: 'silver',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'era' && (soul.unlockedEras?.length || 0) >= 4,
     reward: null,
@@ -274,7 +274,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'era_walker',
     name: 'Era Walker',
     description: 'Live in all 7 eras',
-    icon: '🌍',
+    icon: 'ðŸŒ',
     tier: 'gold',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'era' && (soul.unlockedEras?.length || 0) >= 7,
     reward: { type: 'unlock_era', era: 'FAR_FUTURE' },
@@ -284,7 +284,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'omnitemporal',
     name: 'Omnitemporal',
     description: 'Witness every era across your journeys',
-    icon: '🌎',
+    icon: 'ðŸŒŽ',
     tier: 'platinum',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'era' && (soul.unlockedEras?.length || 0) >= 7 && soul.livesLived >= 10,
     reward: { type: 'special_title', title: 'Omnitemporal Wanderer' },
@@ -294,7 +294,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'storm_survivor',
     name: 'Storm Survivor',
     description: 'Survive 5 crises',
-    icon: '⛈️',
+    icon: 'â›ˆï¸',
     tier: 'bronze',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'crisis' && (soul.metaStats?.crisesSurvived || 0) >= 5,
     reward: null,
@@ -304,7 +304,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'crisis_forger',
     name: 'Crisis Forger',
     description: 'Survive 10 crises',
-    icon: '⚡',
+    icon: 'âš¡',
     tier: 'silver',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'crisis' && (soul.metaStats?.crisesSurvived || 0) >= 10,
     reward: { type: 'bonus_fragment_slot' },
@@ -314,7 +314,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'unbreakable',
     name: 'Unbreakable',
     description: 'Survive 25 crises',
-    icon: '🛡️',
+    icon: 'ðŸ›¡ï¸',
     tier: 'gold',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'crisis' && (soul.metaStats?.crisesSurvived || 0) >= 25,
     reward: { type: 'bonus_fragment_slot' },
@@ -324,7 +324,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'grief_weaver',
     name: 'Grief Weaver',
     description: 'Complete a grief chain of 5+ events',
-    icon: '💔',
+    icon: 'ðŸ’”',
     tier: 'silver',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'chain' && countChainType(lifeEvents, 'GRIEF') >= 5,
     reward: null,
@@ -334,7 +334,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'love_weaver',
     name: 'Love Weaver',
     description: 'Complete a love chain of 5+ events',
-    icon: '❤️',
+    icon: 'â¤ï¸',
     tier: 'silver',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'chain' && countChainType(lifeEvents, 'LOVE') >= 5,
     reward: null,
@@ -344,7 +344,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'dread_weaver',
     name: 'Dread Weaver',
     description: 'Complete a dread chain of 5+ events',
-    icon: '👁️',
+    icon: 'ðŸ‘ï¸',
     tier: 'silver',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'chain' && countChainType(lifeEvents, 'DREAD') >= 5,
     reward: null,
@@ -354,7 +354,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'wonder_weaver',
     name: 'Wonder Weaver',
     description: 'Complete a wonder chain of 5+ events',
-    icon: '✨',
+    icon: 'âœ¨',
     tier: 'silver',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'chain' && countChainType(lifeEvents, 'WONDER') >= 5,
     reward: null,
@@ -364,7 +364,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'rage_weaver',
     name: 'Rage Weaver',
     description: 'Complete a rage chain of 5+ events',
-    icon: '🔥',
+    icon: 'ðŸ”¥',
     tier: 'silver',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'chain' && countChainType(lifeEvents, 'RAGE') >= 5,
     reward: null,
@@ -374,7 +374,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'grace_weaver',
     name: 'Grace Weaver',
     description: 'Complete a grace chain of 5+ events',
-    icon: '🕊️',
+    icon: 'ðŸ•Šï¸',
     tier: 'silver',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'chain' && countChainType(lifeEvents, 'GRACE') >= 5,
     reward: { type: 'bonus_fragment_slot' },
@@ -384,7 +384,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'chain_master',
     name: 'Chain Master',
     description: 'Complete chains of 5+ events in all 6 emotional categories',
-    icon: '🔮',
+    icon: 'ðŸ”®',
     tier: 'platinum',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'chain' &&
       countChainType(lifeEvents, 'GRIEF') >= 5 &&
@@ -400,7 +400,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'speedrunner',
     name: 'Speedrunner',
     description: 'Accumulate 10 fragments in under 5 lives',
-    icon: '🚀',
+    icon: 'ðŸš ',
     tier: 'gold',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'speedrunner' && soul.livesLived < 5 && (soul.fragments?.length || 0) >= 10,
     reward: { type: 'bonus_fragment_slot' },
@@ -410,7 +410,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'swift_collector',
     name: 'Swift Collector',
     description: 'Accumulate 25 fragments in under 10 lives',
-    icon: '💨',
+    icon: 'ðŸ’¨',
     tier: 'platinum',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'speedrunner' && soul.livesLived < 10 && (soul.fragments?.length || 0) >= 25,
     reward: { type: 'special_title', title: 'Swift Soul' },
@@ -420,7 +420,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'gentle_release',
     name: 'Gentle Release',
     description: 'Die of old age',
-    icon: '😌',
+    icon: 'ðŸ˜Œ',
     tier: 'bronze',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'peaceful' && isPeacefulDeath(deathEvent),
     reward: null,
@@ -430,7 +430,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'violent_passage',
     name: 'Violent Passage',
     description: 'Die violently',
-    icon: '⚔️',
+    icon: 'âš”ï¸',
     tier: 'bronze',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'peaceful' && isViolentDeath(deathEvent),
     reward: null,
@@ -440,7 +440,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'complexity_ascendant',
     name: 'Complexity Ascendant',
     description: 'Reach 50 complexity',
-    icon: '🔮',
+    icon: 'ðŸ”®',
     tier: 'gold',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'special' && getSoulComplexityScore(soul) >= 50,
     reward: { type: 'bonus_fragment_slot' },
@@ -450,7 +450,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'memory_bleedthrough',
     name: 'Memory Bleedthrough',
     description: 'Fragments from past lives resonate in the present',
-    icon: '🩸',
+    icon: 'ðŸ©¸',
     tier: 'silver',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'special' && (soul.metaStats?.memoryBleeds || 0) >= 3,
     reward: null,
@@ -460,7 +460,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'resonance_master',
     name: 'Resonance Master',
     description: 'Create 2 resonance pairs',
-    icon: '🎭',
+    icon: 'ðŸŽ­',
     tier: 'gold',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'special' && (soul.metaStats?.resonancePairs || 0) >= 2,
     reward: { type: 'bonus_fragment_slot' },
@@ -470,7 +470,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'peak_survivor',
     name: 'Peak Survivor',
     description: 'Survive a mortality peak',
-    icon: '🏔️',
+    icon: 'ðŸ”ï¸',
     tier: 'silver',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'special' && (soul.metaStats?.peaksSurvived || 0) >= 1,
     reward: null,
@@ -480,7 +480,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'meta_achiever',
     name: 'Achiever',
     description: 'Unlock 10 achievements',
-    icon: '🏆',
+    icon: 'ðŸ†',
     tier: 'platinum',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'special' && (soul.achievementsUnlocked?.length || 0) >= 10,
     reward: { type: 'special_title', title: 'Achievement Seeker' },
@@ -490,7 +490,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'soul_pool_complete',
     name: 'Soul Pool Complete',
     description: 'Ten fragments create a world',
-    icon: '🌍',
+    icon: 'ðŸŒ',
     tier: 'silver',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'fragment' && soul.fragments?.length >= 10,
     reward: null,
@@ -500,7 +500,7 @@ export const ACHIEVEMENT_DEFS = {
     id: 'life_theme_crystallized',
     name: 'Life Theme Crystallized',
     description: 'A throughline emerges from chaos',
-    icon: '💫',
+    icon: 'ðŸ’«',
     tier: 'bronze',
     condition: (soul, lifeEvents, deathEvent, category) => category === 'chain' && lifeEvents.length >= 5,
     reward: null,
@@ -633,7 +633,7 @@ export function getAchievementStats(soulState) {
   return { total, unlocked, byTier, byCategory };
 }
 
-// ─── Complexity Score ───────────────────────────────────────────────────────
+// â” â” â”  Complexity Score â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 export function getSoulComplexityScore(soulState) {
   if (!soulState) return 0;
@@ -677,7 +677,7 @@ export function getUnlockedErasFromComplexity(complexityScore) {
   return allEras;
 }
 
-// ─── World Echoes ──────────────────────────────────────────────────────────
+// â” â” â”  World Echoes â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 export function getFragmentWorldEchoes(soulState, currentEra) {
   const echoes = [];
@@ -721,7 +721,7 @@ function buildEchoPhrase(fragment, currentEra) {
   };
 
   const base = typePhrases[fragment.type] || 'A fragment leaves its mark';
-  if (fragment.isAnchor) return `★ ${base} [ANCHOR]`;
+  if (fragment.isAnchor) return `â˜… ${base} [ANCHOR]`;
   return base;
 }
 
@@ -737,7 +737,7 @@ export function getAnchorWorldEchos(soulState) {
       type: anchor.type,
       strength: anchor.strength || 0.5,
       worldReactivity: calculateAnchorWorldReactivity(anchor),
-      phrase: `★ ANCHOR: "${anchor.value}"`,
+      phrase: `â˜… ANCHOR: "${anchor.value}"`,
       echoRange: 3,
       resonanceBoost: 0.2,
     };
@@ -816,12 +816,12 @@ function calculateWorldConsequence(event) {
 
 function buildRipplePhrase(event) {
   const intensity = event.intensity || event.emotionalIntensity || 0.5;
-  if (intensity >= 0.8) return `◆ MAJOR CONSEQUENCE: ${event.title}`;
-  if (intensity >= 0.5) return `◇ consequence ripples from: ${event.title}`;
-  return `· small ripple from: ${event.title}`;
+  if (intensity >= 0.8) return `â—† MAJOR CONSEQUENCE: ${event.title}`;
+  if (intensity >= 0.5) return `â—‡ consequence ripples from: ${event.title}`;
+  return `Â· small ripple from: ${event.title}`;
 }
 
-// ─── Memory Bleed ──────────────────────────────────────────────────────────
+// â” â” â”  Memory Bleed â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 export function getMemoryBleed(soulState, currentLife) {
   const bleed = {
@@ -873,15 +873,15 @@ export function getMemoryBleed(soulState, currentLife) {
   } else if (totalBleed < 3) {
     bleed.phrase = 'Faint memories seep through from past lives';
   } else if (totalBleed < 6) {
-    bleed.phrase = 'Memory bleed is significant — past and present blur';
+    bleed.phrase = 'Memory bleed is significant â ” past and present blur';
   } else {
-    bleed.phrase = 'Strong memory bleed — the soul carries much from before';
+    bleed.phrase = 'Strong memory bleed â ” the soul carries much from before';
   }
 
   return bleed;
 }
 
-// ─── Resonance Pairs ────────────────────────────────────────────────────────
+// â” â” â”  Resonance Pairs â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 export function checkResonancePairs(soulState) {
   const resonanceEvents = [];
@@ -920,7 +920,7 @@ export function checkResonancePairs(soulState) {
   return { resonanceEvents, pairHits };
 }
 
-// ─── Memory Chain ──────────────────────────────────────────────────────────
+// â” â” â”  Memory Chain â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 export function createMemoryChainEntry(soulState, lifeEvents, chainType) {
   if (!chainType || !lifeEvents || lifeEvents.length === 0) return null;
@@ -1005,7 +1005,7 @@ export function getMemoryChainMotifs(soulState, lifeEvents) {
   return motifs;
 }
 
-// ─── Life Theme Bias ────────────────────────────────────────────────────────
+// â” â” â”  Life Theme Bias â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 export function getLifeThemeBias(lifeEvents) {
   if (!lifeEvents || lifeEvents.length < 3) return null;
@@ -1065,7 +1065,7 @@ function getThemeLabel(bias) {
   return labels[bias] || 'An undefined theme';
 }
 
-// ─── World Reactivity Application ─────────────────────────────────────────
+// â” â” â”  World Reactivity Application â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 export function applyWorldReactivityToEvent(event, soulState, worldState) {
   if (!event) return event;
@@ -1095,7 +1095,7 @@ export function applyWorldReactivityToEvent(event, soulState, worldState) {
 
   if (anchorMatches.length > 0) {
     reactivity.tagAmplification.push(...anchorMatches.map(a => a.value));
-    reactivity.phrase += ` ★ Anchor resonance detected`;
+    reactivity.phrase += ` â˜… Anchor resonance detected`;
   }
 
   const { pairHits } = checkResonancePairs(soulState);
@@ -1114,7 +1114,7 @@ export function applyWorldReactivityToEvent(event, soulState, worldState) {
   return event;
 }
 
-// ─── Mortality Peak System ─────────────────────────────────────────────────
+// â” â” â”  Mortality Peak System â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 export function checkMortalityPeak(age, era, soulState) {
   const peakThresholds = {
@@ -1173,7 +1173,7 @@ function calculatePeakSeverity(peakName, age, complexity) {
 export function handleMortalityPeakYes(peak, soulState) {
   const result = {
     survived: true,
-    phrase: `Mortality peak ${peak.name} at age ${peak.age} — survived`,
+    phrase: `Mortality peak ${peak.name} at age ${peak.age} â ” survived`,
     rewards: {
       complexityBonus: Math.floor(peak.severity * 3),
       fragmentStrengthBonus: peak.severity * 0.1,
@@ -1190,7 +1190,7 @@ export function handleMortalityPeakYes(peak, soulState) {
 export function handleMortalityPeakNo(peak, soulState) {
   const result = {
     survived: false,
-    phrase: `Mortality peak ${peak.name} at age ${peak.age} — not survived`,
+    phrase: `Mortality peak ${peak.name} at age ${peak.age} â ” not survived`,
     consequences: {
       complexityLoss: Math.floor(peak.severity * 2),
       memoryBleedIncrease: peak.severity * 0.2,
@@ -1200,7 +1200,7 @@ export function handleMortalityPeakNo(peak, soulState) {
   return result;
 }
 
-// ─── UI Update Functions ───────────────────────────────────────────────────
+// â” â” â”  UI Update Functions â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 export function updateBittersweetIndicator(lifeEvents, soulState) {
   let bittersweetScore = 0;
@@ -1288,17 +1288,17 @@ function calculateConsequenceLevel(event) {
 function buildVignettePhrase(event) {
   const level = calculateConsequenceLevel(event);
   const phrases = {
-    terminal: `◆ ${event.title} — the end came`,
-    major: `◇ ${event.title} — a turning point`,
-    significant: `· ${event.title} — left its mark`,
-    moderate: `· ${event.title} — ripples outward`,
+    terminal: `â—† ${event.title} â ” the end came`,
+    major: `â—‡ ${event.title} â ” a turning point`,
+    significant: `Â· ${event.title} â ” left its mark`,
+    moderate: `Â· ${event.title} â ” ripples outward`,
     minor: `- ${event.title}`,
   };
 
   return phrases[level] || `- ${event.title}`;
 }
 
-// ─── World State ───────────────────────────────────────────────────────────
+// â” â” â”  World State â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 export function createWorldState(soulState, lifeEvents, currentLife) {
   return {
@@ -1330,7 +1330,7 @@ function generateWorldPhrase(soulState, lifeEvents) {
   return 'The soul begins leaving echoes in the world';
 }
 
-// ─── Soul Description System ───────────────────────────────────────────────
+// â” â” â”  Soul Description System â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” 
 
 export function generateSoulSignature(soulState) {
   if (!soulState) return 'A nameless soul, unmoored and without history.';
@@ -1520,7 +1520,7 @@ export function generateEraProhecy(era, fragments) {
 
   const prophecies = [
     'The thread you carry will pull at the seams of what is to come. The Fates are listening.',
-    'You have walked between worlds before. The door will open again — but not for free.',
+    'You have walked between worlds before. The door will open again â ” but not for free.',
     'The echoes of your past lives have reached the ears of those who decide fate. They are not pleased.',
     'What was broken in you has not healed. It has become a map. Others will follow it.',
     'The souls who came before you left marks on the architecture of the world. You will leave deeper ones.',
@@ -1552,7 +1552,7 @@ export function generateAnchorNarrative(anchor) {
   const typeMeanings = {
     tone: 'a sound that once meant everything and now means nothing and now means everything again',
     fear: 'the echo of something that frightened you before you had words for fright',
-    love: 'a shape left by someone who mattered — the ghost of their outline pressed into your outline',
+    love: 'a shape left by someone who mattered â ” the ghost of their outline pressed into your outline',
     location: 'a place that exists only in the space between your rib bones',
     name: 'a sound that calls up a face you cannot quite surface',
     object: 'a thing you held when the world was solid, and its weight taught you what solid meant',
@@ -1597,7 +1597,7 @@ export function generateMemoryBleedText(lives, currentPhase) {
 
   const phaseModifiers = {
     INFANT: ' You are very small and the world is very large and something vast is looking at you.',
-    CHILD: ' You don\'t understand yet. The déjà vu is a word you haven\'t learned yet.',
+    CHILD: ' You don\'t understand yet. The dÃ©jÃ  vu is a word you haven\'t learned yet.',
     ADOLESCENT: ' You question whether this is real. You\'re right to question.',
     YOUNG_ADULT: ' You have just enough experience to know something is wrong. Not enough to name it.',
     MIDDLE_AGE: ' You stop and look around. You\'ve been here. You are sure.',

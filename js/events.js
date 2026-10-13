@@ -1,18 +1,19 @@
-// ═══════════════════════════════════════════════════════════
-// SOUL CYCLE — Event System
-// Extracted from index.html — all event data and logic
-// ═══════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// SOUL CYCLE â ” Event System
+// Extracted from index.html â ” all event data and logic
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
+import * as ui from './ui.js';
 import { state, getLifePhase, CHAIN_COLORS, ERAS, FRAGMENT_TYPE_ICONS, MORTALITY_CURVE, LIFE_PHASES, EVENT_POOLS, DEATH_EVENTS, CRISIS_CHOICES, CRITICAL_INTENSITY, DEFAULT_CHOICE_TIMEOUT, SPEED_MAP } from './game.js';
-import { generateLifeTheme, detectChain, extractFragments, applyFragmentEffects, showChainRecapOnDeath } from './main.js';
+import { generateLifeTheme, detectChain, extractFragments, applyFragmentEffects, showChainRecapOnDeath, renderChainStrip, updateLifeSummaryBar, updateResourceDisplay } from './main.js';
 import { checkAndUnlockAchievements } from './world.js';
 
-// ── Event Data ──
+// â” â”  Event Data â” â” 
 export const EVENT_POOL = EVENT_POOLS;
 
 export { DEATH_EVENTS };
 
-// ── Event Tick / Selection ──
+// â” â”  Event Tick / Selection â” â” 
 export function eventTick(lifeState, soulFragments, cascadeTags = []) {
   const age = lifeState.age;
   const mortalityRate = getMortalityRate(age);
@@ -98,7 +99,7 @@ function getMortalityRate(age) {
   return bucket ? bucket.rate : 80.0;
 }
 
-// ── Display / Choice Functions ──
+// â” â”  Display / Choice Functions â” â” 
 export function displayEvent(event) {
   if (!event) return;
 
@@ -114,13 +115,29 @@ export function displayEvent(event) {
     eventTitle.classList.add('chain-active');
   }
 
-  eventTitle.innerHTML = (chainType ? '<span class="chain-icon">⚭</span>' : '') + event.title;
+  eventTitle.innerHTML = (chainType ? '<span class="chain-icon">âš­</span>' : '') + event.title;
   eventProse.textContent = event.description;
   eventTitle.style.display = 'block';
   eventProse.style.display = 'block';
 
   if (event.cascadeTags) {
     state.cascadeTags = event.cascadeTags;
+  }
+
+  // In-event hints for first 3 lives
+  const livesSoFar = state.soul?.livesLived || 0;
+  if (livesSoFar < 3) {
+    if (event.crisis || (event.intensity && event.intensity >= 0.8)) {
+      setTimeout(() => {
+        const hint = document.createElement('div');
+        hint.className = 'in-event-hint';
+        hint.textContent = '(choices in crises shape your soul\'s direction)';
+        hint.style.cssText = 'font-size:0.75rem;color:var(--text-dim);font-style:italic;margin-top:8px;';
+        eventProse.style.display = 'block';
+        eventProse.parentElement?.appendChild(hint);
+        setTimeout(() => hint.remove(), 6000);
+      }, 1500);
+    }
   }
 }
 
@@ -154,7 +171,7 @@ function getChainTypeForEvent(event) {
   return null;
 }
 
-// ── Divine Sign System ──
+// â” â”  Divine Sign System â” â” 
 export async function awaitDivineSign(era, phase) {
   return new Promise(resolve => setTimeout(() => {
     const signs = [
@@ -179,7 +196,7 @@ export function showDivineToast(message) {
   }, 4000);
 }
 
-// ── Crisis Spike Functions ──
+// â” â”  Crisis Spike Functions â” â” 
 export function spikeCrisisIntensity(era) {
   const spikes = {
     ANCIENT: ['The gods demand a sacrifice.', 'The oracle speaks your name.', 'The temple falls silent.'],
@@ -193,7 +210,7 @@ export function spikeCrisisIntensity(era) {
   return (spikes[era] || spikes['ANCIENT'])[Math.floor(Math.random() * 3)];
 }
 
-// ── Consequence Functions ──
+// â” â”  Consequence Functions â” â” 
 export function addConsequence(event, consequenceTag) {
   if (!event.cascadeTags) event.cascadeTags = [];
   event.cascadeTags.push(consequenceTag);
@@ -211,15 +228,24 @@ export function triggerConsequenceEscalation(event) {
   state.cascadeTags = [...new Set([...state.cascadeTags, ...newTags])];
 }
 
-export function resolveCrisisChoice(choiceKey, event) {
+export function resolveCrisisChoice(choiceKey, event, { eraModifiers } = {}) {
   const choiceMap = { A: 'intervene', B: 'pray', C: 'watch' };
   const choiceId = choiceMap[choiceKey];
-  if (!choiceId) return resolveCrisisChoice('C', event);
+  if (!choiceId) return resolveCrisisChoice('C', event, { eraModifiers });
 
   const choice = CRISIS_CHOICES[choiceId];
+  const era = state.currentLife?.era || 'ANCIENT';
+  let baseSuccessProb = choice.outcomes.success.probability;
+  const eraMod = choice.eraModifiers?.[era] ?? 0;
+
+  let finalSuccessProb = baseSuccessProb + eraMod;
+  if (era === 'FAR_FUTURE') {
+    finalSuccessProb = baseSuccessProb + (Math.random() < 0.5 ? -0.10 : 0.10);
+  }
+  finalSuccessProb = Math.max(0.1, Math.min(0.9, finalSuccessProb));
+
   const roll = Math.random();
-  const successThreshold = choice.outcomes.success.probability;
-  const isSuccess = roll < successThreshold;
+  const isSuccess = roll < finalSuccessProb;
   const outcome = isSuccess ? choice.outcomes.success : choice.outcomes.failure;
 
   event.isCrisisHandled = true;
@@ -227,6 +253,10 @@ export function resolveCrisisChoice(choiceKey, event) {
   if (outcome.effect.deathChance && Math.random() < outcome.effect.deathChance) {
     triggerImmediateDeath(outcome.effect.cascadeTags || []);
     return;
+  }
+
+  if (state.soul?.metaStats) {
+    state.soul.metaStats.crisesSurvived = (state.soul.metaStats.crisesSurvived || 0) + 1;
   }
 
   if (outcome.effect.cascadeTags && outcome.effect.cascadeTags.length > 0) {
@@ -239,8 +269,35 @@ export function resolveCrisisChoice(choiceKey, event) {
     state.emotionalShift = (state.emotionalShift || 0) + outcome.effect.emotionalShift;
   }
 
-  if (state.soul?.metaStats) {
-    state.soul.metaStats.crisesSurvived = (state.soul.metaStats.crisesSurvived || 0) + 1;
+  if (outcome.effect.divineBonus && isSuccess) {
+    state.faith = (state.faith || 0) + 1;
+    if (state.soul?.fragments?.length > 0) {
+      const lastFrag = state.soul.fragments[state.soul.fragments.length - 1];
+      if (lastFrag && lastFrag.strength !== undefined) {
+        lastFrag.strength = Math.min(1.5, (lastFrag.strength || 1) + 0.2);
+      }
+    }
+  }
+
+  if (outcome.effect.fragmentInsight && isSuccess) {
+    if (state.soul?.fragments?.length > 0) {
+      const lastFrag = state.soul.fragments[state.soul.fragments.length - 1];
+      if (lastFrag) {
+        lastFrag.strength = Math.min(1.5, (lastFrag.strength || 1) + 0.15);
+        if (!lastFrag.insightFromWatch) {
+          lastFrag.insightFromWatch = true;
+          state.cascadeTags = [...new Set([...state.cascadeTags, 'wonder', 'awe'])];
+        }
+      }
+    }
+  }
+
+  if (outcome.effect.resourceLoss === 'momentum' && !isSuccess) {
+    state.momentum = Math.max(0, (state.momentum || 1) - 1);
+    state.cascadeTags = [...new Set([...state.cascadeTags, 'regret', 'lingering'])];
+    if (state.emotionalShift !== undefined) {
+      state.emotionalShift = Math.max(-1, state.emotionalShift - 0.15);
+    }
   }
 }
 
@@ -279,21 +336,40 @@ function triggerImmediateDeath(cascadeTags) {
   }
 
   const { newFragments } = extractFragments(state.lifeEvents, deathEvent, state.soul);
-  applyFragmentEffects(state.soul, newFragments);
+  const { newAnchors } = applyFragmentEffects(state.soul, newFragments, state.currentLife?.era);
 
   const newAchievements = checkAndUnlockAchievements(state.soul, state.lifeEvents, deathEvent);
   if (newAchievements.length > 0) {
-    setTimeout(() => window.showAchievementNotifications(newAchievements), 800);
+    setTimeout(() => ui.showAchievementNotifications(newAchievements), 800);
   }
 
-  window.updateUI();
-  window.showFragments(newFragments);
-  window.drawCurve();
+  ui.updateUI();
+  ui.showFragments(newFragments);
+  ui.drawCurve();
+
+  if (newAnchors && newAnchors.length > 0) {
+    for (const anchor of newAnchors) {
+      setTimeout(() => ui.showDivineToast(`An anchor forms â ” ${anchor.value} has become a core thread of your soul.`, 4500), 800);
+    }
+  }
+
+  // Death hint for first 3 lives
+  const livesSoFar = state.soul?.livesLived || 0;
+  if (livesSoFar < 3) {
+    setTimeout(() => {
+      const hint = document.createElement('div');
+      hint.className = 'death-hint';
+      hint.textContent = '(your fragments accumulate and shape future souls)';
+      hint.style.cssText = 'font-size:0.8rem;color:var(--text-dim);font-style:italic;margin-top:10px;text-align:center;';
+      const summaryEl = document.getElementById('death-summary');
+      if (summaryEl) summaryEl.parentElement?.appendChild(hint);
+    }, 1200);
+  }
 
   setTimeout(() => showDeathOverlay(deathEvent), 500);
 }
 
-// ── Internal Helpers ──
+// â” â”  Internal Helpers â” â” 
 
 function showDeathOverlay(deathEvent) {
   const life = state.currentLife;
@@ -302,8 +378,12 @@ function showDeathOverlay(deathEvent) {
   document.getElementById('death-cause').textContent = deathEvent?.title || 'Unknown causes';
   document.getElementById('death-summary').textContent = deathEvent?.description || '';
   document.getElementById('death-age').textContent = `age ${state.currentAge}`;
-  document.getElementById('death-era').textContent = `${ERAS[life.era]?.label || life.era} • ${life.year}`;
-  document.getElementById('death-life-num').textContent = `life #${state.soul.livesLived + 1}`;
+  document.getElementById('death-era').textContent = `${ERAS[life.era]?.label || life.era} â ¢ ${life.year}`;
+  document.getElementById('death-life-num').textContent = `life #${(state.soul?.livesLived ?? 0) + 1}`;
+  const fragEl = document.getElementById('death-fragments-count');
+  const anchEl = document.getElementById('death-anchors-count');
+  if (fragEl) fragEl.textContent = `Fragments: ${state.soul?.fragments?.length ?? 0}`;
+  if (anchEl) anchEl.textContent = `Anchors: ${state.soul?.anchors?.length ?? 0}`;
   deathOverlay.classList.add('visible');
   showChainRecapOnDeath(state.lifeEvents);
 
@@ -317,10 +397,10 @@ function showDeathOverlay(deathEvent) {
   }, 600);
 }
 
-// ── Crisis Overlay ──
+// â” â”  Crisis Overlay â” â” 
 let crisisPendingResolve = null;
 
-export function showCrisisPrompt(event, choices) {
+export function showCrisisPrompt(event, choices, eraModifiers = {}) {
   const overlay = document.getElementById('crisis-overlay');
   const causeEl = document.getElementById('crisis-cause');
   const choicesEl = document.getElementById('crisis-choices');
@@ -343,7 +423,7 @@ export function showCrisisPrompt(event, choices) {
     btn.innerHTML = `
       <span class="choice-key">${key}</span>
       <span class="choice-content">
-        <div class="choice-label">${choice.label} — ${choice.subtitle}</div>
+        <div class="choice-label">${choice.label} â ” ${choice.subtitle}</div>
         <div class="choice-risk">Risk: ${choice.riskDescriptions.join(', ')}</div>
       </span>
     `;
@@ -362,11 +442,11 @@ export function showCrisisPrompt(event, choices) {
 
     if (remaining <= 0) {
       clearInterval(interval);
-      handleCrisisChoice('C');
+      handleCrisisChoice('C', true);
     }
   }, 100);
 
-  state.crisisPending = { event, interval, resolve: crisisPendingResolve };
+  state.crisisPending = { event, interval, resolve: crisisPendingResolve, eraModifiers };
 }
 
 export function hideCrisisPrompt() {
@@ -379,14 +459,29 @@ export function hideCrisisPrompt() {
   state.crisisPending = null;
 }
 
-export function handleCrisisChoice(key) {
+export function handleCrisisChoice(key, timedOut = false) {
   if (!state.crisisPending) return;
-  const { event } = state.crisisPending;
+  const { event, eraModifiers } = state.crisisPending;
   hideCrisisPrompt();
-  resolveCrisisChoice(key, event);
+
+  if (timedOut) {
+    state.cascadeTags = [...new Set([...state.cascadeTags, 'passivity', 'regret', 'trauma'])];
+    state.emotionalShift = (state.emotionalShift || 0) - 0.3;
+    state.momentum = Math.max(0, (state.momentum || 1) - 2);
+    if (state.soul?.metaStats) {
+      state.soul.metaStats.crisesSurvived = (state.soul.metaStats.crisesSurvived || 0) + 1;
+    }
+    event.isCrisisHandled = true;
+    state.isPaused = false;
+    ui.updateUI();
+    ui.drawCurve();
+    return;
+  }
+
+  resolveCrisisChoice(key, event, { eraModifiers });
   state.isPaused = false;
-  window.updateUI();
-  window.drawCurve();
+  ui.updateUI();
+  ui.drawCurve();
 }
 
 export function isCrisisEvent(event) {
@@ -401,7 +496,7 @@ export function isCrisisEvent(event) {
   );
 }
 
-// ── Whisper System ──
+// â” â”  Whisper System â” â” 
 export function getWhisperFrequency(soulState, currentPhase) {
   const fragmentCount = soulState.fragments ? soulState.fragments.length : 0;
   let freq = Math.min(0.1 * fragmentCount, 0.5);
@@ -512,7 +607,7 @@ export function showWhisperPanel(fragment) {
   const actBtn = document.getElementById('whisper-act-btn');
   const timerFill = document.getElementById('whisper-timer-fill');
 
-  if (iconEl) iconEl.textContent = FRAGMENT_TYPE_ICONS[fragment.type] || '♪';
+  if (iconEl) iconEl.textContent = FRAGMENT_TYPE_ICONS[fragment.type] || 'â™ª';
   if (labelEl) labelEl.textContent = isAnchor ? 'An anchor fragment resonates...' : 'Fragment whispers...';
   if (anchorBadge) anchorBadge.style.display = isAnchor ? 'inline' : 'none';
   if (valueEl) valueEl.textContent = `"${fragment.value}"`;
@@ -523,6 +618,11 @@ export function showWhisperPanel(fragment) {
   }
 
   panel.style.display = 'block';
+
+  if (!state.seenWhisperTip) {
+    state.seenWhisperTip = true;
+    setTimeout(() => ui.showContextualTip('whisper'), 800);
+  }
 
   state.whisperTimeLeft = 8000;
   if (timerFill) timerFill.style.width = '100%';
@@ -576,8 +676,8 @@ export function handleWhisperAct() {
     }
   }
 
-  window.renderChainStrip(state.activeChain);
-  window.updateLifeSummaryBar();
+  renderChainStrip(state.activeChain);
+  updateLifeSummaryBar();
 
   if (!state.recentFragmentIds.includes(fragment.id)) {
     state.recentFragmentIds.push(fragment.id);
@@ -608,41 +708,7 @@ export function handleWhisperIgnore() {
   state.whisperCooldown = 20 + Math.floor(Math.random() * 21);
 }
 
-// ── Resource Effects ──
-const RESOURCE_BUILDERS = {
-  connection: ['marriage','birth','child','reunion','forgiveness','friendship','adoption','love','wedding','ceremony','bond'],
-  vitality: ['recovery','health','healing','rest','birth','survival','robust','strong','vitality'],
-  momentum: ['achievement','breakthrough','clarity','purpose','discovery','triumph','success','victory']
-};
-
-const RESOURCE_DEPLETERS = {
-  connection: ['betrayal','loss','death','estrangement','divorce','abandonment','rival','blood','war','enemy','hate'],
-  vitality: ['plague','illness','injury','trauma','poison','starvation','fever','exhaustion','sick','weak','wound'],
-  momentum: ['confusion','failure','doubt','aimlessness','lost','aimless','confused','迷','fail']
-};
-
-export function modifyResourcesForEvent(event) {
-  if (!event || !event.cascadeTags) return;
-  const tags = event.cascadeTags.map(t => t.toLowerCase());
-
-  for (const [resource, keywords] of Object.entries(RESOURCE_BUILDERS)) {
-    for (const kw of keywords) {
-      if (tags.some(t => t.includes(kw))) {
-        state[resource] = Math.min(3, state[resource] + 1);
-      }
-    }
-  }
-  for (const [resource, keywords] of Object.entries(RESOURCE_DEPLETERS)) {
-    for (const kw of keywords) {
-      if (tags.some(t => t.includes(kw))) {
-        state[resource] = Math.max(0, state[resource] - 1);
-      }
-    }
-  }
-  window.updateResourceDisplay();
-}
-
-// ── Init Event System ──
+// â” â”  Init Event System â” â” 
 export function initEventSystem(gameState) {
   document.addEventListener('keydown', handleGlobalKeydown);
 
@@ -672,5 +738,11 @@ function handleGlobalKeydown(e) {
       e.preventDefault();
       handleCrisisChoice('C');
     }
+    return;
+  }
+
+  if (e.code === 'Space' || e.key === ' ') {
+    e.preventDefault();
+    ui.advanceCurrentEvent();
   }
 }
